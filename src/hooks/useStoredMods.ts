@@ -34,7 +34,7 @@ function saveMods(mods: Mod[]){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-function useStoredMods(){
+export default function useStoredMods(){
     const [mods, setMods] = useState<Mod[]>(loadMods);
     useEffect(() => {
         saveMods(mods);
@@ -64,7 +64,7 @@ function useStoredMods(){
         setMods(prev => 
             prev.map(cur =>
                 cur.code == code 
-                    ? {...cur, title:updatred.title, prereqTree: updatred.prereqTree}
+                    ? {...cur, title:updatred.title, prereqTree: updatred.prereqTree, fulfillRequirements: updatred.fulfillRequirements}
                     : cur
             )
         )

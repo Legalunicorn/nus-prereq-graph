@@ -4,7 +4,7 @@ export type PrereqTree =
     | { 
         and?: PrereqTree[];
         or?: PrereqTree[];
-        nOf?: PrereqTree[];
+        nOf?: [number, PrereqTree[]];
     }
 
 export interface Mod {
@@ -12,4 +12,5 @@ export interface Mod {
     title: string;
     completed: boolean;
     prereqTree?: PrereqTree;
+    fulfillRequirements?: string[];
 }

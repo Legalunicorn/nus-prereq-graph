@@ -1,3 +1,27 @@
 .sidebar{
-    border: 5px solid red;
+    padding: 0.5rem;
+    /* border: 5px solid red; */
+    border-right: 2px solid #404552;
+    background-color: #1e1e2e;
+
+    input{
+        color: #f7f3f3;
+        padding: 0.25rem;
+        margin-bottom: 0.25rem;
+        border-radius: 0.25rem;
+        background-color: #2a2a3b;
+
+
+    }
+}
+
+.mod-li{
+    color: white;
+    /* border : 1px solid white; */
+    margin-top: 0.25rem;
+    padding :0.25rem;
+    border-radius: 0.25rem;
+    display: flex;
+    gap: 0.25rem;
+    background-color: #2a2a3f;
 }
