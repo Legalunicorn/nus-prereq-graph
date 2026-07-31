@@ -35,7 +35,7 @@ export default function GraphView({ mods, onToggle }: GraphViewProps) {
                         }
                     };
                 }
-                let label = "";
+                let label;
                 if (node.gateType === "and") {
                     label = "AND";
                 } else if (node.gateType === "or") {
