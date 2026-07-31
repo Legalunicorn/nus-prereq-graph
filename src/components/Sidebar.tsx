@@ -42,9 +42,9 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh}: Si
              <ul>
                 {mods.map(m =>(
                     <li className="mod-li" key={m.code}>
-                        <input type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} />
+                        <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} />
                         {m.code} 
-                        <button onClick = {() => onRefresh(m.code)}>↻</button>
+                        {/* <button onClick = {() => onRefresh(m.code)}>↻</button> */}
                         <button onClick = {() => onRemove(m.code)}>✕</button>
                     </li>
                 ))}
