@@ -123,10 +123,61 @@ function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph): WalkResult{
         fulfilled,
     });
 
-    for (const result of childResults){
+    // Once a gate is fulfilled, drawing edges to every non-contributing
+    // child is just clutter - e.g. an OR gate satisfied by 2 of 10 courses
+    // doesn't need the other 8 drawn here. Only skip this for AND gates,
+    // where every child is fulfilled anyway once the gate is fulfilled.
+    const resultsToShow = (fulfilled && gateType !== "and")
+        ? childResults.filter(r => r.fulfilled)
+        : childResults;
+
+    for (const result of resultsToShow){
         graph.edges.push({from: result.id, to: thisGateId, minGrade: result.minGrade});
     }
     return { id: thisGateId, fulfilled };
+}
+
+// A child excluded above (non-contributing to a fulfilled gate) may still
+// have its OWN children wired up beneath it from the recursive walk - that
+// whole sub-tree is now a self-contained island with no path back up to any
+// course. This does a proper reachability pass from the real, tracked
+// courses down through the edges, and removes anything - node or edge -
+// that isn't actually connected to one. This correctly drops whole
+// disconnected islands together, rather than leaving fragments behind.
+function pruneUnreachable(graph: Graph){
+    // childrenOf[parentId] = every node that points up TO parentId
+    // (edges are stored as {from: child, to: parent})
+    const childrenOf = new Map<string, string[]>();
+    for (const edge of graph.edges){
+        if (!childrenOf.has(edge.to)) childrenOf.set(edge.to, []);
+        childrenOf.get(edge.to)!.push(edge.from);
+    }
+
+    // Seed with the real courses (tracked mods) - every legitimate edge
+    // chain in the graph originates from one of these.
+    const reachable = new Set<string>();
+    const queue: string[] = [];
+    for (const [id, node] of graph.nodes){
+        if (node.kind === "module" && node.tracked){
+            reachable.add(id);
+            queue.push(id);
+        }
+    }
+
+    while (queue.length){
+        const current = queue.pop()!;
+        for (const child of childrenOf.get(current) ?? []){
+            if (!reachable.has(child)){
+                reachable.add(child);
+                queue.push(child);
+            }
+        }
+    }
+
+    for (const id of Array.from(graph.nodes.keys())){
+        if (!reachable.has(id)) graph.nodes.delete(id);
+    }
+    graph.edges = graph.edges.filter(e => graph.nodes.has(e.from) && graph.nodes.has(e.to));
 }
 
 export function buildGraph(mods: Mod[]) : Graph{
@@ -154,5 +205,7 @@ export function buildGraph(mods: Mod[]) : Graph{
             }
         }
     }
+
+    pruneUnreachable(graph);
     return graph;
 }

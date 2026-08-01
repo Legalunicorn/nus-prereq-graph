@@ -3,6 +3,11 @@
     /* border: 5px solid red; */
     border-right: 2px solid #404552;
     background-color: #1e1e2e;
+    width: 260px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    transition: width 0.25s ease, padding 0.25s ease, border-width 0.25s ease;
+    box-sizing: border-box;
 
     input{
         border: 2px solid #f3f3f3;
@@ -12,8 +17,25 @@
         border-radius: 0.5rem;
         background-color: #2a2a3b;
 
+    }
+
+    .preset{
+        background-color: #2a2a3b;
+        border :none;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+        color: #e4dede;
 
     }
+}
+
+.sidebar.collapsed{
+    width: 0;
+    padding: 0;
+    border-right-width: 0;
+    overflow:hidden;
 }
 
 .mod-li{
@@ -31,6 +53,27 @@
         /* appearance: none; */
         margin-right: 0.5rem;
         margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+
+    .mod-info{
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .mod-code{
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .mod-title{
+        font-size: 0.7rem;
+        color: #80808a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     button{
@@ -40,6 +83,7 @@
         color: #f3f3f3;
         /* background-color: transparent; */
         margin-left: auto;
+        flex-shrink: 0;
 
     }
 }

@@ -9,9 +9,11 @@ interface SidebarProps {
     onRemove:(code:string) => void;
     onToggle: (code:string) => void;
     onRefresh: (code: string) => void;
+    onOpenPresets: () => void;
+    collapsed: boolean;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onOpenPresets, collapsed}: SidebarProps){
     const [query, setQuery] = useState("");
     const {searchMod, loading, error} = useModSearch();
 
@@ -29,7 +31,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh}: Si
     }
 
     return (
-        <div className="sidebar">
+        <div className={`sidebar ${collapsed?"collapsed":""}`}>
             <input
 
                 value={query}
@@ -38,12 +40,16 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh}: Si
                 placeholder="e.g. CS2100"
              />
              {/* <button onClick={handleAdd} disabled={loading}> Add</button> */}
+             <button className="preset" onClick={onOpenPresets}> CS Focus Areas Preset</button>
              {error && <p className="error"> {error} </p>}
              <ul>
                 {mods.map(m =>(
                     <li className="mod-li" key={m.code}>
                         <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} />
-                        {m.code} 
+                        <div className="mod-info">
+                            <span className="mod-code">{m.code}</span>
+                            <span className="mod-title" title={m.title}>{m.title}</span>
+                        </div>
                         {/* <button onClick = {() => onRefresh(m.code)}>↻</button> */}
                         <button onClick = {() => onRemove(m.code)}>✕</button>
                     </li>
