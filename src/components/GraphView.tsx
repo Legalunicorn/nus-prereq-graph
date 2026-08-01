@@ -94,7 +94,7 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
                         height: 36,
                         "font-size": 11,
                         "border-width": 0,
-                    } 
+                    } as any 
                 },
                 {
                     // completed modules get a different color
