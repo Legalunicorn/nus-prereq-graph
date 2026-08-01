@@ -9,10 +9,16 @@ body{
   font-family: sans-serif;
 }
 
+.app-shell{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
 .app{
   display:flex;
-  height: 100vh;
-  border: 3px solid black;
+  flex: 1;
+  min-height: 0;
 }
 
 /* .sidebar {

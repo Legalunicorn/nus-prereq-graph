@@ -1,0 +1,15 @@
+.app-header {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #1a1a26;
+    border-bottom: 1px solid #333;
+    flex-shrink: 0;
+}
+
+.app-header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #eee;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
