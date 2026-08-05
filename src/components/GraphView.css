@@ -1,7 +1,12 @@
 .graph-wrapper {
-    position: relative; flex: 1; height: 100%; background-color: #1a1a26;
+    position: relative;
+    flex: 1;
+     height: 100%; 
+     background-color: #1a1a26;
     background-image: radial-gradient(circle, #2c2c40 1px, transparent 1px); background-size: 24px 24px;
 }
 .graph-container {
-    width: 100%; height: 100%; filter: drop-shadow(0 3px 6px rgba(19, 11, 44, 0.6));
+    width: 100%; 
+    height: 100%; 
+    filter: drop-shadow(0 3px 6px rgba(19, 11, 44, 0.6));
 }

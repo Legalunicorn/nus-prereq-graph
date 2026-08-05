@@ -4,19 +4,20 @@ export const cytoscapeStyles = [
         style: {
             label: "data(label)", shape: "round-rectangle", "corner-radius": 8,
             "background-color": "#6c8ebf", "text-valign": "center", "text-halign": "center",
-            color: "#fff", "font-weight":"bold", width: 90, height: 36, "font-size": 11, "border-width": 0,
+            color: "#fff", "font-weight":"bold", width: 90, height: 36, "font-size": 14, "border-width": 0,
         } as any 
     },
-    { selector: 'node[kind="module"][?completed]', style: { "background-color": "#658f4d" } },
     {
         selector: 'node[kind="module"][?tracked]',
-        style: { "border-width": 5, "border-color": "#e7eff8", "border-style": "solid" }
+        style: {"background-color":"#2c4f83",}
     },
+    { selector: 'node[kind="module"][?completed]', style: { "background-color": "#658f4d" } },
+
     {
         selector: 'node[kind="gate"]',
         style: {
             label: "data(label)", width: 20, height: 20, "background-color": "#999",
-            shape: "diamond", "font-size": 9, color: "#e0dbdb", "text-valign": "top", "text-margin-y": -6,
+            shape: "diamond", "font-size": 10, color: "#e0dbdb", "text-valign": "top", "text-margin-y": -2,
         }
     },
     { selector: 'node[kind="gate"][?fulfilled]', style: { "background-color": "#82b366" } },

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://legalunicorn.github.io/nus-prereq-graph/sitemap.xml
