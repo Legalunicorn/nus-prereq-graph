@@ -30,7 +30,16 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
         const elements = [
             ...Array.from(graph.nodes.values()).map(node => {
                 if (node.kind === "module") {
-                    return { data: { id: node.id, label: node.code, kind: node.kind, completed: node.completed, tracked: node.tracked } };
+                    return {
+                        data: {
+                            id: node.id,
+                            label: node.code,
+                            kind: node.kind,
+                            completed: node.completed,
+                            tracked: node.tracked,
+                            prereqUnfulfilled: node.prereqUnfulfilled,
+                        },
+                    };
                 }
                 let label = node.gateType === "and" ? "AND" : node.gateType === "or" ? "OR" : `${node.n} OF`;
                 return { data: { id: node.id, label, kind: node.kind, fulfilled: node.fulfilled } };

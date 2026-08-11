@@ -11,6 +11,10 @@ export const cytoscapeStyles = [
         selector: 'node[kind="module"][?tracked]',
         style: {"background-color":"#2c4f83",}
     },
+    {
+        selector: 'node[kind="module"][?tracked][?prereqUnfulfilled]',
+        style: { "background-color": "#82424a" },
+    },
     { selector: 'node[kind="module"][?completed]', style: { "background-color": "#658f4d" } },
 
     {
