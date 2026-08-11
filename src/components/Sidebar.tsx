@@ -11,10 +11,11 @@ interface SidebarProps {
     onRefresh: (code: string) => void;
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
+    onOpenMathAndScience: () => void;
     collapsed: boolean;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onOpenPresets, onOpenFoundations, collapsed}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onOpenPresets, onOpenFoundations, onOpenMathAndScience, collapsed}: SidebarProps){
     const [query, setQuery] = useState("");
     const {searchMod, loading, error} = useModSearch();
 
@@ -43,6 +44,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onO
              {/* <button onClick={handleAdd} disabled={loading}> Add</button> */}
              <button className="preset" onClick={onOpenPresets}> CS Focus Areas Preset</button>
              <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
+             <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
              {error && <p className="error"> {error} </p>}
              <ul>
                 {mods.map(m =>(
