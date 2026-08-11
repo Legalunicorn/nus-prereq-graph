@@ -41,6 +41,10 @@
     padding: 8px;
 }
 
+.presets-simple-list {
+    padding: 16px;
+}
+
 .presets-area {
     border-bottom: 1px solid #333;
 }
