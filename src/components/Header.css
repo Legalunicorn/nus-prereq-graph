@@ -6,10 +6,40 @@
     flex-shrink: 0;
 }
 
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .app-header h1 {
     font-size: 15px;
     font-weight: 600;
     color: #eee;
     letter-spacing: 0.5px;
     margin: 0;
+}
+
+.github-link {
+    display: inline-flex;
+    color: #eee;
+    line-height: 0;
+    transition: color 0.15s ease;
+}
+
+.github-link:hover,
+.github-link:focus-visible {
+    color: #fff;
+}
+
+.github-link:focus-visible {
+    outline: 2px solid #eee;
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.github-link svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
 }
