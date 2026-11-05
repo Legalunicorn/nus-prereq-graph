@@ -4,9 +4,7 @@ import "./GraphView.css";
 import type { Mod } from "../types/types";
 import { createRank } from "../utils/alternatives";
 import { buildGraph } from "../utils/buildGraph";
-import { PHONE_WIDTH } from "../constants";
 import { buildStyles } from "../utils/cytoscapeConfig";
-import type { GraphDirection } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
@@ -15,8 +13,9 @@ import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
 import { applyEdgeCurves } from "../utils/edgeCurves";
 import { moveTagWithNode } from "../utils/semesterTags";
-import { syncGraph } from "../utils/syncGraph";
+import { rewrapOnResize, syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
+import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import Legend from "./Legend";
@@ -27,6 +26,7 @@ cytoscape.use(dagre);
 const FIT_PADDING = 30;
 const MIN_ZOOM = 0.4;
 const MAX_ZOOM = 1.25;
+const RESIZE_DELAY = 150;
 
 interface GraphViewProps {
     mods: Mod[];
@@ -42,9 +42,7 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, onSe
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [isFullChain, setIsFullChain] = useState(false);
     const [isLongestPathOn, setIsLongestPathOn] = useState(false);
-    const [direction, setDirection] = useState<GraphDirection>(
-        () => (window.matchMedia(PHONE_WIDTH).matches ? "vertical" : "horizontal"),
-    );
+    const { direction, toggleDirection } = useGraphDirection();
     const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
     const snapshot = useSnapshot();
@@ -98,6 +96,27 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, onSe
     useEffect(() => {
         cyRef.current?.style(buildStyles(readGraphPalette()));
     }, [theme]);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) {
+            return;
+        }
+        let timer: number | undefined;
+        const observer = new ResizeObserver(() => {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => {
+                if (cyRef.current) {
+                    rewrapOnResize(cyRef.current);
+                }
+            }, RESIZE_DELAY);
+        });
+        observer.observe(container);
+        return () => {
+            window.clearTimeout(timer);
+            observer.disconnect();
+        };
+    }, []);
 
     useEffect(() => {
         const cy = cyRef.current;
@@ -156,7 +175,7 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, onSe
                                 Longest path
                             </button>
                         )}
-                        <button onClick={() => setDirection(prev => (prev === "horizontal" ? "vertical" : "horizontal"))}>
+                        <button onClick={toggleDirection}>
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
                         <ShareButton mods={mods} />
