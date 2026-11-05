@@ -62,7 +62,7 @@ function App() {
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}

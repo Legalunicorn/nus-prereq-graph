@@ -7,34 +7,34 @@ import { buildStyles } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
-import { applyLongestPath } from "../utils/longestPath";
+import { applyLongestPaths } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
-import { straighten } from "../utils/graphLayout";
+import { straighten } from "../utils/edgeRouteStyle";
 import { moveTagWithNode } from "../utils/semesterTags";
-import { rewrapOnResize, syncGraph } from "../utils/syncGraph";
+import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
+import GraphControls from "./GraphControls";
 import Legend from "./Legend";
 import ShareButton from "./ShareButton";
 
 const FIT_PADDING = 30;
-const MIN_ZOOM = 0.4;
+const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 1.25;
-const RESIZE_DELAY = 150;
 
 interface GraphViewProps {
     mods: Mod[];
     theme: Theme;
-    longestPath: string[];
+    longestPaths: string[][];
     selectedCode: string | null;
     hoveredCode: string | null;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPath, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPaths, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
@@ -109,20 +109,9 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
         if (!container) {
             return;
         }
-        let timer: number | undefined;
-        const observer = new ResizeObserver(() => {
-            window.clearTimeout(timer);
-            timer = window.setTimeout(() => {
-                if (cyRef.current) {
-                    rewrapOnResize(cyRef.current);
-                }
-            }, RESIZE_DELAY);
-        });
+        const observer = new ResizeObserver(() => cyRef.current?.resize());
         observer.observe(container);
-        return () => {
-            window.clearTimeout(timer);
-            observer.disconnect();
-        };
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
@@ -152,8 +141,8 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
         syncGraph(cyRef.current, toElements(graph, offerings), direction);
-        applyLongestPath(cyRef.current, isLongestPathOn ? longestPath : []);
-    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPath]);
+        applyLongestPaths(cyRef.current, isLongestPathOn ? longestPaths : []);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPaths]);
 
     return (
         <div ref={wrapperRef} className="graph-wrapper">
@@ -161,7 +150,7 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
             {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (
                 <>
-                    <div className="graph-controls">
+                    <GraphControls>
                         {snapshot && (
                             <button
                                 className={isFullChain ? "active" : ""}
@@ -172,14 +161,14 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
                                 Full chain
                             </button>
                         )}
-                        {longestPath.length > 0 && (
+                        {longestPaths.length > 0 && (
                             <button
                                 className={isLongestPathOn ? "active" : ""}
                                 aria-pressed={isLongestPathOn}
-                                title="Highlight the chain that decides the minimum semesters"
+                                title="Highlight every chain that decides the minimum semesters"
                                 onClick={() => setIsLongestPathOn(prev => !prev)}
                             >
-                                Longest path
+                                Longest paths
                             </button>
                         )}
                         <button onClick={toggleDirection}>
@@ -187,7 +176,7 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
                         </button>
                         <ShareButton mods={mods} />
                         <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
-                    </div>
+                    </GraphControls>
                     <Legend />
                 </>
             )}
