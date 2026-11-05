@@ -44,6 +44,15 @@ export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
     },
 
     {
+        selector: 'node[kind="more"]',
+        style: {
+            label: "data(label)", shape: "round-rectangle", "corner-radius": "12px",
+            width: 76, height: 24, "font-size": 11, "text-valign": "center", "text-halign": "center",
+            color: COLORS.notPlannedText, "background-color": COLORS.notPlannedFill,
+            "border-width": 1, "border-color": COLORS.notPlannedBorder,
+        },
+    },
+    {
         selector: 'node[kind="gate"]',
         style: {
             label: "data(label)", width: 20, height: 20,

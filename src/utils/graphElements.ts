@@ -22,6 +22,10 @@ function nodeData(node: Node, offerings: Offerings | null) {
             notOffered: offerings ? !isOffered(offerings, node.code) : false,
         };
     }
+    if (node.kind === "more") {
+        const label = node.expanded ? "Show fewer" : `+${node.hiddenCount} more`;
+        return { id: node.id, label, kind: node.kind, gateId: node.gateId };
+    }
     return { id: node.id, label: gateLabel(node), kind: node.kind, fulfilled: node.fulfilled };
 }
 
