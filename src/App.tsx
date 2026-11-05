@@ -16,7 +16,7 @@ import useTheme from "./hooks/useTheme";
 import { PHONE_WIDTH } from "./constants";
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete, toggleTaking, replaceMods} = useStoredMods();
+  const {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods} = useStoredMods();
   const plan = usePlanEstimate(mods);
   const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
@@ -75,6 +75,7 @@ function App() {
             onRemove={removeMods}
             onToggle={toggleComplete}
             onToggleTaking={toggleTaking}
+            onPlanTerm={setPlannedTerm}
           />
         )}
         {showPresets && (
