@@ -10,6 +10,7 @@
     "test": "vitest run",
     "snapshot": "node scripts/build-snapshot.mjs",
     "preview": "vite preview",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {

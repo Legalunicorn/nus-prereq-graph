@@ -75,10 +75,10 @@ export default function NodePopup({ code, x, y, mods, semesters, onClose, onAdd,
             </div>
             {title && <div className="node-popup-title" title={title}>{title}</div>}
             {semesters !== null && semesters > 0 && (
-                <div className="node-popup-note">At least {semesters} {semesters === 1 ? "semester" : "semesters"} to finish</div>
+                <div className="node-popup-note">{semesters} {semesters === 1 ? "sem" : "sems"} min</div>
             )}
             {unavailable && (
-                <div className="node-popup-note">{NOT_IN_CATALOGUE}. If you took it, you can still mark it completed.</div>
+                <div className="node-popup-note">{NOT_IN_CATALOGUE}</div>
             )}
             {error && <div className="node-popup-error" role="alert">{error}</div>}
             <label className="node-popup-row">

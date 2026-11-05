@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FOCUS_AREAS } from "../data/focusAreas";
 import useCourseAdd from "../hooks/useCourseAdd";
+import useEscapeKey from "../hooks/useEscapeKey";
 import type { Mod } from "../types/types";
 import "./PresetsModal.css";
 import CourseRow from "./CourseRow";
@@ -12,15 +13,16 @@ interface PresetsModalProps {
 export default function PresetsModal({ mods, onAdd, onRemove, onClose }: PresetsModalProps) {
     const [expandedId, setExpandedId] = useState<string | null>(null);
     const { rowProps } = useCourseAdd(mods, onAdd);
+    useEscapeKey(onClose);
 
     const handleToggleArea = (id: string) => setExpandedId(prev => (prev === id ? null : id));
 
     return (
         <div className="presets-overlay" onClick={onClose}>
-            <div className="presets-modal" onClick={e => e.stopPropagation()}>
+            <div className="presets-modal" role="dialog" aria-modal="true" aria-label="Focus Area Presets" onClick={e => e.stopPropagation()}>
                 <div className="presets-header">
                     <h2>Focus Area Presets</h2>
-                    <button className="presets-close" onClick={onClose}>✕</button>
+                    <button className="presets-close" onClick={onClose} aria-label="Close Focus Area Presets">✕</button>
                 </div>
                 <div className="presets-list">
                     {FOCUS_AREAS.map(area => {

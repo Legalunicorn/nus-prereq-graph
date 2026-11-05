@@ -3,6 +3,15 @@ import type { EdgeStatus, Graph } from "../types/graph";
 import { MAX_VISIBLE_ALTERNATIVES } from "./alternatives";
 import type { AlternativeOptions } from "./alternatives";
 
+/** A prerequisite like CS1010% stands for any module starting with CS1010. */
+export function isWildcard(code: string): boolean {
+    return code.includes("%");
+}
+
+function matchesWildcard(wildcard: string, code: string): boolean {
+    return code.startsWith(wildcard.slice(0, wildcard.indexOf("%")));
+}
+
 export function findMod(mods: Mod[], code: string): Mod | undefined {
     return mods.find(m => m.code === code);
 }
@@ -123,18 +132,21 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
     if (typeof tree == "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
+        const completed = isWildcard(code)
+            ? mods.some(mod => mod.completed && matchesWildcard(code, mod.code))
+            : exist?.completed ?? false;
         if (!graph.nodes.has(code)){
             graph.nodes.set(code,{
                 kind:"module",
                 id: code,
                 code,
                 title: exist?.title,
-                completed: exist?.completed ?? false,
+                completed,
                 tracked: !!exist,
             });
             if (!exist) expandUntracked(code, ctx);
         }
-        return { id: code, minGrade, fulfilled: exist?.completed ?? false };
+        return { id: code, minGrade, fulfilled: completed };
     }
 
     let gateType: "and"|"or"|"nOf";

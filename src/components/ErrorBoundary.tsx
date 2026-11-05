@@ -27,7 +27,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
         return (
             <div className="error-screen" role="alert">
                 <h1>Something went wrong</h1>
-                <p>Your saved list may contain something the app can't display. Try reloading first. Resetting clears your saved modules.</p>
+                <p>Try reloading. Resetting clears your saved modules.</p>
                 <div className="error-screen-actions">
                     <button onClick={() => location.reload()}>Reload</button>
                     <button onClick={this.handleReset}>Reset my list</button>

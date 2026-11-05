@@ -220,6 +220,27 @@ describe("buildGraph", () => {
         });
     });
 
+    describe("wildcard prerequisites", () => {
+        // Real tree for CS2040HS.
+        const CS2040HS: PrereqTree = { or: ["CS1101S:D", "UTC2851:D", "CS1010%:D"] };
+
+        it("is fulfilled by a completed module with that prefix", () => {
+            const graph = buildGraph([mod("CS2040HS", CS2040HS), mod("CS1010S", undefined, true)]);
+            expect(moduleNode(graph, "CS2040HS").prereqUnfulfilled).toBe(false);
+            expect(moduleNode(graph, "CS1010%").completed).toBe(true);
+        });
+
+        it("isn't fulfilled by a tracked module that isn't completed", () => {
+            const graph = buildGraph([mod("CS2040HS", CS2040HS), mod("CS1010S")]);
+            expect(moduleNode(graph, "CS2040HS").prereqUnfulfilled).toBe(true);
+        });
+
+        it("isn't fulfilled by a module with a different prefix", () => {
+            const graph = buildGraph([mod("CS2040HS", CS2040HS), mod("CS2030S", undefined, true)]);
+            expect(moduleNode(graph, "CS2040HS").prereqUnfulfilled).toBe(true);
+        });
+    });
+
     describe("completed modules", () => {
         it("shows no unmet state when a tracked prerequisite is not completed", () => {
             const graph = buildGraph([mod("CS3230", CS3230, true), mod("CS2040S")]);

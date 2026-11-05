@@ -30,7 +30,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
              <ul>
                 {mods.map(m =>(
                     <li className="mod-li" key={m.code}>
-                        <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} />
+                        <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} aria-label={`Mark ${m.code} completed`} />
                         <div className="mod-info">
                             <span className="mod-code">
                                 {m.code} <SemesterTag code={m.code} />
@@ -40,7 +40,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
                             </span>
                             <span className="mod-title" title={m.title}>{m.title}</span>
                         </div>
-                        <button onClick = {() => onRemove(m.code)}>✕</button>
+                        <button onClick = {() => onRemove(m.code)} aria-label={`Remove ${m.code}`}>✕</button>
                     </li>
                 ))}
              </ul>

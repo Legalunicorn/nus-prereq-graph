@@ -6,6 +6,7 @@ import { createRank } from "../utils/alternatives";
 import { buildGraph } from "../utils/buildGraph";
 import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
+import { popupPosition } from "../utils/popupPosition";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
@@ -61,9 +62,9 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
             maxZoom: MAX_ZOOM,
         });
 
-        cy.on("tap", 'node[kind="module"]', (evt) => {
+        cy.on("tap", 'node[kind="module"][!wildcard]', (evt) => {
             const node = evt.target; const pos = node.renderedPosition();
-            setPopup({ code: node.id(), x: pos.x, y: pos.y });
+            setPopup({ code: node.id(), ...popupPosition(pos.x, pos.y, cy.width(), cy.height()) });
         });
         cy.on("tap", 'node[kind="more"]', (evt) => {
             const gateId: string = evt.target.data("gateId");

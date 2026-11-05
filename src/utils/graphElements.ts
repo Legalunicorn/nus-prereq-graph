@@ -1,4 +1,5 @@
 import type { Graph, Node } from "../types/graph";
+import { isWildcard } from "./graphHelpers";
 import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
 
@@ -11,15 +12,19 @@ function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
 
 function nodeData(node: Node, offerings: Offerings | null) {
     if (node.kind === "module") {
-        const code = node.completed ? `✓ ${node.code}` : node.code;
+        const wildcard = isWildcard(node.code);
+        const displayCode = wildcard ? node.code.replaceAll("%", "*") : node.code;
+        const code = node.completed ? `✓ ${displayCode}` : displayCode;
+        const catalogue = wildcard ? null : offerings;
         return {
             id: node.id,
-            label: offerings ? `${code}\n${semesterLabel(offerings, node.code)}` : code,
+            label: catalogue ? `${code}\n${semesterLabel(catalogue, node.code)}` : code,
             kind: node.kind,
             completed: node.completed,
             tracked: node.tracked,
             prereqUnfulfilled: node.prereqUnfulfilled ?? false,
-            notOffered: offerings ? !isOffered(offerings, node.code) : false,
+            notOffered: catalogue ? !isOffered(catalogue, node.code) : false,
+            wildcard,
         };
     }
     if (node.kind === "more") {
