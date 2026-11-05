@@ -19,13 +19,14 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
     const existing = mods.find(m => m.code === code);
     const tracked = !!existing;
     const completed = existing?.completed ?? false;
-    const [title, setTitle] = useState<string | undefined>(existing?.title);
+    const [fetchedTitle, setFetchedTitle] = useState<string | undefined>();
+    const title = existing?.title ?? fetchedTitle;
 
     useEffect(() => {
-        if (existing?.title) { setTitle(existing.title); return; }
+        if (existing?.title) return;
         let cancelled = false;
         fetchMod(code)
-            .then(mod => { if (!cancelled) setTitle(mod.title); })
+            .then(mod => { if (!cancelled) setFetchedTitle(mod.title); })
             .catch(() => {});
         return () => { cancelled = true; };
     }, [code, existing?.title]);
@@ -33,13 +34,27 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
     const handleAddRemove = async () => {
         if (tracked) { onRemove(code); return; }
         setLoading(true);
-        try { const mod = await fetchMod(code); onAdd(mod); } catch {} finally { setLoading(false); }
+        try {
+            const mod = await fetchMod(code);
+            onAdd(mod);
+        } catch {
+            // Failure is not shown to the user yet: see #6.
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleToggleComplete = async () => {
         if (tracked) { onToggle(code); return; }
         setLoading(true);
-        try { const mod = await fetchMod(code); onAdd({ ...mod, completed: true }); } catch {} finally { setLoading(false); }
+        try {
+            const mod = await fetchMod(code);
+            onAdd({ ...mod, completed: true });
+        } catch {
+            // Failure is not shown to the user yet: see #6.
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

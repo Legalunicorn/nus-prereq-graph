@@ -41,7 +41,7 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
                         },
                     };
                 }
-                let label = node.gateType === "and" ? "AND" : node.gateType === "or" ? "OR" : `${node.n} OF`;
+                const label = node.gateType === "and" ? "AND" : node.gateType === "or" ? "OR" : `${node.n} OF`;
                 return { data: { id: node.id, label, kind: node.kind, fulfilled: node.fulfilled } };
             }),
             ...graph.edges.map(edge => {
