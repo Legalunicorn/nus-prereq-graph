@@ -1,5 +1,5 @@
 import type { PrereqTree } from "../types/types";
-import { normalizeTree } from "./graphHelpers";
+import { normalizeTree } from "./prereqTree";
 import type { SnapshotModule } from "./snapshot";
 
 export type RegularSemester = 1 | 2;
