@@ -3,6 +3,8 @@ import { isWildcard } from "./graphHelpers";
 import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
 
+const USUAL_MIN_GRADE = "D";
+
 function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
     const mark = node.fulfilled ? " ✓" : "";
     if (node.gateType === "and") return `AND${mark}`;
@@ -39,7 +41,8 @@ export function toElements(graph: Graph, offerings: Offerings | null = null) {
                 id,
                 source: edge.from,
                 target: edge.to,
-                minGrade: edge.minGrade ?? "",
+                // Almost every prerequisite needs a D, so only unusual grades are shown.
+                gradeLabel: edge.minGrade && edge.minGrade !== USUAL_MIN_GRADE ? edge.minGrade : "",
                 status: edge.status,
             },
         }];
