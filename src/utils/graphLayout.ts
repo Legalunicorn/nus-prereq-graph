@@ -19,8 +19,8 @@ const MAX_NODES_FOR_TRIES = 90;
 const LENGTH_WEIGHT = 1e-3;
 
 const SETTINGS: Record<GraphDirection, GraphLabel> = {
-    horizontal: { rankdir: "LR", nodesep: 40, ranksep: 72, edgesep: 16 },
-    vertical: { rankdir: "TB", nodesep: 24, ranksep: 88, edgesep: 16 },
+    horizontal: { rankdir: "LR", nodesep: 36, ranksep: 60, edgesep: 14 },
+    vertical: { rankdir: "TB", nodesep: 22, ranksep: 76, edgesep: 14 },
 };
 // Vertical needs more, as semester tags sit under the cards.
 const TURN_ROOM: Record<GraphDirection, number> = { horizontal: 10, vertical: 26 };
