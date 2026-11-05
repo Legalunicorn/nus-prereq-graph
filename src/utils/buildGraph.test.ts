@@ -54,7 +54,9 @@ describe("buildGraph", () => {
         it("links the prerequisite directly and keeps its minimum grade", () => {
             const graph = buildGraph([mod("CS5234", CS5234)]);
             expect(gates(graph)).toEqual([]);
-            expect(graph.edges).toEqual([{ from: "CS3230", to: "CS5234", minGrade: "D" }]);
+            expect(graph.edges).toEqual([
+                { from: "CS3230", to: "CS5234", minGrade: "D", status: "unfulfilled" },
+            ]);
             expect(moduleNode(graph, "CS3230").tracked).toBe(false);
             expect(moduleNode(graph, "CS5234").prereqUnfulfilled).toBe(true);
         });
@@ -137,6 +139,53 @@ describe("buildGraph", () => {
             ]);
             expect(gates(graph)).toMatchObject([{ gateType: "nOf", fulfilled: true }]);
             expect(moduleCodes(graph)).toEqual(["A1", "B1", "X1"]);
+        });
+    });
+
+    describe("completed modules", () => {
+        it("shows no unmet state when a tracked prerequisite is not completed", () => {
+            const graph = buildGraph([mod("CS3230", CS3230, true), mod("CS2040S")]);
+            expect(moduleNode(graph, "CS3230").prereqUnfulfilled).toBe(false);
+            expect(graph.edges.find(edge => edge.from === "CS2040S")?.status).toBe("cleared");
+            expect(graph.edges.find(edge => edge.to === "CS3230")?.status).toBe("cleared");
+        });
+
+        it("keeps its gates from showing as unfulfilled", () => {
+            const graph = buildGraph([mod("CS3230", CS3230, true), mod("CS1231S")]);
+            expect(gates(graph).every(gate => gate.fulfilled)).toBe(true);
+        });
+
+        it("hides prerequisites that are not tracked", () => {
+            const graph = buildGraph([mod("CS3230", CS3230, true)]);
+            expect(moduleCodes(graph)).toEqual(["CS3230"]);
+            expect(graph.edges).toEqual([]);
+        });
+
+        it("does not leave nOf unfulfilled when filtering removes children", () => {
+            const tree: PrereqTree = { nOf: [2, ["A1:D", "B1:D", "C1:D"]] };
+            const graph = buildGraph([mod("X1", tree, true), mod("A1", undefined, true)]);
+            expect(gates(graph)).toMatchObject([{ gateType: "nOf", fulfilled: true }]);
+            expect(graph.edges.find(edge => edge.from === "A1")?.status).toBe("fulfilled");
+        });
+
+        it("does not satisfy other modules through a completed module", () => {
+            const graph = buildGraph([
+                mod("CS3230", CS3230, true),
+                mod("CS2040S"),
+                mod("CS3233", "CS2040S:D"),
+            ]);
+            expect(moduleNode(graph, "CS3233").prereqUnfulfilled).toBe(true);
+            expect(graph.edges.find(edge => edge.to === "CS3233")?.status).toBe("unfulfilled");
+        });
+    });
+
+    describe("edge status", () => {
+        it("follows whether the source is fulfilled", () => {
+            const tree: PrereqTree = { and: ["A1:D", "B1:D"] };
+            const graph = buildGraph([mod("X1", tree), mod("A1", undefined, true)]);
+            expect(graph.edges.find(edge => edge.from === "A1")?.status).toBe("fulfilled");
+            expect(graph.edges.find(edge => edge.from === "B1")?.status).toBe("unfulfilled");
+            expect(graph.edges.find(edge => edge.to === "X1")?.status).toBe("unfulfilled");
         });
     });
 
