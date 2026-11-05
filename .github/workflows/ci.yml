@@ -18,3 +18,24 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+
+  deploy:
+    needs: check
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build and publish to the gh-pages branch
+        run: >-
+          npm run deploy --
+          -r "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          -u "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+        env:
+          GH_TOKEN: ${{ github.token }}
