@@ -12,7 +12,9 @@ import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
 import { applyParallax } from "../utils/parallax";
 import { popupPosition } from "../utils/popupPosition";
-import { includeTags, moveTagWithNode } from "../utils/semesterTags";
+import { attachChainHighlight } from "../utils/chainHighlight";
+import { applyEdgeCurves } from "../utils/edgeCurves";
+import { moveTagWithNode } from "../utils/semesterTags";
 import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
@@ -81,14 +83,12 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
             }
         });
 
-        cy.on("position", 'node[kind="module"]', (evt) => moveTagWithNode(cy, evt.target));
-
-        cy.on("mouseover", "node", (evt) => {
-            const node = evt.target;
-            const chain = node.predecessors().union(node.successors()).union(node);
-            cy.elements().not(includeTags(cy, chain)).addClass("dimmed");
+        cy.on("position", 'node[kind != "tag"]', (evt) => {
+            moveTagWithNode(cy, evt.target);
+            applyEdgeCurves(cy, evt.target.connectedEdges());
         });
-        cy.on("mouseout", "node", () => cy.elements().removeClass("dimmed"));
+
+        attachChainHighlight(cy);
 
         cyRef.current = cy;
         return () => {
