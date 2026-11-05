@@ -51,3 +51,13 @@
 
 .legend-edge.fulfilled { border-color: var(--graph-fulfilled); }
 .legend-edge.unfulfilled { border-top-style: dashed; border-color: var(--graph-unfulfilled); }
+
+.legend-gate {
+    flex-shrink: 0;
+    width: 18px;
+    height: 10px;
+    background: var(--graph-fulfilled);
+}
+
+.legend-gate.and { clip-path: polygon(20% 0, 80% 0, 100% 50%, 80% 100%, 20% 100%, 0 50%); }
+.legend-gate.or { border-radius: 5px; }
