@@ -16,7 +16,7 @@ import useTheme from "./hooks/useTheme";
 import { PHONE_WIDTH } from "./constants";
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete, toggleTaking, replaceMods} = useStoredMods();
+  const {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods} = useStoredMods();
   const plan = usePlanEstimate(mods);
   const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
@@ -25,6 +25,7 @@ function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
   const { theme, toggleTheme } = useTheme();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
   return (
     <div className="app-shell">
@@ -50,16 +51,18 @@ function App() {
           mods={mods}
           onAdd={addMods}
           onRemove={removeMods}
+          onClear={() => replaceMods([])}
           onToggle={toggleComplete}
           onToggleTaking={toggleTaking}
           onSelect={setSelectedCode}
+          onHover={setHoveredCode}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} onSelect={setSelectedCode} />
+        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}
@@ -72,6 +75,7 @@ function App() {
             onRemove={removeMods}
             onToggle={toggleComplete}
             onToggleTaking={toggleTaking}
+            onPlanTerm={setPlannedTerm}
           />
         )}
         {showPresets && (

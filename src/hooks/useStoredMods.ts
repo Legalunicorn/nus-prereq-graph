@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
-import type { Mod } from "../types/types";
+import type { Mod, Term } from "../types/types";
 import { refreshCatalogue } from "../utils/api";
 import { loadStored, parseStored, saveMods } from "../utils/storage";
 
@@ -24,7 +24,7 @@ export default function useStoredMods(){
             const byCode = new Map(refreshed.map(mod => [mod.code, mod]));
             setMods(prev => prev.map(cur => {
                 const fresh = byCode.get(cur.code);
-                return fresh ? { ...fresh, completed: cur.completed, taking: cur.taking } : cur;
+                return fresh ? { ...fresh, completed: cur.completed, taking: cur.taking, plannedTerm: cur.plannedTerm } : cur;
             }));
             if (complete) {
                 setCatalogueYear(CURR_ACAD_YEAR);
@@ -54,5 +54,9 @@ export default function useStoredMods(){
         prev.map(cur => cur.code === code ? {...cur, taking: !cur.taking, completed: false} : cur)
     );
 
-    return {mods, addMods, removeMods, toggleComplete, toggleTaking, replaceMods: setMods};
+    const setPlannedTerm = (code: string, plannedTerm: Term | undefined) => setMods(prev =>
+        prev.map(cur => cur.code === code ? {...cur, plannedTerm} : cur)
+    );
+
+    return {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods: setMods};
 };

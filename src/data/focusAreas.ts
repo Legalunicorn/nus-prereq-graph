@@ -1,15 +1,11 @@
-export interface FocusAreaCourse {
-    code: string;
-    title: string;
-    note?: string;
-}
+import type { Course } from "../types/types";
 
 export interface FocusArea {
     id: string;
     name: string;
     description: string;
-    primaries: FocusAreaCourse[];
-    electives: FocusAreaCourse[];
+    primaries: Course[];
+    electives: Course[];
 }
 
 export const FOCUS_AREAS: FocusArea[] = [

@@ -1,5 +1,5 @@
 import type { Graph, Node } from "../types/graph";
-import { isWildcard } from "./graphHelpers";
+import { isWildcard } from "./prereqTree";
 import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
 
