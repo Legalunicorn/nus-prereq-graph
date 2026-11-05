@@ -1,7 +1,7 @@
 .presets-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--scrim);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -9,17 +9,16 @@
 }
 
 .presets-modal {
-    background: #212333;
-    color: #eee;
+    background: var(--surface);
+    color: var(--text);
     width: 640px;
     max-width: 90vw;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    border: 1px solid #444a60;
-    border-radius: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .presets-header {
@@ -27,16 +26,20 @@
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border);
 }
+
+.presets-header h2 { font-size: 15px; font-weight: 600; }
 
 .presets-close {
     background: none;
     border: none;
-    color: #eee;
-    font-size: 16px;
+    color: var(--text-muted);
+    font-size: 14px;
     cursor: pointer;
 }
+
+.presets-close:hover { color: var(--text); }
 
 .presets-list {
     overflow-y: auto;
@@ -48,8 +51,10 @@
 }
 
 .presets-area {
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border);
 }
+
+.presets-area:last-child { border-bottom: none; }
 
 .presets-area-header {
     width: 100%;
@@ -58,9 +63,9 @@
     justify-content: space-between;
     background: none;
     border: none;
-    color: #eee;
+    color: var(--text);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     padding: 10px 8px;
     cursor: pointer;
 }
@@ -68,8 +73,8 @@
 .presets-progress {
     margin-left: auto;
     margin-right: 10px;
+    font-family: var(--mono);
     font-size: 12px;
-    font-weight: 500;
     color: var(--accent);
 }
 
@@ -94,6 +99,7 @@
 
 .presets-chevron {
     display: inline-block;
+    color: var(--text-muted);
     transition: transform 0.2s ease;
 }
 
@@ -105,7 +111,7 @@
     display: grid;
     grid-template-rows: 0fr;
     opacity: 0;
-    transition: grid-template-rows 0.25s ease, opacity 0.2s ease;
+    transition: grid-template-rows 0.2s ease, opacity 0.2s ease;
 }
 
 .presets-area-body.expanded {
@@ -124,14 +130,16 @@
 
 .presets-description {
     font-size: 12px;
-    color: #aaa;
+    color: var(--text-muted);
     margin: 0 0 10px 0;
 }
 
 .presets-area-body h4 {
-    font-size: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: #888;
+    color: var(--text-muted);
     margin: 10px 0 4px 0;
 }
 
@@ -150,6 +158,8 @@
 }
 
 .presets-course-code {
+    font-family: var(--mono);
+    font-size: 12px;
     font-weight: 600;
     width: 70px;
     flex-shrink: 0;
@@ -157,43 +167,39 @@
 
 .presets-course-title {
     flex: 1;
-    color: #ccc;
+    color: var(--text-muted);
 }
 
 .presets-course-note {
-    color: #888;
     font-style: italic;
 }
 
 .presets-add-btn {
     flex-shrink: 0;
     font-size: 12px;
-    /* padding: 2px 8px; */
     padding: 0.1rem 0.5rem;
     cursor: pointer;
-    color : white;
-    border-radius: 0.5rem;
-    background-color: #303449;
-    border: 1px solid #6a718c;
+    color: var(--text);
+    border-radius: 0.35rem;
+    background-color: transparent;
+    border: 1px solid var(--border);
     transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.presets-add-btn:hover:not(:disabled) { background: #3b4058; border-color: #9ca6ca; }
+.presets-add-btn:hover:not(:disabled) { background: var(--surface-hover); }
 
 .presets-add-btn:disabled {
     opacity: 0.5;
     cursor: default;
-    background-color: #12121a;
-
 }
-
 
 .presets-add-btn.added {
-    background-color: #2f4a35;
-    border-color: #4a7a52;
+    color: var(--success);
+    border-color: var(--success);
 }
 
-.presets-add-btn.added:hover {
-    background-color: #4a2a2a;
-    border-color: #7a4a4a;
+.presets-add-btn.added:hover:not(:disabled) {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: transparent;
 }

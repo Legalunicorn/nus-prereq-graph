@@ -4,22 +4,76 @@
   padding: 0;
 }
 
+/* All app colours live here. The graph reads the --graph-* values through utils/theme.ts. */
 :root {
-  --canvas: #171925;
-  --surface: #1f2130;
-  --surface-raised: #2a2d40;
-  --surface-hover: #353950;
-  --border: #3c4153;
-  --text: #edf0f8;
-  --text-muted: #a6aabd;
-  --accent: #7ea6f7;
+  --canvas: #14161a;
+  --surface: #1b1e23;
+  --surface-raised: #24282f;
+  --surface-hover: #2d323a;
+  --border: #33383f;
+  --text: #e8e6e1;
+  --text-muted: #9a9c9f;
+  --accent: #ef8a2b;
+  --danger: #e58f85;
+  --success: #8fbf7a;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --grid-dot: rgba(232, 230, 225, 0.06);
 
+  --graph-not-planned-fill: #1b1e23;
+  --graph-not-planned-border: #4d525a;
+  --graph-not-planned-text: #b5b6b4;
+  --graph-ready: #3d74c9;
+  --graph-blocked: #b8483f;
+  --graph-completed: #3f7d4a;
+  --graph-on-status: #ffffff;
+  --graph-not-offered: #d8c26a;
+  --graph-fulfilled: #7fb069;
+  --graph-unfulfilled: #d0635a;
+  --graph-neutral: #5a5f66;
+  --graph-gate-text: #c9c8c4;
+  --graph-tag: #24282f;
+  --graph-tag-text: #9a9c9f;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+
+  color-scheme: dark;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
   background: var(--canvas);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme="light"] {
+  --canvas: #f6f5f2;
+  --surface: #ffffff;
+  --surface-raised: #f0efeb;
+  --surface-hover: #e8e6e1;
+  --border: #dcd9d2;
+  --text: #23252a;
+  --text-muted: #6b6e75;
+  --accent: #c8620a;
+  --danger: #b8433a;
+  --success: #3a7a46;
+  --scrim: rgba(35, 37, 42, 0.35);
+  --grid-dot: rgba(35, 37, 42, 0.08);
+
+  --graph-not-planned-fill: #ffffff;
+  --graph-not-planned-border: #c4c1b9;
+  --graph-not-planned-text: #4a4d54;
+  --graph-ready: #2f64b8;
+  --graph-blocked: #b8433a;
+  --graph-completed: #3a7a46;
+  --graph-not-offered: #97811f;
+  --graph-fulfilled: #4f8f3f;
+  --graph-unfulfilled: #c4544a;
+  --graph-neutral: #b4b1a8;
+  --graph-gate-text: #55585e;
+  --graph-tag: #e8e6e1;
+  --graph-tag-text: #5d6066;
+
+  color-scheme: light;
 }
 
 body {
@@ -29,12 +83,14 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -47,6 +103,7 @@ a:focus-visible {
 }
 
 .app {
+  position: relative;
   display: flex;
   flex: 1;
   min-height: 0;

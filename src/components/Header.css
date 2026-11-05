@@ -1,6 +1,6 @@
 .app-header {
     width: 100%;
-    padding: 11px 16px;
+    padding: 9px 16px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
@@ -9,40 +9,36 @@
 .header-content {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .app-header h1 {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
-    color: #eee;
     letter-spacing: 0.2px;
-    margin: 0;
 }
 
-.github-link {
+.header-icon {
     display: inline-flex;
-    color: #eee;
+    padding: 4px;
+    color: var(--text-muted);
     line-height: 0;
-    padding: 3px;
+    background: none;
+    border: none;
     border-radius: 5px;
+    cursor: pointer;
     transition: color 0.15s ease, background 0.15s ease;
 }
 
-.github-link:hover,
-.github-link:focus-visible {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.08);
+.header-icon:hover {
+    color: var(--text);
+    background: var(--surface-hover);
 }
 
-.github-link:focus-visible {
-    outline: 2px solid #eee;
-    outline-offset: 3px;
-    border-radius: 2px;
-}
-
-.github-link svg {
-    width: 18px;
-    height: 18px;
+.header-icon svg {
+    width: 16px;
+    height: 16px;
     fill: currentColor;
 }
+
+.theme-toggle { margin-left: auto; }

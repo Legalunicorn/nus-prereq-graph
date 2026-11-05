@@ -9,6 +9,9 @@ import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
 import Header from "./components/Header";
 import usePlanEstimate from "./hooks/usePlanEstimate";
 import useStoredMods from "./hooks/useStoredMods";
+import useTheme from "./hooks/useTheme";
+
+const PHONE_WIDTH = "(max-width: 768px)";
 
 function App() {
   const {mods, addMods, removeMods, toggleComplete} = useStoredMods();
@@ -16,18 +19,20 @@ function App() {
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
   const [showMathAndScience, setShowMathAndScience] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="app-shell">
-      <Header />
+      <Header theme={theme} onToggleTheme={toggleTheme} />
       <div className="app">
         <button
           className="sidebar-toggle"
           style={{ left: sidebarCollapsed ? "12px" : "272px" }}
           onClick={() => setSidebarCollapsed(prev => !prev)}
+          aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
         >
-          {sidebarCollapsed ? "☰" : "✕"}
+          {sidebarCollapsed ? "›" : "‹"}
         </button>
         <Sidebar
           mods={mods}
@@ -40,7 +45,7 @@ function App() {
           collapsed={sidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} estimate={plan.estimate} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>
+        <GraphView mods={mods} theme={theme} estimate={plan.estimate} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>
         {showPresets && (
           <PresetsModal
             mods={mods}
