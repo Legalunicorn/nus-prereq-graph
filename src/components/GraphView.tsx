@@ -59,7 +59,7 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
             maxZoom: MAX_ZOOM,
         });
 
-        cy.on("tap", 'node[kind="module"]', (evt) => {
+        cy.on("tap", 'node[kind="module"][!wildcard]', (evt) => {
             const node = evt.target; const pos = node.renderedPosition();
             setPopup({ code: node.id(), x: pos.x, y: pos.y });
         });
