@@ -6,8 +6,13 @@ export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
         style: {
             label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
             "background-color": "#6c8ebf", "text-valign": "center", "text-halign": "center",
-            color: "#fff", "font-weight":"bold", width: 90, height: 36, "font-size": 14, "border-width": 0,
+            color: "#fff", "font-weight":"bold", width: 90, height: 44, "font-size": 13, "border-width": 0,
+            "text-wrap": "wrap",
         }
+    },
+    {
+        selector: 'node[kind="module"][?notOffered]',
+        style: { "border-width": 2, "border-style": "dashed", "border-color": "#e0a458" },
     },
     {
         selector: 'node[kind="module"][?tracked]',

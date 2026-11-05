@@ -33,6 +33,22 @@ describe("toElements", () => {
         expect(element.data).toMatchObject({ completed: false, tracked: true, prereqUnfulfilled: false });
     });
 
+    it("adds the semesters to module labels once offerings are known", () => {
+        const offerings = new Map([["X1", [2]]]);
+        const [element] = toElements(buildGraph([mod("X1")]), offerings);
+        expect(element.data).toMatchObject({ label: "X1\nS2", notOffered: false });
+    });
+
+    it("marks a module missing from the offerings as not offered", () => {
+        const [element] = toElements(buildGraph([mod("X1")]), new Map());
+        expect(element.data).toMatchObject({ label: "X1\nNot offered", notOffered: true });
+    });
+
+    it("shows only the code before offerings load", () => {
+        const [element] = toElements(buildGraph([mod("X1")]));
+        expect(element.data).toMatchObject({ label: "X1", notOffered: false });
+    });
+
     it("labels nOf gates with n", () => {
         const elements = toElements(buildGraph([mod("X1", { nOf: [2, ["A1:D", "B1:D"]] })]));
         expect(elements.find(element => element.data.id === "gate:X1")?.data).toMatchObject({ label: "2 OF" });
