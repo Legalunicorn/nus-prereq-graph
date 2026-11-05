@@ -44,7 +44,21 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
                 let label = node.gateType === "and" ? "AND" : node.gateType === "or" ? "OR" : `${node.n} OF`;
                 return { data: { id: node.id, label, kind: node.kind, fulfilled: node.fulfilled } };
             }),
-            ...graph.edges.map(edge => ({ data: { source: edge.from, target: edge.to, minGrade: edge.minGrade ?? "" } })),
+            ...graph.edges.map(edge => {
+                const source = graph.nodes.get(edge.from);
+                const fulfilled = source?.kind === "gate"
+                    ? source.fulfilled
+                    : source?.completed ?? false;
+
+                return {
+                    data: {
+                        source: edge.from,
+                        target: edge.to,
+                        minGrade: edge.minGrade ?? "",
+                        status: fulfilled ? "fulfilled" : "unfulfilled",
+                    },
+                };
+            }),
         ];
 
         cyRef.current?.destroy();
