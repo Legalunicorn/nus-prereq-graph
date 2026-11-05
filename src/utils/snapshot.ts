@@ -6,7 +6,7 @@ export interface SnapshotModule {
     prereqTree?: PrereqTree;
 }
 
-export interface Snapshot {
+interface Snapshot {
     acadYear: string;
     generatedAt: string;
     modules: Record<string, SnapshotModule>;

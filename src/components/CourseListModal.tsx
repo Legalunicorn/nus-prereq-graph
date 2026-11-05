@@ -1,4 +1,4 @@
-import type { FoundationCourse } from "../data/csFoundation";
+import type { Course } from "../types/types";
 import useCourseAdd from "../hooks/useCourseAdd";
 import type { Mod } from "../types/types";
 import CourseRow from "./CourseRow";
@@ -6,7 +6,7 @@ import Modal from "./Modal";
 
 interface CourseListModalProps {
     title: string;
-    courses: FoundationCourse[];
+    courses: Course[];
     mods: Mod[];
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;

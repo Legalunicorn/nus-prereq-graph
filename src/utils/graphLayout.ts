@@ -4,8 +4,8 @@ import type cytoscape from "cytoscape";
 import type { GraphDirection } from "./cytoscapeConfig";
 
 interface Point { x: number; y: number; }
-export interface LayoutNode { id: string; width: number; height: number; }
-export interface LayoutEdge { id: string; source: string; target: string; }
+interface LayoutNode { id: string; width: number; height: number; }
+interface LayoutEdge { id: string; source: string; target: string; }
 
 const CORNER_RADIUS = 8;
 const WRAPPED_STEM = 24;

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { FOCUS_AREAS } from "../data/focusAreas";
-import type { FocusAreaCourse } from "../data/focusAreas";
 import useCourseAdd from "../hooks/useCourseAdd";
-import type { Mod } from "../types/types";
+import type { Course, Mod } from "../types/types";
 import { meetsFocusAreaRule, searchFocusAreas } from "../utils/focusAreaSearch";
 import "./PresetsModal.css";
 import CourseRow from "./CourseRow";
@@ -19,7 +18,7 @@ export default function PresetsModal({ mods, onAdd, onRemove, onClose }: Presets
     const matches = searchFocusAreas(FOCUS_AREAS, query);
     const { rowProps, addCourses, isAdding } = useCourseAdd(mods, onAdd);
     const plannedCodes = new Set(mods.map(mod => mod.code));
-    const notPlanned = (courses: FocusAreaCourse[]) =>
+    const notPlanned = (courses: Course[]) =>
         courses.map(course => course.code).filter(code => !plannedCodes.has(code));
 
     const handleToggleArea = (id: string) => setExpandedId(prev => (prev === id ? null : id));

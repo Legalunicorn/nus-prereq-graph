@@ -5,7 +5,7 @@ import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
 // Data saved before versioning has no version field and the same shape as version 1.
 const STORAGE_VERSION = 1;
 
-export interface StorageData {
+interface StorageData {
     version: number;
     acadYear: string;
     mods: Mod[];

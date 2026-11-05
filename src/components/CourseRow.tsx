@@ -1,7 +1,8 @@
+import type { Course } from "../types/types";
 import SemesterTag from "./SemesterTag";
 
-export interface CourseRowProps {
-    course: { code: string; title: string; note?: string };
+interface CourseRowProps {
+    course: Course;
     isTracked: boolean;
     isLoading: boolean;
     hasError: boolean;

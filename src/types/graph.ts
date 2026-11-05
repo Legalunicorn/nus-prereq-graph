@@ -6,7 +6,7 @@ export type Node =
 // "cleared" is an unmet prerequisite that no longer matters because the module it leads to is completed.
 export type EdgeStatus = "fulfilled" | "unfulfilled" | "cleared";
 
-export interface Edge {
+interface Edge {
     from: string;
     to: string;
     minGrade?: string;

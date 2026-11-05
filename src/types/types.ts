@@ -1,6 +1,6 @@
 // Non-course conditions that the NUSMods API can put in a prerequisite tree.
-export interface CohortRule { rule: string; years: string[]; }
-export interface ProgramTypeRule { rule: string; types: string[]; }
+interface CohortRule { rule: string; years: string[]; }
+interface ProgramTypeRule { rule: string; types: string[]; }
 
 export type PrereqTree =
     | string
@@ -20,4 +20,10 @@ export interface Mod {
     taking?: boolean;
     prereqTree?: PrereqTree;
     fulfillRequirements?: string[];
+}
+
+export interface Course {
+    code: string;
+    title: string;
+    note?: string;
 }

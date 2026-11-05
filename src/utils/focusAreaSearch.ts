@@ -1,6 +1,6 @@
 import type { FocusArea } from "../data/focusAreas";
 
-export interface FocusAreaMatch {
+interface FocusAreaMatch {
     code: string;
     title: string;
     note: string;

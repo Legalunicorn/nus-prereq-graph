@@ -1,9 +1,6 @@
-export interface FoundationCourse {
-    code: string;
-    title: string;
-}
+import type { Course } from "../types/types";
 
-export const CS_FOUNDATION_COURSES: FoundationCourse[] = [
+export const CS_FOUNDATION_COURSES: Course[] = [
     { code: "CS1231S", title: "Discrete Structures" },
     { code: "CS2030S", title: "Programming Methodology II" },
     { code: "CS2040S", title: "Data Structures and Algorithms" },
