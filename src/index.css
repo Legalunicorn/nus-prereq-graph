@@ -82,9 +82,15 @@
   color-scheme: light;
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   min-width: 320px;
-  min-height: 100vh;
   background: var(--canvas);
 }
 
@@ -105,7 +111,7 @@ a:focus-visible {
 .app-shell {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
 }
 
 .app {
@@ -113,4 +119,5 @@ a:focus-visible {
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
