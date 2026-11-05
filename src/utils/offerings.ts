@@ -16,13 +16,18 @@ export function isOffered(offerings: Offerings, code: string): boolean {
     return (offerings.get(code)?.semesters.length ?? 0) > 0;
 }
 
+/** Returns an empty label for the usual case of running in both regular semesters. */
 export function semesterLabel(offerings: Offerings, code: string): string {
     if (!isOffered(offerings, code)) return NOT_OFFERED;
     const semesters = offerings.get(code)?.semesters ?? [];
+    const hasSpecialTerm = semesters.includes(3) || semesters.includes(4);
+    if (semesters.includes(1) && semesters.includes(2)) {
+        return hasSpecialTerm ? "+ST" : "";
+    }
     const parts = [];
     if (semesters.includes(1)) parts.push("S1");
     if (semesters.includes(2)) parts.push("S2");
-    if (semesters.includes(3) || semesters.includes(4)) parts.push("ST");
+    if (hasSpecialTerm) parts.push("ST");
     return parts.join("·");
 }
 

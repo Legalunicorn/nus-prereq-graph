@@ -12,7 +12,7 @@ Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 
 - Search by code or title, or add modules from the focus area, foundation and maths presets.
 - Tick a module to mark it completed. You can also click a node in the graph.
-- Each module shows the semesters it runs in this AY, and the minimum semesters to finish it.
+- Modules show a tag if they only run in one semester or aren't offered this AY. No tag means both semesters. The sidebar also shows the minimum semesters to finish each one.
 - **Full chain** expands modules outside your plan to show the whole path. **Fit** recentres the graph.
 - The legend explains node and arrow colours. Hover over a node to highlight its neighbours.
 
