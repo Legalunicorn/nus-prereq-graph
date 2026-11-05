@@ -56,6 +56,15 @@ describe("toElements", () => {
         expect(label("gate:Y1")).toMatchObject({ label: "OR ✓" });
     });
 
+    it("shows wildcards with a star and no semesters", () => {
+        const elements = toElements(buildGraph([mod("X1", "CS1010%:D")]), new Map());
+        expect(elements.find(element => element.data.id === "CS1010%")?.data).toMatchObject({
+            label: "CS1010*",
+            wildcard: true,
+            notOffered: false,
+        });
+    });
+
     it("labels nOf gates with n", () => {
         const elements = toElements(buildGraph([mod("X1", { nOf: [2, ["A1:D", "B1:D"]] })]));
         expect(elements.find(element => element.data.id === "gate:X1")?.data).toMatchObject({ label: "2 OF" });
