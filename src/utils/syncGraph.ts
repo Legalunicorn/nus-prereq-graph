@@ -11,6 +11,7 @@ const FIT_PADDING = 48;
 // Vertical mode aims to keep nodes this large on screen, which sets how many fit in a row.
 const READABLE_ZOOM = 0.8;
 const MIN_PER_ROW = 2;
+const MAX_PER_ROW_KEY = "maxPerRow";
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -23,9 +24,13 @@ function fadeIn(elements: cytoscape.CollectionReturnValue) {
     });
 }
 
+const maxPerRowFor = (cy: cytoscape.Core) =>
+    Math.max(MIN_PER_ROW, Math.floor(cy.width() / READABLE_ZOOM / CELL_WIDTH));
+
 function fitToWidth(cy: cytoscape.Core) {
     const nodes = withoutTags(cy).nodes();
-    const maxPerRow = Math.max(MIN_PER_ROW, Math.floor(cy.width() / READABLE_ZOOM / CELL_WIDTH));
+    const maxPerRow = maxPerRowFor(cy);
+    cy.scratch(MAX_PER_ROW_KEY, maxPerRow);
     const placed = wrapRanks(
         nodes.map(node => ({ id: node.id(), ...node.position() })),
         maxPerRow,
@@ -87,4 +92,20 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
     }
 
     syncSemesterTags(cy);
+}
+
+/** Only re-wraps when the row size changes, so panels opening or a phone's address bar hiding keep the view. */
+export function rewrapOnResize(cy: cytoscape.Core) {
+    cy.resize();
+    if (getDirection(cy) !== "vertical" || maxPerRowFor(cy) === cy.scratch(MAX_PER_ROW_KEY)) {
+        return;
+    }
+    withoutTags(cy).layout({
+        ...layoutFor("vertical"),
+        animate: false,
+        stop: () => {
+            fitToWidth(cy);
+            applyEdgeCurves(cy, cy.edges());
+        },
+    } as cytoscape.LayoutOptions).run();
 }
