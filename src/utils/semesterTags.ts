@@ -26,6 +26,7 @@ export function syncSemesterTags(cy: cytoscape.Core) {
                     label: node.data("semesters"),
                     notOffered: node.data("notOffered"),
                 },
+                classes: node.hasClass("off-path") ? "off-path" : "",
                 position: tagPosition(node),
                 grabbable: false,
                 selectable: false,
