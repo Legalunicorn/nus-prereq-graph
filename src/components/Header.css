@@ -20,17 +20,6 @@
     text-transform: uppercase;
 }
 
-.app-header h1::before {
-    content: "";
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    margin-right: 8px;
-    vertical-align: 1px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent);
-}
 
 .header-icon {
     display: inline-flex;
