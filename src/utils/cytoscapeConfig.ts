@@ -109,6 +109,11 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 "text-background-color": colors.canvas, "text-background-opacity": 1, "text-background-padding": "2px",
             },
         },
+        { selector: "node.longest", style: { "border-width": 2, "border-style": "solid", "border-color": colors.accent } },
+        {
+            selector: "edge.longest",
+            style: { width: 3, "line-color": colors.accent, "target-arrow-color": colors.accent, "line-style": "solid", opacity: 1 },
+        },
         { selector: ".dimmed", style: { opacity: 0.15 } },
     ];
 }

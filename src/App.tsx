@@ -56,7 +56,7 @@ function App() {
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} estimate={plan.estimate} onToggle={toggleComplete} onToggleTaking={toggleTaking} onAdd={addMods} onRemove={removeMods}/>
+        <GraphView mods={mods} theme={theme} estimate={plan.estimate} longestPath={plan.longestPath} onToggle={toggleComplete} onToggleTaking={toggleTaking} onAdd={addMods} onRemove={removeMods}/>
         {showPresets && (
           <PresetsModal
             mods={mods}

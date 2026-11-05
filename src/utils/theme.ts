@@ -30,6 +30,7 @@ export function readGraphPalette() {
         gateText: color("gate-text"),
         tag: color("tag"),
         tagText: color("tag-text"),
+        accent: styles.getPropertyValue("--accent").trim(),
         canvas: styles.getPropertyValue("--canvas").trim(),
         mono: styles.getPropertyValue("--mono").trim(),
     };

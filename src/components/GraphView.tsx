@@ -10,6 +10,7 @@ import type { GraphDirection } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
+import { applyLongestPath } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { popupPosition } from "../utils/popupPosition";
 import { attachChainHighlight } from "../utils/chainHighlight";
@@ -33,6 +34,7 @@ interface GraphViewProps {
     mods: Mod[];
     theme: Theme;
     estimate: ((code: string) => number | null) | null;
+    longestPath: string[];
     onToggle: (code: string) => void;
     onToggleTaking: (code: string) => void;
     onAdd: (mod: Mod) => void;
@@ -41,12 +43,13 @@ interface GraphViewProps {
 
 interface PopupState { code: string; x: number; y: number; }
 
-export default function GraphView({ mods, theme, estimate, onToggle, onToggleTaking, onAdd, onRemove }: GraphViewProps) {
+export default function GraphView({ mods, theme, estimate, longestPath, onToggle, onToggleTaking, onAdd, onRemove }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
     const [isFullChain, setIsFullChain] = useState(false);
+    const [isLongestPathOn, setIsLongestPathOn] = useState(false);
     const [direction, setDirection] = useState<GraphDirection>(
         () => (window.matchMedia(PHONE_WIDTH).matches ? "vertical" : "horizontal"),
     );
@@ -112,7 +115,8 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
         syncGraph(cyRef.current, toElements(graph, offerings), direction);
-    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction]);
+        applyLongestPath(cyRef.current, isLongestPathOn ? longestPath : []);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPath]);
 
     return (
         <div ref={wrapperRef} className="graph-wrapper">
@@ -129,6 +133,16 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
                                 onClick={() => setIsFullChain(prev => !prev)}
                             >
                                 Full chain
+                            </button>
+                        )}
+                        {longestPath.length > 0 && (
+                            <button
+                                className={isLongestPathOn ? "active" : ""}
+                                aria-pressed={isLongestPathOn}
+                                title="Highlight the chain that decides the minimum semesters"
+                                onClick={() => setIsLongestPathOn(prev => !prev)}
+                            >
+                                Longest path
                             </button>
                         )}
                         <button onClick={() => setDirection(prev => (prev === "horizontal" ? "vertical" : "horizontal"))}>

@@ -31,13 +31,23 @@ export default function usePlanEstimate(mods: Mod[]) {
         }
     };
 
-    const estimate = useMemo(() => {
+    const { estimate, longestPath } = useMemo(() => {
         if (!snapshot) {
-            return null;
+            return { estimate: null, longestPath: [] };
         }
         const completed = new Set(mods.filter(isDone).map(mod => mod.code));
-        return createEstimator({ modules: snapshot.modules, completed, start });
+        const preferred = new Set(mods.map(mod => mod.code));
+        const estimator = createEstimator({ modules: snapshot.modules, completed, start, preferred });
+
+        const remaining = mods.filter(mod => !isDone(mod));
+        const slowest = remaining.reduce<Mod | null>((best, mod) => (
+            (estimator.estimate(mod.code) ?? 0) > (best ? estimator.estimate(best.code) ?? 0 : 0) ? mod : best
+        ), null);
+        return {
+            estimate: estimator.estimate,
+            longestPath: slowest ? estimator.longestChain(slowest.code) : [],
+        };
     }, [snapshot, mods, start]);
 
-    return { estimate, start, setStart };
+    return { estimate, longestPath, start, setStart };
 }
