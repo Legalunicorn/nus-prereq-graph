@@ -1,5 +1,5 @@
 import type { Mod, PrereqTree } from "../types/types";
-import type { Graph } from "../types/graph";
+import type { EdgeStatus, Graph } from "../types/graph";
 
 export function findMod(mods: Mod[], code: string): Mod | undefined {
     return mods.find(m => m.code === code);
@@ -71,7 +71,13 @@ export interface WalkResult {
     fulfilled: boolean;
 }
 
-export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph): WalkResult{
+export function edgeStatus(fulfilled: boolean, cleared: boolean): EdgeStatus {
+    if (fulfilled) return "fulfilled";
+    return cleared ? "cleared" : "unfulfilled";
+}
+
+/** With `cleared` set, the tree belongs to a completed module, so nothing in it renders as unmet. */
+export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, cleared = false): WalkResult{
     if (typeof tree == "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
@@ -103,7 +109,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph): WalkResul
         children  = tree.nOf![1];
     }
 
-    const childResults = children.map(child => walkTree(child, mods, graph));
+    const childResults = children.map(child => walkTree(child, mods, graph, cleared));
 
     let fulfilled: boolean;
     if (gateType === "and"){
@@ -120,7 +126,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph): WalkResul
         id: thisGateId,
         gateType,
         n,
-        fulfilled,
+        fulfilled: fulfilled || cleared,
     });
 
     const resultsToShow = (fulfilled && gateType !== "and")
@@ -128,7 +134,12 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph): WalkResul
         : childResults;
 
     for (const result of resultsToShow){
-        graph.edges.push({from: result.id, to: thisGateId, minGrade: result.minGrade});
+        graph.edges.push({
+            from: result.id,
+            to: thisGateId,
+            minGrade: result.minGrade,
+            status: edgeStatus(result.fulfilled, cleared),
+        });
     }
     return { id: thisGateId, fulfilled };
 }

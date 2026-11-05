@@ -1,6 +1,6 @@
 import type { Mod } from "../types/types";
 import type { Graph } from "../types/graph";
-import { filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
+import { edgeStatus, filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
 export function buildGraph(mods: Mod[]) : Graph{
     const graph: Graph = {nodes: new Map(), edges:[]};
@@ -16,11 +16,16 @@ export function buildGraph(mods: Mod[]) : Graph{
         if (prereqTree){
             const treeToRender = mod.completed ? filterTree(prereqTree, trackedCodes) : prereqTree;
             if (treeToRender){
-                const root = walkTree(treeToRender, mods, graph);
-                graph.edges.push({from: root.id, to: mod.code, minGrade: root.minGrade});
+                const root = walkTree(treeToRender, mods, graph, mod.completed);
+                graph.edges.push({
+                    from: root.id,
+                    to: mod.code,
+                    minGrade: root.minGrade,
+                    status: edgeStatus(root.fulfilled, mod.completed),
+                });
                 const courseNode = graph.nodes.get(mod.code);
                 if (courseNode?.kind === "module") {
-                    courseNode.prereqUnfulfilled = !root.fulfilled;
+                    courseNode.prereqUnfulfilled = !mod.completed && !root.fulfilled;
                 }
             }
         }
