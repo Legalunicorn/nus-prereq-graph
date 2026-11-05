@@ -2,21 +2,21 @@ import { useState } from "react";
 import "./Legend.css";
 
 const NODE_ITEMS = [
-    { className: "completed", label: "✓ Completed" },
-    { className: "ready", label: "In plan, can take" },
-    { className: "blocked", label: "In plan, prerequisites unmet" },
+    { className: "completed", label: "Completed" },
+    { className: "ready", label: "Can take" },
+    { className: "blocked", label: "Blocked" },
     { className: "not-planned", label: "Not in plan" },
-    { className: "not-offered", label: "Not offered this AY" },
+    { className: "not-offered", label: "Not offered" },
 ];
 
 const EDGE_ITEMS = [
-    { className: "fulfilled", label: "Prerequisite met" },
-    { className: "unfulfilled", label: "Prerequisite unmet" },
-    { className: "neutral", label: "Not needed: module completed" },
+    { className: "fulfilled", label: "Met" },
+    { className: "unfulfilled", label: "Unmet" },
+    { className: "neutral", label: "Not needed" },
 ];
 
 export default function Legend() {
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     return (
         <div className="legend">

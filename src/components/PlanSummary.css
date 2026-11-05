@@ -1,23 +1,26 @@
 .plan-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 0.7rem;
-    padding: 0.5rem 0.6rem;
     font-size: 0.8rem;
-    border: 1px solid var(--border);
-    border-radius: 0.45rem;
-}
-
-.plan-summary-total strong { color: var(--accent); }
-
-.plan-summary-total select {
-    margin-left: 0.35rem;
-    color: var(--text);
-    background: var(--surface-raised);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-}
-
-.plan-summary-note {
-    margin-top: 0.3rem;
-    font-size: 0.68rem;
     color: var(--text-muted);
+}
+
+.plan-summary strong {
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.plan-summary select {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.plan-summary select option {
+    color: var(--text);
+    background: var(--surface);
 }

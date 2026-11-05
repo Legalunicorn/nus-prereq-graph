@@ -66,7 +66,7 @@ export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
                 onFocus={() => setOpen(true)}
                 onBlur={() => setOpen(false)}
                 onKeyDown={handleKeyDown}
-                placeholder="Search by code or title"
+                placeholder="Search modules"
                 aria-label="Search modules by code or title"
                 aria-busy={loading}
             />
