@@ -1,11 +1,13 @@
-export const cytoscapeStyles = [
+import type cytoscape from "cytoscape";
+
+export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
     {
         selector: 'node[kind="module"]',
         style: {
-            label: "data(label)", shape: "round-rectangle", "corner-radius": 8,
+            label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
             "background-color": "#6c8ebf", "text-valign": "center", "text-halign": "center",
             color: "#fff", "font-weight":"bold", width: 90, height: 36, "font-size": 14, "border-width": 0,
-        } as any 
+        }
     },
     {
         selector: 'node[kind="module"][?tracked]',
@@ -44,6 +46,17 @@ export const cytoscapeStyles = [
     { selector: ".dimmed", style: { opacity: 0.15 } },
 ];
 
-export const cytoscapeLayout = {
-    name: "dagre", rankDir:"LR", nodeSep: 15, rankSet: 60, edgeSet: 10,
-} as any;
+interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
+    name: "dagre";
+    rankDir: "LR" | "TB";
+    nodeSep: number;
+    rankSep: number;
+    edgeSep: number;
+}
+
+const dagreLayout: DagreLayoutOptions = {
+    name: "dagre", rankDir: "LR", nodeSep: 15, rankSep: 60, edgeSep: 10,
+};
+
+// The cytoscape types only list built-in layouts, so dagre needs a cast here.
+export const cytoscapeLayout = dagreLayout as unknown as cytoscape.LayoutOptions;
