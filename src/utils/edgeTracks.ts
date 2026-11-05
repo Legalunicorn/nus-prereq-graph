@@ -1,4 +1,5 @@
 import type cytoscape from "cytoscape";
+import type { GraphDirection } from "./cytoscapeConfig";
 
 const FIRST_TRACK = 25;
 const LAST_TRACK = 80;
@@ -33,14 +34,18 @@ export function assignTracks(targets: TrackTarget[]): Map<string, number> {
     return tracks;
 }
 
-export function applyEdgeTracks(cy: cytoscape.Core) {
+export function applyEdgeTracks(cy: cytoscape.Core, direction: GraphDirection) {
+    const isHorizontal = direction === "horizontal";
     const targets = cy.edges().targets().map(node => ({
         id: node.id(),
-        column: node.position("x"),
-        cross: node.position("y"),
+        column: node.position(isHorizontal ? "x" : "y"),
+        cross: node.position(isHorizontal ? "y" : "x"),
     }));
     const tracks = assignTracks(targets);
     cy.edges().forEach(edge => {
-        edge.style("taxi-turn", `${tracks.get(edge.target().id())}%`);
+        edge.style({
+            "taxi-direction": isHorizontal ? "rightward" : "downward",
+            "taxi-turn": `${tracks.get(edge.target().id())}%`,
+        });
     });
 }

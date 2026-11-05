@@ -117,9 +117,12 @@ interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
     edgeSep: number;
 }
 
-const dagreLayout: DagreLayoutOptions = {
-    name: "dagre", rankDir: "LR", nodeSep: 36, rankSep: 60, edgeSep: 10,
+export type GraphDirection = "horizontal" | "vertical";
+
+const DAGRE_LAYOUTS: Record<GraphDirection, DagreLayoutOptions> = {
+    horizontal: { name: "dagre", rankDir: "LR", nodeSep: 36, rankSep: 60, edgeSep: 10 },
+    vertical: { name: "dagre", rankDir: "TB", nodeSep: 14, rankSep: 72, edgeSep: 10 },
 };
 
 // The cytoscape types only list built-in layouts, so dagre needs a cast here.
-export const cytoscapeLayout = dagreLayout as unknown as cytoscape.LayoutOptions;
+export const layoutFor = (direction: GraphDirection) => DAGRE_LAYOUTS[direction] as unknown as cytoscape.LayoutOptions;
