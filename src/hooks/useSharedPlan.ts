@@ -14,8 +14,11 @@ async function fetchSharedMods(plan: SharedMod[]): Promise<Mod[] | null> {
     if (!complete) {
         return null;
     }
-    const byCode = new Map(plan.map(mod => [mod.code, mod]));
-    return refreshed.map(mod => ({ ...mod, ...byCode.get(mod.code) }));
+    const byCode = new Map(refreshed.map(mod => [mod.code, mod]));
+    return plan.flatMap(mod => {
+        const fresh = byCode.get(mod.code);
+        return fresh ? [{ ...fresh, ...mod }] : [];
+    });
 }
 
 /** Loads a plan from the URL straight away if the list is empty, otherwise waits for confirmation. */
