@@ -54,5 +54,5 @@ export default function useStoredMods(){
         prev.map(cur => cur.code === code ? {...cur, taking: !cur.taking, completed: false} : cur)
     );
 
-    return {mods, addMods, removeMods, toggleComplete, toggleTaking};
+    return {mods, addMods, removeMods, toggleComplete, toggleTaking, replaceMods: setMods};
 };
