@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Mod } from "../types/types";
-import { fetchMod } from "../utils/api";
+import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
 import "./NodePopup.css";
 
 interface NodePopupProps {
@@ -14,31 +14,37 @@ interface NodePopupProps {
     onToggle: (code: string) => void;
 }
 
+const errorMessage = (err: unknown) => (err instanceof Error ? err.message : "Something went wrong.");
+
 export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
     const [loading, setLoading] = useState(false);
+    const [notFound, setNotFound] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const existing = mods.find(m => m.code === code);
     const tracked = !!existing;
     const completed = existing?.completed ?? false;
     const [fetchedTitle, setFetchedTitle] = useState<string | undefined>();
     const title = existing?.title ?? fetchedTitle;
+    const unavailable = notFound && !tracked;
 
     useEffect(() => {
         if (existing?.title) return;
         let cancelled = false;
         fetchMod(code)
             .then(mod => { if (!cancelled) setFetchedTitle(mod.title); })
-            .catch(() => {});
+            .catch(err => { if (!cancelled && err instanceof ModNotFoundError) setNotFound(true); });
         return () => { cancelled = true; };
     }, [code, existing?.title]);
 
     const handleAddRemove = async () => {
         if (tracked) { onRemove(code); return; }
         setLoading(true);
+        setError(null);
         try {
-            const mod = await fetchMod(code);
-            onAdd(mod);
-        } catch {
-            // Failure is not shown to the user yet: see #6.
+            onAdd(await fetchMod(code));
+        } catch (err) {
+            if (err instanceof ModNotFoundError) setNotFound(true);
+            else setError(errorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -47,11 +53,12 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
     const handleToggleComplete = async () => {
         if (tracked) { onToggle(code); return; }
         setLoading(true);
+        setError(null);
         try {
-            const mod = await fetchMod(code);
-            onAdd({ ...mod, completed: true });
-        } catch {
-            // Failure is not shown to the user yet: see #6.
+            onAdd({ ...(await fetchMod(code)), completed: true });
+        } catch (err) {
+            if (err instanceof ModNotFoundError) onAdd(missingMod(code, true));
+            else setError(errorMessage(err));
         } finally {
             setLoading(false);
         }
@@ -64,13 +71,19 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
                 <button className="node-popup-close" onClick={onClose}>✕</button>
             </div>
             {title && <div className="node-popup-title" title={title}>{title}</div>}
+            {unavailable && (
+                <div className="node-popup-note">{NOT_IN_CATALOGUE}. If you took it, you can still mark it completed.</div>
+            )}
+            {error && <div className="node-popup-error" role="alert">{error}</div>}
             <label className="node-popup-row">
                 <input type="checkbox" checked={completed} onChange={handleToggleComplete} disabled={loading} />
                 Completed
             </label>
-            <button className="node-popup-btn" onClick={handleAddRemove} disabled={loading}>
-                {tracked ? "Remove from list" : loading ? "..." : "Add to list"}
-            </button>
+            {!unavailable && (
+                <button className="node-popup-btn" onClick={handleAddRemove} disabled={loading}>
+                    {tracked ? "Remove from list" : loading ? "..." : "Add to list"}
+                </button>
+            )}
             <a className="node-popup-link" href={`https://nusmods.com/courses/${code}`} target="_blank" rel="noreferrer">
                 View on NUSMods ↗
             </a>
