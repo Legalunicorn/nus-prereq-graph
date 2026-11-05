@@ -152,7 +152,7 @@ describe("buildGraph", () => {
         const treeOf = (code: string) => trees[code];
 
         it("expands modules that aren't in the plan", () => {
-            const graph = buildGraph([mod("A1", "B1:D")], treeOf);
+            const graph = buildGraph([mod("A1", "B1:D")], { treeOf });
             expect(moduleCodes(graph)).toEqual(["A1", "B1", "C1", "D1", "E1"]);
             expect(moduleNode(graph, "B1").tracked).toBe(false);
         });
@@ -162,21 +162,61 @@ describe("buildGraph", () => {
         });
 
         it("doesn't expand a module that's completed", () => {
-            const graph = buildGraph([mod("A1", "B1:D"), mod("B1", "C1:D", true)], treeOf);
+            const graph = buildGraph([mod("A1", "B1:D"), mod("B1", "C1:D", true)], { treeOf });
             expect(moduleCodes(graph)).toEqual(["A1", "B1"]);
         });
 
         it("hides the chain behind an alternative that isn't needed", () => {
             const graph = buildGraph(
                 [mod("A1", { or: ["B1:D", "F1:D"] }), mod("F1", undefined, true)],
-                treeOf,
+                { treeOf },
             );
             expect(moduleCodes(graph)).toEqual(["A1", "F1"]);
         });
 
         it("stops at a cycle", () => {
-            const graph = buildGraph([mod("A1", "CYCLE1:D")], treeOf);
+            const graph = buildGraph([mod("A1", "CYCLE1:D")], { treeOf });
             expect(moduleCodes(graph)).toEqual(["A1", "CYCLE1", "CYCLE2"]);
+        });
+    });
+
+    describe("collapsed alternatives", () => {
+        const tree: PrereqTree = { or: ["A1:D", "B1:D", "C1:D", "D1:D"] };
+        const alternatives = (expanded: string[] = []) => ({
+            rank: (code: string) => (code === "D1" ? 0 : 2),
+            expanded: new Set(expanded),
+        });
+        const moreNode = (graph: Graph) => [...graph.nodes.values()].find(node => node.kind === "more");
+
+        it("shows the best-ranked alternatives and counts the rest", () => {
+            const graph = buildGraph([mod("X1", tree)], { alternatives: alternatives() });
+            expect(moduleCodes(graph)).toEqual(["A1", "D1", "X1"]);
+            expect(moreNode(graph)).toMatchObject({ gateId: "gate:X1", hiddenCount: 2, expanded: false });
+        });
+
+        it("shows everything once expanded", () => {
+            const graph = buildGraph([mod("X1", tree)], { alternatives: alternatives(["gate:X1"]) });
+            expect(moduleCodes(graph)).toEqual(["A1", "B1", "C1", "D1", "X1"]);
+            expect(moreNode(graph)).toMatchObject({ expanded: true });
+        });
+
+        it("leaves short lists alone", () => {
+            const graph = buildGraph([mod("X1", { or: ["A1:D", "B1:D"] })], { alternatives: alternatives() });
+            expect(moreNode(graph)).toBeUndefined();
+        });
+
+        it("doesn't change whether the gate is fulfilled", () => {
+            const graph = buildGraph(
+                [mod("X1", tree), mod("C1", undefined, true)],
+                { alternatives: alternatives() },
+            );
+            expect(moduleNode(graph, "X1").prereqUnfulfilled).toBe(false);
+            expect(moreNode(graph)).toBeUndefined();
+        });
+
+        it("doesn't collapse and or nOf gates", () => {
+            const and = buildGraph([mod("X1", { and: ["A1:D", "B1:D", "C1:D"] })], { alternatives: alternatives() });
+            expect(moreNode(and)).toBeUndefined();
         });
     });
 

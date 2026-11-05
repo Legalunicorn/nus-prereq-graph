@@ -2,6 +2,7 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import "./GraphView.css";
 import type { Mod } from "../types/types";
+import { createRank } from "../utils/alternatives";
 import { buildGraph } from "../utils/buildGraph";
 import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
@@ -50,6 +51,7 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
     const [fullChain, setFullChain] = useState(false);
+    const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
     const snapshot = useSnapshot();
 
@@ -63,6 +65,14 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
         cy.on("tap", 'node[kind="module"][!wildcard]', (evt) => {
             const node = evt.target; const pos = node.renderedPosition();
             setPopup({ code: node.id(), ...popupPosition(pos.x, pos.y, cy.width(), cy.height()) });
+        });
+        cy.on("tap", 'node[kind="more"]', (evt) => {
+            const gateId: string = evt.target.data("gateId");
+            setExpandedGates(prev => {
+                const next = new Set(prev);
+                if (!next.delete(gateId)) next.add(gateId);
+                return next;
+            });
         });
         cy.on("tap", (evt) => { if (evt.target === cy) setPopup(null); });
         cy.on("pan zoom layoutstop", () => setPopup(null));
@@ -86,8 +96,10 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
         const treeOf = fullChain && snapshot
             ? (code: string) => snapshot.modules[code]?.prereqTree
             : undefined;
-        syncElements(cyRef.current, toElements(buildGraph(mods, treeOf), offerings));
-    }, [mods, offerings, fullChain, snapshot]);
+        const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
+        const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
+        syncElements(cyRef.current, toElements(graph, offerings));
+    }, [mods, offerings, fullChain, snapshot, expandedGates]);
 
     return (
         <div className="graph-wrapper">
