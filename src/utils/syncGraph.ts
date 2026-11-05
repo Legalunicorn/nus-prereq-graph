@@ -1,6 +1,7 @@
 import type cytoscape from "cytoscape";
 import type { GraphDirection } from "./cytoscapeConfig";
-import { applyRoutes, computeLayout } from "./graphLayout";
+import { applyRoutes } from "./edgeRouteStyle";
+import { computeLayout } from "./graphLayout";
 import type { toElements } from "./graphElements";
 import { syncSemesterTags, withoutTags } from "./semesterTags";
 

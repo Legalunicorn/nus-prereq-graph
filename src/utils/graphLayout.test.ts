@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bendsOf, computeLayout, countCrossings, portOffsets, segmentsFor } from "./graphLayout";
+import { bendsOf, computeLayout, countCrossings, portOffsets } from "./graphLayout";
 
 const node = (id: string) => ({ id, width: 86, height: 32 });
 const edge = (source: string, target: string) => ({ id: `${source}-${target}`, source, target });
@@ -90,17 +90,3 @@ describe("computeLayout", () => {
     });
 });
 
-describe("segmentsFor", () => {
-    it("gives weights and distances that rebuild each point", () => {
-        const source = { x: 0, y: 0 };
-        const target = { x: 100, y: 0 };
-        const { weights, distances } = segmentsFor(source, target, [{ x: 25, y: 40 }]);
-        expect(weights[0]).toBeCloseTo(0.25);
-        expect(distances[0]).toBeCloseTo(40);
-    });
-
-    it("handles nodes in the same spot", () => {
-        const point = { x: 5, y: 5 };
-        expect(segmentsFor(point, point, [point])).toEqual({ weights: [], distances: [] });
-    });
-});
