@@ -14,6 +14,7 @@ Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 - Tick a module to mark it completed. You can also click a node in the graph.
 - Modules show a tag if they only run in one semester or aren't offered this AY. No tag means both semesters. The sidebar also shows the minimum semesters to finish each one.
 - **Full chain** expands modules outside your plan to show the whole path. **Fit** recentres the graph.
+- **Share** copies a link to your plan. Nothing is sent to a server; the plan is in the link itself.
 - The legend explains node and arrow colours. Hover over a node to highlight its neighbours.
 
 ### Limits

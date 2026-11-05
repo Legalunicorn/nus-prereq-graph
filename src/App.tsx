@@ -7,14 +7,17 @@ import CourseListModal from "./components/CourseListModal";
 import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
 import Header from "./components/Header";
+import SharedPlanBanner from "./components/SharedPlanBanner";
 import usePlanEstimate from "./hooks/usePlanEstimate";
+import useSharedPlan from "./hooks/useSharedPlan";
 import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
 import { PHONE_WIDTH } from "./constants";
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete, toggleTaking} = useStoredMods();
+  const {mods, addMods, removeMods, toggleComplete, toggleTaking, replaceMods} = useStoredMods();
   const plan = usePlanEstimate(mods);
+  const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
   const [showMathAndScience, setShowMathAndScience] = useState(false);
@@ -25,6 +28,14 @@ function App() {
     <div className="app-shell">
       <Header theme={theme} onToggleTheme={toggleTheme} />
       <div className="app">
+        {sharedPlan.pendingCount > 0 && (
+          <SharedPlanBanner
+            count={sharedPlan.pendingCount}
+            hasError={sharedPlan.hasError}
+            onAccept={sharedPlan.accept}
+            onDismiss={sharedPlan.dismiss}
+          />
+        )}
         <button
           className="sidebar-toggle"
           style={{ left: isSidebarCollapsed ? "12px" : "272px" }}

@@ -21,6 +21,7 @@ import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import Legend from "./Legend";
 import NodePopup from "./NodePopup";
+import ShareButton from "./ShareButton";
 
 cytoscape.use(dagre);
 
@@ -133,6 +134,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
                         <button onClick={() => setDirection(prev => (prev === "horizontal" ? "vertical" : "horizontal"))}>
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
+                        <ShareButton mods={mods} />
                         <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
                     </div>
                     <Legend />
