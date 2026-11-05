@@ -11,7 +11,7 @@
     padding: 3px 8px;
     font-size: 11px;
     color: var(--text);
-    background: var(--surface-raised);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
@@ -20,12 +20,12 @@
 .legend-items {
     display: grid;
     gap: 4px;
-    margin-top: 6px;
+    margin-bottom: 6px;
     padding: 8px 10px;
     list-style: none;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
 }
 
 .legend-items li { display: flex; align-items: center; gap: 8px; }
@@ -37,17 +37,17 @@
     border-radius: 3px;
 }
 
-.legend-node.completed { background: #3f7d4a; }
-.legend-node.ready { background: #2f6bd6; }
-.legend-node.blocked { background: #b3453c; }
-.legend-node.not-planned { background: #232638; border: 1px solid #5a6078; }
-.legend-node.not-offered { border: 2px dashed #e0a458; }
+.legend-node.completed { background: var(--graph-completed); }
+.legend-node.ready { background: var(--graph-ready); }
+.legend-node.blocked { background: var(--graph-blocked); }
+.legend-node.not-planned { background: var(--graph-not-planned-fill); border: 1px solid var(--graph-not-planned-border); }
+.legend-node.not-offered { border: 2px dashed var(--graph-not-offered); }
 
 .legend-edge {
     flex-shrink: 0;
     width: 18px;
-    border-top: 2px solid #5a6078;
+    border-top: 2px solid var(--graph-neutral);
 }
 
-.legend-edge.fulfilled { border-color: #7fb069; }
-.legend-edge.unfulfilled { border-top-style: dashed; border-color: #d0635a; }
+.legend-edge.fulfilled { border-color: var(--graph-fulfilled); }
+.legend-edge.unfulfilled { border-top-style: dashed; border-color: var(--graph-unfulfilled); }

@@ -1,7 +1,7 @@
 .sidebar .module-search-results {
     margin: 0 0 0.45rem;
-    border: 1px solid #454a5d;
-    border-radius: 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 0.35rem;
     overflow: hidden;
 }
 
@@ -11,23 +11,23 @@
     width: 100%;
     padding: 0.4rem 0.55rem;
     text-align: left;
-    color: #eee;
-    background: #292c3e;
+    color: var(--text);
+    background: var(--surface);
     border: none;
     cursor: pointer;
 }
 
 .module-search-result:hover,
 .module-search-result.active {
-    background: #363a50;
+    background: var(--surface-hover);
 }
 
-.module-search-code { font-size: 0.8rem; font-weight: 600; }
-.module-search-added { font-size: 11px; font-weight: 500; color: #9ccc82; }
+.module-search-code { font-family: var(--mono); font-size: 0.78rem; font-weight: 600; }
+.module-search-added { font-size: 11px; font-weight: 500; color: var(--success); }
 
 .module-search-title {
     font-size: 0.7rem;
-    color: #a6aabd;
+    color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -39,5 +39,5 @@
     font-size: 0.75rem;
 }
 
-.module-search-status { color: #a6aabd; }
-.module-search-error { color: #f0a9a2; }
+.module-search-status { color: var(--text-muted); }
+.module-search-error { color: var(--danger); }

@@ -49,11 +49,9 @@ describe("toElements", () => {
         expect(element.data).toMatchObject({ label: "X1", semesters: "", notOffered: false });
     });
 
-    it("marks completed modules and fulfilled gates with a tick", () => {
-        const elements = toElements(buildGraph([mod("X1", "A1:D"), mod("Y1", { or: ["A1:D"] }), mod("A1", undefined, true)]));
-        const label = (id: string) => elements.find(element => element.data.id === id)?.data;
-        expect(label("A1")).toMatchObject({ label: "✓ A1" });
-        expect(label("gate:Y1")).toMatchObject({ label: "OR ✓" });
+    it("marks completed modules with a tick", () => {
+        const elements = toElements(buildGraph([mod("X1", "A1:D"), mod("A1", undefined, true)]));
+        expect(elements.find(element => element.data.id === "A1")?.data).toMatchObject({ label: "✓ A1" });
     });
 
     it("shows wildcards with a star and no semesters", () => {

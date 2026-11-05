@@ -4,10 +4,13 @@ import "./GraphView.css";
 import type { Mod } from "../types/types";
 import { createRank } from "../utils/alternatives";
 import { buildGraph } from "../utils/buildGraph";
-import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
+import { buildStyles } from "../utils/cytoscapeConfig";
+import { readGraphPalette } from "../utils/theme";
+import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
 import { popupPosition } from "../utils/popupPosition";
-import { includeTags, moveTagWithNode, syncSemesterTags, withoutTags } from "../utils/semesterTags";
+import { includeTags, moveTagWithNode } from "../utils/semesterTags";
+import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
@@ -21,6 +24,7 @@ const MAX_ZOOM = 1.5; // stops small graphs from rendering oversized nodes
 
 interface GraphViewProps {
     mods: Mod[];
+    theme: Theme;
     estimate: ((code: string) => number | null) | null;
     onToggle: (code: string) => void;
     onAdd: (mod: Mod) => void;
@@ -29,25 +33,7 @@ interface GraphViewProps {
 
 interface PopupState { code: string; x: number; y: number; }
 
-/** Updates what's on screen. The layout, and so the view, only changes if elements were added or removed. */
-function syncElements(cy: cytoscape.Core, elements: ReturnType<typeof toElements>) {
-    const currentIds = new Set(withoutTags(cy).map(element => element.id()));
-    const sameStructure = elements.length === currentIds.size
-        && elements.every(element => currentIds.has(element.data.id));
-
-    if (sameStructure) {
-        cy.batch(() => {
-            for (const { data } of elements) cy.getElementById(data.id).data(data);
-        });
-    } else {
-        cy.elements().remove();
-        cy.add(elements);
-        cy.layout(cytoscapeLayout).run();
-    }
-    syncSemesterTags(cy);
-}
-
-export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }: GraphViewProps) {
+export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRemove }: GraphViewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
@@ -59,7 +45,7 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
     useEffect(() => {
         const cy = cytoscape({
             container: containerRef.current,
-            style: cytoscapeStyles,
+            style: buildStyles(readGraphPalette()),
             maxZoom: MAX_ZOOM,
         });
 
@@ -95,18 +81,23 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
     }, []);
 
     useEffect(() => {
+        cyRef.current?.style(buildStyles(readGraphPalette()));
+    }, [theme]);
+
+    useEffect(() => {
         if (!cyRef.current) return;
         const treeOf = fullChain && snapshot
             ? (code: string) => snapshot.modules[code]?.prereqTree
             : undefined;
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
-        syncElements(cyRef.current, toElements(graph, offerings));
+        syncGraph(cyRef.current, toElements(graph, offerings));
     }, [mods, offerings, fullChain, snapshot, expandedGates]);
 
     return (
         <div className="graph-wrapper">
             <div ref={containerRef} className="graph-container" />
+            {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (
                 <>
                     <div className="graph-controls">
@@ -120,7 +111,7 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
                                 Full chain
                             </button>
                         )}
-                        <button onClick={() => cyRef.current?.fit(undefined, FIT_PADDING)}>Fit</button>
+                        <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
                     </div>
                     <Legend />
                 </>

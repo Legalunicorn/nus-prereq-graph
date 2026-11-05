@@ -7,20 +7,20 @@
     min-height: 100vh;
     padding: 16px;
     text-align: center;
-    color: #edf0f8;
+    color: var(--text);
 }
 
 .error-screen h1 { font-size: 18px; font-weight: 600; }
-.error-screen p { max-width: 420px; font-size: 14px; color: #b0b4c6; }
+.error-screen p { max-width: 420px; font-size: 14px; color: var(--text-muted); }
 .error-screen-actions { display: flex; gap: 8px; }
 
 .error-screen button {
     padding: 6px 12px;
-    color: #eee;
-    background: #303449;
-    border: 1px solid #6a718c;
+    color: var(--text);
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
     border-radius: 6px;
     cursor: pointer;
 }
 
-.error-screen button:hover { background: #3b4058; }
+.error-screen button:hover { background: var(--surface-hover); }
