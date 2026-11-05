@@ -114,7 +114,6 @@
     button:hover { color: var(--text); }
 }
 
-/* On phones the sidebar sits over the graph instead of beside it. */
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;

@@ -19,7 +19,7 @@ function App() {
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
   const [showMathAndScience, setShowMathAndScience] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -28,11 +28,11 @@ function App() {
       <div className="app">
         <button
           className="sidebar-toggle"
-          style={{ left: sidebarCollapsed ? "12px" : "272px" }}
-          onClick={() => setSidebarCollapsed(prev => !prev)}
-          aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+          style={{ left: isSidebarCollapsed ? "12px" : "272px" }}
+          onClick={() => setIsSidebarCollapsed(prev => !prev)}
+          aria-label={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
         >
-          {sidebarCollapsed ? "›" : "‹"}
+          {isSidebarCollapsed ? "›" : "‹"}
         </button>
         <Sidebar
           mods={mods}
@@ -42,7 +42,7 @@ function App() {
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
-          collapsed={sidebarCollapsed}
+          isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
         <GraphView mods={mods} theme={theme} estimate={plan.estimate} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>

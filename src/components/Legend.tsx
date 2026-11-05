@@ -16,14 +16,14 @@ const EDGE_ITEMS = [
 ];
 
 export default function Legend() {
-    const [open, setOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     return (
         <div className="legend">
-            <button className="legend-toggle" onClick={() => setOpen(prev => !prev)} aria-expanded={open}>
+            <button className="legend-toggle" onClick={() => setIsOpen(prev => !prev)} aria-expanded={isOpen}>
                 Legend
             </button>
-            {open && (
+            {isOpen && (
                 <ul className="legend-items">
                     {NODE_ITEMS.map(item => (
                         <li key={item.className}>

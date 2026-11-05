@@ -23,8 +23,12 @@ export async function fetchMod(code: string): Promise<Mod> {
         throw new Error("Couldn't reach NUSMods. Check your connection and try again.");
     }
 
-    if (res.status === 404) throw new ModNotFoundError(code);
-    if (!res.ok) throw new Error("NUSMods returned an error. Try again later.");
+    if (res.status === 404) {
+        throw new ModNotFoundError(code);
+    }
+    if (!res.ok) {
+        throw new Error("NUSMods returned an error. Try again later.");
+    }
     const data = await res.json();
     return {
         code: data.moduleCode,
@@ -37,12 +41,13 @@ export async function fetchMod(code: string): Promise<Mod> {
 
 export async function fetchOfferings(): Promise<Offerings> {
     const res = await fetch(`https://api.nusmods.com/v2/${CURR_ACAD_YEAR}/moduleList.json`);
-    if (!res.ok) throw new Error("Couldn't load the module list");
+    if (!res.ok) {
+        throw new Error("Couldn't load the module list");
+    }
     const list: { moduleCode: string; title: string; semesters: number[] }[] = await res.json();
     return new Map(list.map(({ moduleCode, title, semesters }) => [moduleCode, { title, semesters }]));
 }
 
-/** A module the API no longer has, such as a retired one a student took in an earlier year. */
 export function missingMod(code: string, completed: boolean): Mod {
     return { code, title: NOT_IN_CATALOGUE, completed };
 }
@@ -61,8 +66,12 @@ export async function refreshCatalogue(mods: Mod[]): Promise<{ refreshed: Mod[];
             try {
                 refreshed.push(await fetchMod(mod.code));
             } catch (err) {
-                if (err instanceof ModNotFoundError) refreshed.push(missingMod(mod.code, mod.completed));
-                else complete = false;
+                if (err instanceof ModNotFoundError) {
+                    refreshed.push(missingMod(mod.code, mod.completed));
+                }
+                else {
+                    complete = false;
+                }
             }
         }
     };

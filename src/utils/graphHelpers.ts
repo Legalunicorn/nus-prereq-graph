@@ -22,7 +22,9 @@ export function findMod(mods: Mod[], code: string): Mod | undefined {
  * condition has no course to show, so it is dropped.
  */
 export function normalizeTree(tree: PrereqTree): PrereqTree | null {
-    if (typeof tree === "string") return tree;
+    if (typeof tree === "string") {
+        return tree;
+    }
 
     const normalizeBranch = (branch: PrereqTree[]) =>
         branch.map(normalizeTree).filter((t): t is PrereqTree => t !== null);
@@ -76,9 +78,11 @@ export interface WalkResult {
     fulfilled: boolean;
 }
 
-export function edgeStatus(fulfilled: boolean, cleared: boolean): EdgeStatus {
-    if (fulfilled) return "fulfilled";
-    return cleared ? "cleared" : "unfulfilled";
+export function edgeStatus(fulfilled: boolean, isCleared: boolean): EdgeStatus {
+    if (fulfilled) {
+        return "fulfilled";
+    }
+    return isCleared ? "cleared" : "unfulfilled";
 }
 
 export interface WalkContext {
@@ -96,14 +100,18 @@ function collapseAlternatives(
     graph: Graph,
     { rank, expanded }: AlternativeOptions,
 ): WalkResult[] {
-    if (results.length <= MAX_VISIBLE_ALTERNATIVES) return results;
+    if (results.length <= MAX_VISIBLE_ALTERNATIVES) {
+        return results;
+    }
 
     const isExpanded = expanded.has(gateId);
     const hiddenCount = results.length - MAX_VISIBLE_ALTERNATIVES;
     const moreId = `more:${gateId}`;
     graph.nodes.set(moreId, { kind: "more", id: moreId, gateId, hiddenCount, expanded: isExpanded });
     graph.edges.push({ from: moreId, to: gateId, status: "cleared" });
-    if (isExpanded) return results;
+    if (isExpanded) {
+        return results;
+    }
 
     // A nested gate is a requirement in its own right, so it always ranks first.
     const rankOf = (result: WalkResult) => (result.id.startsWith("gate:") ? -1 : rank(result.id));
@@ -113,7 +121,9 @@ function collapseAlternatives(
 function expandUntracked(code: string, ctx: WalkContext) {
     const tree = ctx.treeOf?.(code);
     const normalized = tree ? normalizeTree(tree) : null;
-    if (!normalized) return;
+    if (!normalized) {
+        return;
+    }
     const root = walkTree(normalized, ctx, code);
     ctx.graph.edges.push({
         from: root.id,
@@ -125,11 +135,11 @@ function expandUntracked(code: string, ctx: WalkContext) {
 
 /**
  * `path` is this tree's position under its module, which keeps gate IDs the same between builds.
- * With `cleared` set, the tree belongs to a completed module, so nothing in it renders as unmet.
+ * With `isCleared` set, the tree belongs to a completed module, so nothing in it renders as unmet.
  */
-export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, cleared = false): WalkResult{
+export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, isCleared = false): WalkResult{
     const { mods, graph } = ctx;
-    if (typeof tree == "string"){
+    if (typeof tree === "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
         const completed = isWildcard(code)
@@ -144,7 +154,9 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
                 completed,
                 tracked: !!exist,
             });
-            if (!exist) expandUntracked(code, ctx);
+            if (!exist) {
+                expandUntracked(code, ctx);
+            }
         }
         return { id: code, minGrade, fulfilled: completed };
     }
@@ -164,7 +176,7 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
         children  = tree.nOf![1];
     }
 
-    const childResults = children.map((child, i) => walkTree(child, ctx, `${path}.${i}`, cleared));
+    const childResults = children.map((child, i) => walkTree(child, ctx, `${path}.${i}`, isCleared));
 
     let fulfilled: boolean;
     if (gateType === "and"){
@@ -181,10 +193,10 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
         id: thisGateId,
         gateType,
         n,
-        fulfilled: fulfilled || cleared,
+        fulfilled: fulfilled || isCleared,
     });
 
-    const collapsible = gateType === "or" && !fulfilled && !cleared && ctx.alternatives;
+    const collapsible = gateType === "or" && !fulfilled && !isCleared && ctx.alternatives;
     const resultsToShow = collapsible
         ? collapseAlternatives(childResults, thisGateId, graph, collapsible)
         : (fulfilled && gateType !== "and")
@@ -196,7 +208,7 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
             from: result.id,
             to: thisGateId,
             minGrade: result.minGrade,
-            status: edgeStatus(result.fulfilled, cleared),
+            status: edgeStatus(result.fulfilled, isCleared),
         });
     }
     return { id: thisGateId, fulfilled };
@@ -205,7 +217,9 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
 export function pruneUnreachable(graph: Graph){
     const childrenOf = new Map<string, string[]>();
     for (const edge of graph.edges){
-        if (!childrenOf.has(edge.to)) childrenOf.set(edge.to, []);
+        if (!childrenOf.has(edge.to)) {
+            childrenOf.set(edge.to, []);
+        }
         childrenOf.get(edge.to)!.push(edge.from);
     }
 
@@ -229,7 +243,9 @@ export function pruneUnreachable(graph: Graph){
     }
 
     for (const id of Array.from(graph.nodes.keys())){
-        if (!reachable.has(id)) graph.nodes.delete(id);
+        if (!reachable.has(id)) {
+            graph.nodes.delete(id);
+        }
     }
     graph.edges = graph.edges.filter(e => graph.nodes.has(e.from) && graph.nodes.has(e.to));
 }

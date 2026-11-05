@@ -2,7 +2,6 @@
 export interface CohortRule { rule: string; years: string[]; }
 export interface ProgramTypeRule { rule: string; types: string[]; }
 
-// local storage of mods
 export type PrereqTree =
     | string
     | {

@@ -13,13 +13,15 @@ interface SidebarProps {
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
     onOpenMathAndScience: () => void;
-    collapsed: boolean;
+    isCollapsed: boolean;
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets, onOpenFoundations, onOpenMathAndScience, collapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+    const minSemestersOf = (mod: Mod) => (mod.completed ? null : plan.estimate?.(mod.code) ?? null);
+
     return (
-        <div className={`sidebar ${collapsed?"collapsed":""}`}>
+        <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
              <ModuleSearch mods={mods} onAdd={onAdd} />
              <button className="preset" onClick={onOpenPresets}> CS Focus Areas Preset</button>
              <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
@@ -36,8 +38,8 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
                             <span className="mod-title" title={m.title}>{m.title}</span>
                             <span className="mod-meta">
                                 <SemesterTag code={m.code} />
-                                {!m.completed && plan.estimate?.(m.code) != null && (
-                                    <span className="mod-estimate">{plan.estimate(m.code)} sem</span>
+                                {minSemestersOf(m) !== null && (
+                                    <span className="mod-estimate">{minSemestersOf(m)} sem</span>
                                 )}
                             </span>
                         </div>

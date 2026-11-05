@@ -13,7 +13,7 @@ interface PresetsModalProps {
 
 export default function PresetsModal({ mods, onAdd, onRemove, onClose }: PresetsModalProps) {
     const [expandedId, setExpandedId] = useState<string | null>(null);
-    const { rowProps, addCourses, adding } = useCourseAdd(mods, onAdd);
+    const { rowProps, addCourses, isAdding } = useCourseAdd(mods, onAdd);
     useEscapeKey(onClose);
     const plannedCodes = new Set(mods.map(mod => mod.code));
     const notPlanned = (courses: FocusAreaCourse[]) =>
@@ -51,7 +51,7 @@ export default function PresetsModal({ mods, onAdd, onRemove, onClose }: Presets
                                             {remaining > 0 && (
                                                 <button
                                                     className="presets-add-all"
-                                                    disabled={adding}
+                                                    disabled={isAdding}
                                                     onClick={() => addCourses(notPlanned(area.primaries))}
                                                 >
                                                     Add all

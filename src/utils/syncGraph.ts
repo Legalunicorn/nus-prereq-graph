@@ -25,26 +25,30 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
     const currentIds = new Set(current.map(element => element.id()));
     const nextIds = new Set(elements.map(element => element.data.id));
     const newElements = elements.filter(element => !currentIds.has(element.data.id));
-    const sameStructure = newElements.length === 0 && currentIds.size === nextIds.size;
+    const isSameStructure = newElements.length === 0 && currentIds.size === nextIds.size;
 
     cy.batch(() => {
         current.filter(element => !nextIds.has(element.id())).remove();
         for (const { data } of elements) {
-            if (currentIds.has(data.id)) cy.getElementById(data.id).data(data);
+            if (currentIds.has(data.id)) {
+                cy.getElementById(data.id).data(data);
+            }
         }
     });
 
-    if (!sameStructure) {
+    if (!isSameStructure) {
         const added = cy.add(newElements);
-        const animate = currentIds.size > 0 && !prefersReducedMotion();
+        const shouldAnimate = currentIds.size > 0 && !prefersReducedMotion();
         withoutTags(cy).layout({
             ...cytoscapeLayout,
-            animate,
+            animate: shouldAnimate,
             animationDuration: MOVE_DURATION,
             animationEasing: "ease-out-cubic",
             animateFilter: (node: cytoscape.NodeSingular) => !added.contains(node),
         } as cytoscape.LayoutOptions).run();
-        if (animate) fadeIn(added);
+        if (shouldAnimate) {
+            fadeIn(added);
+        }
     }
 
     syncSemesterTags(cy);

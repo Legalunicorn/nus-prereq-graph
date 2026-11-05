@@ -8,7 +8,9 @@ import useSnapshot from "./useSnapshot";
 function loadStart(): RegularSemester {
     try {
         const saved = localStorage.getItem(START_SEMESTER_KEY);
-        if (saved === "1" || saved === "2") return Number(saved) as RegularSemester;
+        if (saved === "1" || saved === "2") {
+            return Number(saved) as RegularSemester;
+        }
     } catch {
         // Storage is unavailable, so fall back to the date.
     }
@@ -29,7 +31,9 @@ export default function usePlanEstimate(mods: Mod[]) {
     };
 
     const estimate = useMemo(() => {
-        if (!snapshot) return null;
+        if (!snapshot) {
+            return null;
+        }
         const completed = new Set(mods.filter(mod => mod.completed).map(mod => mod.code));
         return createEstimator({ modules: snapshot.modules, completed, start });
     }, [snapshot, mods, start]);

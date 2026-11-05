@@ -1,7 +1,9 @@
 export type Theme = "light" | "dark";
 
 export function resolveTheme(saved: string | null, prefersDark: boolean): Theme {
-    if (saved === "light" || saved === "dark") return saved;
+    if (saved === "light" || saved === "dark") {
+        return saved;
+    }
     return prefersDark ? "dark" : "light";
 }
 
@@ -9,7 +11,6 @@ export function applyTheme(theme: Theme) {
     document.documentElement.dataset.theme = theme;
 }
 
-/** Reads the graph colours from index.css, so they follow the active theme. */
 export function readGraphPalette() {
     const styles = getComputedStyle(document.documentElement);
     const color = (name: string) => styles.getPropertyValue(`--graph-${name}`).trim();

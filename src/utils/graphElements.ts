@@ -6,8 +6,12 @@ import type { Offerings } from "./offerings";
 const USUAL_MIN_GRADE = "D";
 
 function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
-    if (node.gateType === "and") return "AND";
-    if (node.gateType === "or") return "OR";
+    if (node.gateType === "and") {
+        return "AND";
+    }
+    if (node.gateType === "or") {
+        return "OR";
+    }
     return `${node.n} OF`;
 }
 
@@ -36,7 +40,6 @@ function nodeData(node: Node, offerings: Offerings | null) {
     return { id: node.id, label: gateLabel(node), kind: node.kind, fulfilled: node.fulfilled };
 }
 
-/** Converts a graph to cytoscape elements with stable IDs, so updates can be matched to what's on screen. */
 export function toElements(graph: Graph, offerings: Offerings | null = null) {
     const edges = new Map(graph.edges.map(edge => {
         const id = `${edge.from}->${edge.to}`;
