@@ -23,10 +23,6 @@
     display: flex;
     gap: 6px;
 }
-@media (max-width: 768px) {
-    /* Clears the sidebar toggle. */
-    .graph-controls { top: 48px; }
-}
 .graph-controls button {
     padding: 4px 10px;
     font-size: 12px;
@@ -38,6 +34,11 @@
 }
 .graph-controls button:hover { background: var(--surface-hover); }
 .graph-controls button.active { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 768px) {
+    /* Small enough to share a row with the sidebar toggle. */
+    .graph-controls { right: 6px; gap: 4px; }
+    .graph-controls button { padding: 4px 6px; font-size: 11px; }
+}
 .graph-container {
     width: 100%;
     height: 100%;
