@@ -1,5 +1,6 @@
 import type cytoscape from "cytoscape";
 import { cytoscapeLayout } from "./cytoscapeConfig";
+import { applyEdgeTracks } from "./edgeTracks";
 import type { toElements } from "./graphElements";
 import { syncSemesterTags, withoutTags } from "./semesterTags";
 
@@ -45,6 +46,7 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
             animationDuration: MOVE_DURATION,
             animationEasing: "ease-out-cubic",
             animateFilter: (node: cytoscape.NodeSingular) => !added.contains(node),
+            stop: () => applyEdgeTracks(cy),
         } as cytoscape.LayoutOptions).run();
         if (shouldAnimate) {
             fadeIn(added);
