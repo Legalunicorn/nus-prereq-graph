@@ -7,6 +7,7 @@ import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
+import useSnapshot from "../hooks/useSnapshot";
 import Legend from "./Legend";
 import NodePopup from "./NodePopup";
 
@@ -46,7 +47,9 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
+    const [fullChain, setFullChain] = useState(false);
     const offerings = useOfferings();
+    const snapshot = useSnapshot();
 
     useEffect(() => {
         const cy = cytoscape({
@@ -76,17 +79,31 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
     }, []);
 
     useEffect(() => {
-        if (cyRef.current) syncElements(cyRef.current, toElements(buildGraph(mods), offerings));
-    }, [mods, offerings]);
+        if (!cyRef.current) return;
+        const treeOf = fullChain && snapshot
+            ? (code: string) => snapshot.modules[code]?.prereqTree
+            : undefined;
+        syncElements(cyRef.current, toElements(buildGraph(mods, treeOf), offerings));
+    }, [mods, offerings, fullChain, snapshot]);
 
     return (
         <div className="graph-wrapper">
             <div ref={containerRef} className="graph-container" />
             {mods.length > 0 && (
                 <>
-                    <button className="graph-fit" onClick={() => cyRef.current?.fit(undefined, FIT_PADDING)}>
-                        Fit
-                    </button>
+                    <div className="graph-controls">
+                        {snapshot && (
+                            <button
+                                className={fullChain ? "active" : ""}
+                                aria-pressed={fullChain}
+                                title={`Prerequisite data from ${snapshot.generatedAt}`}
+                                onClick={() => setFullChain(prev => !prev)}
+                            >
+                                Full chain
+                            </button>
+                        )}
+                        <button onClick={() => cyRef.current?.fit(undefined, FIT_PADDING)}>Fit</button>
+                    </div>
                     <Legend />
                 </>
             )}

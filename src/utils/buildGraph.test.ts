@@ -142,6 +142,44 @@ describe("buildGraph", () => {
         });
     });
 
+    describe("full chain", () => {
+        const trees: Record<string, PrereqTree> = {
+            B1: "C1:D",
+            C1: { or: ["D1:D", "E1:D"] },
+            CYCLE1: "CYCLE2:D",
+            CYCLE2: "CYCLE1:D",
+        };
+        const treeOf = (code: string) => trees[code];
+
+        it("expands modules that aren't in the plan", () => {
+            const graph = buildGraph([mod("A1", "B1:D")], treeOf);
+            expect(moduleCodes(graph)).toEqual(["A1", "B1", "C1", "D1", "E1"]);
+            expect(moduleNode(graph, "B1").tracked).toBe(false);
+        });
+
+        it("only shows direct prerequisites without treeOf", () => {
+            expect(moduleCodes(buildGraph([mod("A1", "B1:D")]))).toEqual(["A1", "B1"]);
+        });
+
+        it("doesn't expand a module that's completed", () => {
+            const graph = buildGraph([mod("A1", "B1:D"), mod("B1", "C1:D", true)], treeOf);
+            expect(moduleCodes(graph)).toEqual(["A1", "B1"]);
+        });
+
+        it("hides the chain behind an alternative that isn't needed", () => {
+            const graph = buildGraph(
+                [mod("A1", { or: ["B1:D", "F1:D"] }), mod("F1", undefined, true)],
+                treeOf,
+            );
+            expect(moduleCodes(graph)).toEqual(["A1", "F1"]);
+        });
+
+        it("stops at a cycle", () => {
+            const graph = buildGraph([mod("A1", "CYCLE1:D")], treeOf);
+            expect(moduleCodes(graph)).toEqual(["A1", "CYCLE1", "CYCLE2"]);
+        });
+    });
+
     describe("completed modules", () => {
         it("shows no unmet state when a tracked prerequisite is not completed", () => {
             const graph = buildGraph([mod("CS3230", CS3230, true), mod("CS2040S")]);

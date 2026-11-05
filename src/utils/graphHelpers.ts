@@ -70,11 +70,32 @@ export function edgeStatus(fulfilled: boolean, cleared: boolean): EdgeStatus {
     return cleared ? "cleared" : "unfulfilled";
 }
 
+export interface WalkContext {
+    mods: Mod[];
+    graph: Graph;
+    /** When set, modules not in the plan are expanded using these trees, to show the full chain. */
+    treeOf?: (code: string) => PrereqTree | undefined;
+}
+
+function expandUntracked(code: string, ctx: WalkContext) {
+    const tree = ctx.treeOf?.(code);
+    const normalized = tree ? normalizeTree(tree) : null;
+    if (!normalized) return;
+    const root = walkTree(normalized, ctx, code);
+    ctx.graph.edges.push({
+        from: root.id,
+        to: code,
+        minGrade: root.minGrade,
+        status: edgeStatus(root.fulfilled, false),
+    });
+}
+
 /**
  * `path` is this tree's position under its module, which keeps gate IDs the same between builds.
  * With `cleared` set, the tree belongs to a completed module, so nothing in it renders as unmet.
  */
-export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, path: string, cleared = false): WalkResult{
+export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, cleared = false): WalkResult{
+    const { mods, graph } = ctx;
     if (typeof tree == "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
@@ -87,6 +108,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, path: stri
                 completed: exist?.completed ?? false,
                 tracked: !!exist,
             });
+            if (!exist) expandUntracked(code, ctx);
         }
         return { id: code, minGrade, fulfilled: exist?.completed ?? false };
     }
@@ -106,7 +128,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, path: stri
         children  = tree.nOf![1];
     }
 
-    const childResults = children.map((child, i) => walkTree(child, mods, graph, `${path}.${i}`, cleared));
+    const childResults = children.map((child, i) => walkTree(child, ctx, `${path}.${i}`, cleared));
 
     let fulfilled: boolean;
     if (gateType === "and"){
