@@ -1,17 +1,13 @@
 import type cytoscape from "cytoscape";
 import type { GraphDirection } from "./cytoscapeConfig";
-import { applyRoutes, computeLayout, wrappedRoutes } from "./graphLayout";
+import { applyRoutes, computeLayout } from "./graphLayout";
 import type { toElements } from "./graphElements";
 import { syncSemesterTags, withoutTags } from "./semesterTags";
-import { CELL_WIDTH, wrapRanks } from "./wrapRanks";
 
 const MOVE_DURATION = 280;
-const FIT_PADDING = 48;
-// Vertical mode aims to keep nodes this large on screen, which sets how many fit in a row.
-const READABLE_ZOOM = 0.8;
-const MIN_PER_ROW = 2;
-const MAX_PER_ROW_KEY = "maxPerRow";
 const DIRECTION_KEY = "direction";
+const READABLE_ZOOM = 0.6;
+const START_PADDING = 56;
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -24,37 +20,23 @@ function fadeIn(elements: cytoscape.CollectionReturnValue) {
     });
 }
 
-const toLayoutEdge = (edge: cytoscape.EdgeSingular) => ({ id: edge.id(), source: edge.source().id(), target: edge.target().id() });
-
-const maxPerRowFor =(cy: cytoscape.Core) =>
-    Math.max(MIN_PER_ROW, Math.floor(cy.width() / READABLE_ZOOM / CELL_WIDTH));
-
-function fitToWidth(cy: cytoscape.Core) {
-    const nodes = withoutTags(cy).nodes();
-    const maxPerRow = maxPerRowFor(cy);
-    cy.scratch(MAX_PER_ROW_KEY, maxPerRow);
-    const placed = wrapRanks(
-        nodes.map(node => ({ id: node.id(), ...node.position() })),
-        maxPerRow,
-    );
-    if (placed) {
-        nodes.forEach(node => {
-            const position = placed.get(node.id());
-            if (position) {
-                node.position(position);
-            }
-        });
-        const positions = Object.fromEntries(nodes.map(node => [node.id(), node.position()]));
-        applyRoutes(cy, wrappedRoutes(withoutTags(cy).edges().map(toLayoutEdge), positions), positions);
+/** A graph too big to read when fitted opens at the start of its chain instead. Fit still shows all of it. */
+function keepReadable(cy: cytoscape.Core, direction: GraphDirection) {
+    if (cy.zoom() >= READABLE_ZOOM) {
+        return;
     }
-    cy.fit(nodes, FIT_PADDING);
+    const box = withoutTags(cy).boundingBox();
+    cy.zoom(READABLE_ZOOM);
+    cy.pan(direction === "vertical"
+        ? { x: (cy.width() - box.w * READABLE_ZOOM) / 2 - box.x1 * READABLE_ZOOM, y: START_PADDING - box.y1 * READABLE_ZOOM }
+        : { x: START_PADDING - box.x1 * READABLE_ZOOM, y: (cy.height() - box.h * READABLE_ZOOM) / 2 - box.y1 * READABLE_ZOOM });
 }
 
 function runLayout(cy: cytoscape.Core, direction: GraphDirection, added: cytoscape.CollectionReturnValue, shouldAnimate: boolean) {
     const elements = withoutTags(cy);
     const { positions, routes } = computeLayout(
         elements.nodes().map(node => ({ id: node.id(), width: node.outerWidth(), height: node.outerHeight() })),
-        elements.edges().map(toLayoutEdge),
+        elements.edges().map(edge => ({ id: edge.id(), source: edge.source().id(), target: edge.target().id() })),
         direction,
     );
     applyRoutes(cy, routes, positions);
@@ -65,11 +47,7 @@ function runLayout(cy: cytoscape.Core, direction: GraphDirection, added: cytosca
         animationDuration: MOVE_DURATION,
         animationEasing: "ease-out-cubic",
         animateFilter: (node: cytoscape.NodeSingular) => !added.contains(node),
-        stop: () => {
-            if (direction === "vertical") {
-                fitToWidth(cy);
-            }
-        },
+        stop: () => keepReadable(cy, direction),
     } as cytoscape.LayoutOptions).run();
 }
 
@@ -97,8 +75,7 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
 
     if (!isSameStructure || !isSameDirection) {
         const added = cy.add(newElements);
-        // Vertical layouts are packed once they finish, so gliding to the unpacked spot would look wrong.
-        const shouldAnimate = direction !== "vertical" && currentIds.size > 0 && !prefersReducedMotion();
+        const shouldAnimate = currentIds.size > 0 && !prefersReducedMotion();
         runLayout(cy, direction, added, shouldAnimate);
         if (shouldAnimate) {
             fadeIn(added);
@@ -106,13 +83,4 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
     }
 
     syncSemesterTags(cy);
-}
-
-/** Only re-wraps when the row size changes, so panels opening or a phone's address bar hiding keep the view. */
-export function rewrapOnResize(cy: cytoscape.Core) {
-    cy.resize();
-    if (cy.scratch(DIRECTION_KEY) !== "vertical" || maxPerRowFor(cy) === cy.scratch(MAX_PER_ROW_KEY)) {
-        return;
-    }
-    runLayout(cy, "vertical", cy.collection(), false);
 }
