@@ -83,7 +83,7 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
         <div className="graph-wrapper">
             <div ref={containerRef} className="graph-container" />
             {popup && (
-                <NodePopup code={popup.code} x={popup.x} y={popup.y} mods={mods} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
+                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
             )}
         </div>
     );
