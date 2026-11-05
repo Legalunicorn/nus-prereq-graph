@@ -113,11 +113,22 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
             selector: 'node[kind="module"]:selected',
             style: { "border-width": 2, "border-style": "solid", "border-color": colors.gateText },
         },
-        { selector: "node.longest", style: { "border-width": 2, "border-style": "solid", "border-color": colors.accent } },
+        {
+            selector: "node.longest",
+            style: {
+                "border-width": 2, "border-style": "solid", "border-color": colors.accent,
+                "underlay-color": colors.accent, "underlay-padding": 5, "underlay-opacity": 0.3,
+            },
+        },
         {
             selector: "edge.longest",
-            style: { width: 3, "line-color": colors.accent, "target-arrow-color": colors.accent, "line-style": "solid", opacity: 1 },
+            style: {
+                width: 3, "line-color": colors.accent, "target-arrow-color": colors.accent, opacity: 1,
+                "line-style": "dashed", "line-dash-pattern": [10, 6],
+                "underlay-color": colors.accent, "underlay-padding": 3, "underlay-opacity": 0.2,
+            },
         },
+        { selector: ".off-path", style: { opacity: 0.2 } },
         { selector: ".dimmed", style: { opacity: 0.15 } },
     ];
 }
