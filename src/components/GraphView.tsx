@@ -7,6 +7,7 @@ import { buildGraph } from "../utils/buildGraph";
 import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
 import { popupPosition } from "../utils/popupPosition";
+import { includeTags, moveTagWithNode, syncSemesterTags, withoutTags } from "../utils/semesterTags";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
@@ -30,7 +31,7 @@ interface PopupState { code: string; x: number; y: number; }
 
 /** Updates what's on screen. The layout, and so the view, only changes if elements were added or removed. */
 function syncElements(cy: cytoscape.Core, elements: ReturnType<typeof toElements>) {
-    const currentIds = new Set(cy.elements().map(element => element.id()));
+    const currentIds = new Set(withoutTags(cy).map(element => element.id()));
     const sameStructure = elements.length === currentIds.size
         && elements.every(element => currentIds.has(element.data.id));
 
@@ -38,12 +39,12 @@ function syncElements(cy: cytoscape.Core, elements: ReturnType<typeof toElements
         cy.batch(() => {
             for (const { data } of elements) cy.getElementById(data.id).data(data);
         });
-        return;
+    } else {
+        cy.elements().remove();
+        cy.add(elements);
+        cy.layout(cytoscapeLayout).run();
     }
-
-    cy.elements().remove();
-    cy.add(elements);
-    cy.layout(cytoscapeLayout).run();
+    syncSemesterTags(cy);
 }
 
 export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }: GraphViewProps) {
@@ -77,10 +78,12 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
         cy.on("tap", (evt) => { if (evt.target === cy) setPopup(null); });
         cy.on("pan zoom layoutstop", () => setPopup(null));
 
+        cy.on("position", 'node[kind="module"]', (evt) => moveTagWithNode(cy, evt.target));
+
         cy.on("mouseover", "node", (evt) => {
             const node = evt.target;
             const chain = node.predecessors().union(node.successors()).union(node);
-            cy.elements().not(chain).addClass("dimmed");
+            cy.elements().not(includeTags(cy, chain)).addClass("dimmed");
         });
         cy.on("mouseout", "node", () => cy.elements().removeClass("dimmed"));
 
