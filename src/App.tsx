@@ -3,8 +3,8 @@ import "./App.css";
 import Sidebar from "./components/Sidebar";
 import GraphView from "./components/GraphView";
 import PresetsModal from "./components/PresetsModal";
-import FoundationModal from "./components/FoundationModal";
 import CourseListModal from "./components/CourseListModal";
+import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
 import Header from "./components/Header";
 import usePlanEstimate from "./hooks/usePlanEstimate";
@@ -50,7 +50,9 @@ function App() {
           />
         )}
         {showFoundations && (
-          <FoundationModal
+          <CourseListModal
+            title="CS Foundations"
+            courses={CS_FOUNDATION_COURSES}
             mods={mods}
             onAdd={addMods}
             onRemove={removeMods}

@@ -18,9 +18,5 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
-    rules: {
-      // Turns off the warning/error for unused functions and variables
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
   },
 ])
