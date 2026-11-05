@@ -25,6 +25,11 @@ export default function useCourseAdd(mods: Mod[], onAdd: (mod: Mod) => void) {
         }
     };
 
+    // One at a time, so adding a whole list stays gentle on the API.
+    const addCourses = async (codes: string[]) => {
+        for (const code of codes) await addCourse(code);
+    };
+
     const rowProps = (code: string) => ({
         tracked: trackedCodes.has(code),
         loading: loadingCode === code,
@@ -33,5 +38,5 @@ export default function useCourseAdd(mods: Mod[], onAdd: (mod: Mod) => void) {
         onAdd: () => addCourse(code),
     });
 
-    return { rowProps };
+    return { rowProps, addCourses, adding: loadingCode !== null };
 }
