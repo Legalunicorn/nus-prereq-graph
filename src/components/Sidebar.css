@@ -21,6 +21,18 @@
         &:focus { border-color: var(--accent); outline: none; }
     }
 
+    .clear-all {
+        margin-top: 0.5rem;
+        padding: 0.2rem 0;
+        background: none;
+        border: none;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        cursor: pointer;
+
+        &:hover { color: var(--text); text-decoration: underline; }
+    }
+
     .preset{
         display: block;
         width: 100%;

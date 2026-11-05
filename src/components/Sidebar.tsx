@@ -10,6 +10,7 @@ interface SidebarProps {
     mods: Mod[];
     onAdd: (mod:Mod) => void;
     onRemove:(code:string) => void;
+    onClear: () => void;
     onToggle: (code:string) => void;
     onToggleTaking: (code:string) => void;
     onSelect: (code: string) => void;
@@ -20,8 +21,13 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking, onSelect, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onToggleTaking, onSelect, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
+    const handleClearAll = () => {
+        if (window.confirm(`Remove all ${mods.length} modules from your plan?`)) {
+            onClear();
+        }
+    };
 
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -59,6 +65,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking
                     </li>
                 ))}
              </ul>
+             {mods.length > 0 && <button className="clear-all" onClick={handleClearAll}>Clear all</button>}
         </div>
     )
 }

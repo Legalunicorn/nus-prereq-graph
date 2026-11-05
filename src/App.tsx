@@ -50,6 +50,7 @@ function App() {
           mods={mods}
           onAdd={addMods}
           onRemove={removeMods}
+          onClear={() => replaceMods([])}
           onToggle={toggleComplete}
           onToggleTaking={toggleTaking}
           onSelect={setSelectedCode}
