@@ -1,29 +1,47 @@
 import { useEffect, useState } from "react";
+import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
 import type { Mod } from "../types/types";
-import { fetchMod } from "../utils/api";
-import { loadMods, saveMods } from "../utils/storage";
+import { refreshCatalogue } from "../utils/api";
+import { loadStored, parseStored, saveMods } from "../utils/storage";
 
 export default function useStoredMods(){
-    const [mods, setMods] = useState<Mod[]>(loadMods);
-    
-    useEffect(() => { saveMods(mods); }, [mods]);
+    const [stored] = useState(loadStored);
+    const [mods, setMods] = useState<Mod[]>(stored.mods);
+    const [catalogueYear, setCatalogueYear] = useState(stored.acadYear);
+
+    useEffect(() => { saveMods(mods, catalogueYear); }, [mods, catalogueYear]);
+
+    // Saved catalogue data is from an earlier AY: update it and keep the user's plan.
+    useEffect(() => {
+        if (catalogueYear === CURR_ACAD_YEAR) return;
+        let cancelled = false;
+        refreshCatalogue(stored.mods).then(({ refreshed, complete }) => {
+            if (cancelled) return;
+            const byCode = new Map(refreshed.map(mod => [mod.code, mod]));
+            setMods(prev => prev.map(cur => {
+                const fresh = byCode.get(cur.code);
+                return fresh ? { ...fresh, completed: cur.completed } : cur;
+            }));
+            if (complete) setCatalogueYear(CURR_ACAD_YEAR);
+        });
+        return () => { cancelled = true; };
+    }, [catalogueYear, stored.mods]);
+
+    // Keep other open tabs in sync.
+    useEffect(() => {
+        const handleStorage = (event: StorageEvent) => {
+            if (event.key === STORAGE_KEY) setMods(parseStored(event.newValue).mods);
+        };
+        window.addEventListener("storage", handleStorage);
+        return () => window.removeEventListener("storage", handleStorage);
+    }, []);
 
     const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code == m.code) ? prev : [...prev, m]);
     const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
-    
+
     const toggleComplete = (code: string) => setMods(prev =>
         prev.map(cur => cur.code === code ? {...cur, completed: !cur.completed} : cur)
     );
 
-    const refreshMod = async(code: string) => {
-        const updatred = await fetchMod(code);
-        setMods(prev => 
-            prev.map(cur => cur.code == code 
-                ? {...cur, title:updatred.title, prereqTree: updatred.prereqTree, fulfillRequirements: updatred.fulfillRequirements}
-                : cur
-            )
-        )
-    };
-
-    return {mods, addMods, removeMods, toggleComplete, refreshMod};
+    return {mods, addMods, removeMods, toggleComplete};
 };

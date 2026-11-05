@@ -8,14 +8,13 @@ interface SidebarProps {
     onAdd: (mod:Mod) => void;
     onRemove:(code:string) => void;
     onToggle: (code:string) => void;
-    onRefresh: (code: string) => void;
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
     onOpenMathAndScience: () => void;
     collapsed: boolean;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onOpenPresets, onOpenFoundations, onOpenMathAndScience, collapsed}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets, onOpenFoundations, onOpenMathAndScience, collapsed}: SidebarProps){
     const [query, setQuery] = useState("");
     const {searchMod, loading, error} = useModSearch();
 
@@ -54,7 +53,6 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onRefresh, onO
                             <span className="mod-code">{m.code}</span>
                             <span className="mod-title" title={m.title}>{m.title}</span>
                         </div>
-                        {/* <button onClick = {() => onRefresh(m.code)}>↻</button> */}
                         <button onClick = {() => onRemove(m.code)}>✕</button>
                     </li>
                 ))}

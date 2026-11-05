@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchMod, missingMod, ModNotFoundError } from "./api";
+import type { Mod } from "../types/types";
+import { fetchMod, missingMod, ModNotFoundError, refreshCatalogue } from "./api";
 
 function stubFetch(response: Partial<Response> | Error) {
     const fetchStub = response instanceof Error
@@ -48,6 +49,33 @@ describe("fetchMod", () => {
         const fetchStub = stubFetch({ ok: false, status: 404 });
         await fetchMod("CS1010%").catch(() => {});
         expect(fetchStub.mock.calls[0][0]).toContain("CS1010%25.json");
+    });
+});
+
+describe("refreshCatalogue", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    const saved = (code: string): Mod => ({ code, title: "Old title", completed: true });
+
+    it("updates every module", async () => {
+        stubFetch({ ok: true, json: async () => ({ moduleCode: "CS1", title: "New title" }) });
+        const { refreshed, complete } = await refreshCatalogue([saved("CS1")]);
+        expect(complete).toBe(true);
+        expect(refreshed[0].title).toBe("New title");
+    });
+
+    it("turns a module that has left the catalogue into a missing one", async () => {
+        stubFetch({ ok: false, status: 404 });
+        const { refreshed, complete } = await refreshCatalogue([saved("CS2010")]);
+        expect(complete).toBe(true);
+        expect(refreshed).toEqual([missingMod("CS2010", true)]);
+    });
+
+    it("reports incomplete and leaves out modules that failed", async () => {
+        stubFetch(new TypeError("Failed to fetch"));
+        const { refreshed, complete } = await refreshCatalogue([saved("CS1")]);
+        expect(complete).toBe(false);
+        expect(refreshed).toEqual([]);
     });
 });
 

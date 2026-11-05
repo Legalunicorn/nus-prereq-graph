@@ -10,7 +10,7 @@ import Header from "./components/Header";
 import useStoredMods from "./hooks/useStoredMods";
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete, refreshMod} = useStoredMods();
+  const {mods, addMods, removeMods, toggleComplete} = useStoredMods();
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
   const [showMathAndScience, setShowMathAndScience] = useState(false);
@@ -32,7 +32,6 @@ function App() {
           onAdd={addMods}
           onRemove={removeMods}
           onToggle={toggleComplete}
-          onRefresh={refreshMod}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
