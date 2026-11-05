@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useEscapeKey from "../hooks/useEscapeKey";
 import type { Mod } from "../types/types";
 import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
-import { cleanRequirement, codesIn, fetchDetails, focusAreasFor } from "../utils/moduleDetails";
+import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
 import SemesterTag from "./SemesterTag";
 import "./DetailsPanel.css";
@@ -47,7 +47,8 @@ export default function DetailsPanel(props: DetailsPanelProps) {
     const isTracked = !!existing;
     const isUnavailable = isNotFound && !isTracked;
     const plannedCodes = new Set(mods.map(mod => mod.code));
-    const clashes = codesIn(details?.preclusionRule).filter(other => other !== code && plannedCodes.has(other));
+    const precludedCodes = codesIn(details?.preclusionRule ?? details?.preclusion).filter(other => other !== code);
+    const clashes = precludedCodes.filter(other => plannedCodes.has(other));
     const focusAreas = focusAreasFor(code);
     const unlocks = details?.fulfillRequirements ?? [];
 
@@ -140,7 +141,19 @@ export default function DetailsPanel(props: DetailsPanelProps) {
 
             <Requirement label="Prerequisites" text={details?.prerequisite} />
             <Requirement label="Corequisites" text={details?.corequisite} />
-            <Requirement label="Preclusions" text={details?.preclusion} />
+            {precludedCodes.length > 0 ? (
+                <section>
+                    <h3>Preclusions</h3>
+                    <div className="details-unlocks">
+                        {precludedCodes.map(precluded => (
+                            <button key={precluded} onClick={() => onSelect(precluded)}>{precluded}</button>
+                        ))}
+                    </div>
+                    {mentionsProgrammes(details?.preclusion) && <p className="details-note">Also certain programmes</p>}
+                </section>
+            ) : (
+                <Requirement label="Preclusions" text={details?.preclusion} />
+            )}
 
             {focusAreas.length > 0 && (
                 <section>
