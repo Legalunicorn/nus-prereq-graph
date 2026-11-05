@@ -1,5 +1,6 @@
 import type { Mod } from "../types/types";
 import type { RegularSemester } from "../utils/minSemesters";
+import { isDone } from "../utils/modStatus";
 import "./PlanSummary.css";
 
 interface PlanSummaryProps {
@@ -12,7 +13,7 @@ interface PlanSummaryProps {
 const ASSUMPTIONS = "Lower bound: no workload limit, this year's offerings repeat, no MA1301 needed. * Some modules have no estimate.";
 
 export default function PlanSummary({ mods, estimate, start, onStartChange }: PlanSummaryProps) {
-    const estimates = mods.filter(mod => !mod.completed).map(mod => estimate(mod.code));
+    const estimates = mods.filter(mod => !isDone(mod)).map(mod => estimate(mod.code));
     const known = estimates.filter(semesters => semesters !== null);
     if (known.length === 0) {
         return null;

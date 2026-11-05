@@ -3,6 +3,7 @@ import "./Legend.css";
 
 const NODE_ITEMS = [
     { className: "completed", label: "Completed" },
+    { className: "taking", label: "Taking" },
     { className: "ready", label: "Can take" },
     { className: "blocked", label: "Blocked" },
     { className: "not-planned", label: "Not in plan" },

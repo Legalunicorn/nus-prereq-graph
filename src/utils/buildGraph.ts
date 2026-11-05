@@ -1,6 +1,7 @@
 import type { Mod, PrereqTree } from "../types/types";
 import type { Graph } from "../types/graph";
 import type { AlternativeOptions } from "./alternatives";
+import { isDone } from "./modStatus";
 import { edgeStatus, filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
 export interface BuildOptions {
@@ -16,23 +17,24 @@ export function buildGraph(mods: Mod[], options: BuildOptions = {}) : Graph{
     for (const mod of mods){
         graph.nodes.set(mod.code, {
             kind:"module", id: mod.code, code: mod.code,
-            title:mod.title, completed: mod.completed, tracked: true,
+            title:mod.title, completed: mod.completed, taking: !!mod.taking, tracked: true,
         });
 
+        const isModDone = isDone(mod);
         const prereqTree = mod.prereqTree ? normalizeTree(mod.prereqTree) : null;
         if (prereqTree){
-            const treeToRender = mod.completed ? filterTree(prereqTree, trackedCodes) : prereqTree;
+            const treeToRender = isModDone ? filterTree(prereqTree, trackedCodes) : prereqTree;
             if (treeToRender){
-                const root = walkTree(treeToRender, ctx, mod.code, mod.completed);
+                const root = walkTree(treeToRender, ctx, mod.code, isModDone);
                 graph.edges.push({
                     from: root.id,
                     to: mod.code,
                     minGrade: root.minGrade,
-                    status: edgeStatus(root.fulfilled, mod.completed),
+                    status: edgeStatus(root.fulfilled, isModDone),
                 });
                 const courseNode = graph.nodes.get(mod.code);
                 if (courseNode?.kind === "module") {
-                    courseNode.prereqUnfulfilled = !mod.completed && !root.fulfilled;
+                    courseNode.prereqUnfulfilled = !isModDone && !root.fulfilled;
                 }
             }
         }

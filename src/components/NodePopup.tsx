@@ -14,11 +14,12 @@ interface NodePopupProps {
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
     onToggle: (code: string) => void;
+    onToggleTaking: (code: string) => void;
 }
 
 const errorMessage = (err: unknown) => (err instanceof Error ? err.message : "Something went wrong.");
 
-export default function NodePopup({ code, x, y, mods, minSemesters, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
+export default function NodePopup({ code, x, y, mods, minSemesters, onClose, onAdd, onRemove, onToggle, onToggleTaking }: NodePopupProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isNotFound, setIsNotFound] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -58,21 +59,36 @@ export default function NodePopup({ code, x, y, mods, minSemesters, onClose, onA
         }
     };
 
-    const handleToggleComplete = async () => {
-        if (isTracked) { onToggle(code); return; }
+    const addWithStatus = async (status: Pick<Mod, "completed" | "taking">) => {
         setIsLoading(true);
         setError(null);
         try {
-            onAdd({ ...(await fetchMod(code)), completed: true });
+            onAdd({ ...(await fetchMod(code)), ...status });
         } catch (err) {
             if (err instanceof ModNotFoundError) {
-                onAdd(missingMod(code, true));
+                onAdd({ ...missingMod(code, false), ...status });
             }
             else {
                 setError(errorMessage(err));
             }
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleToggleComplete = () => {
+        if (isTracked) {
+            onToggle(code);
+        } else {
+            addWithStatus({ completed: true });
+        }
+    };
+
+    const handleToggleTaking = () => {
+        if (isTracked) {
+            onToggleTaking(code);
+        } else {
+            addWithStatus({ completed: false, taking: true });
         }
     };
 
@@ -93,6 +109,10 @@ export default function NodePopup({ code, x, y, mods, minSemesters, onClose, onA
             <label className="node-popup-row">
                 <input type="checkbox" checked={isCompleted} onChange={handleToggleComplete} disabled={isLoading} />
                 Completed
+            </label>
+            <label className="node-popup-row">
+                <input type="checkbox" checked={!!existing?.taking} onChange={handleToggleTaking} disabled={isLoading} />
+                Taking
             </label>
             {!isUnavailable && (
                 <button className="node-popup-btn" onClick={handleAddRemove} disabled={isLoading}>

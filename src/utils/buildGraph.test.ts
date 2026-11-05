@@ -222,6 +222,31 @@ describe("buildGraph", () => {
         });
     });
 
+    describe("currently taking", () => {
+        const taking = (code: string, tree?: PrereqTree): Mod => ({ ...mod(code, tree), taking: true });
+
+        it("counts as met for the modules after it", () => {
+            const graph = buildGraph([mod("CS5234", CS5234), taking("CS3230")]);
+            expect(moduleNode(graph, "CS5234").prereqUnfulfilled).toBe(false);
+            expect(graph.edges.find(edge => edge.from === "CS3230")?.status).toBe("fulfilled");
+        });
+
+        it("stays distinct from completed", () => {
+            const graph = buildGraph([taking("CS3230")]);
+            expect(moduleNode(graph, "CS3230")).toMatchObject({ taking: true, completed: false });
+        });
+
+        it("shows no unmet state on the module itself", () => {
+            const graph = buildGraph([taking("CS3230", CS3230), mod("CS2040S")]);
+            expect(moduleNode(graph, "CS3230").prereqUnfulfilled).toBe(false);
+        });
+
+        it("satisfies a wildcard", () => {
+            const graph = buildGraph([mod("X1", "CS1010%:D"), taking("CS1010S")]);
+            expect(moduleNode(graph, "X1").prereqUnfulfilled).toBe(false);
+        });
+    });
+
     describe("wildcard prerequisites", () => {
         // Real tree for CS2040HS.
         const CS2040HS: PrereqTree = { or: ["CS1101S:D", "UTC2851:D", "CS1010%:D"] };

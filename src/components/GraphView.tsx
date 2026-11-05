@@ -29,13 +29,14 @@ interface GraphViewProps {
     theme: Theme;
     estimate: ((code: string) => number | null) | null;
     onToggle: (code: string) => void;
+    onToggleTaking: (code: string) => void;
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
 }
 
 interface PopupState { code: string; x: number; y: number; }
 
-export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRemove }: GraphViewProps) {
+export default function GraphView({ mods, theme, estimate, onToggle, onToggleTaking, onAdd, onRemove }: GraphViewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
@@ -129,7 +130,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
                 </>
             )}
             {popup && (
-                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} minSemesters={estimate?.(popup.code) ?? null} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
+                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} minSemesters={estimate?.(popup.code) ?? null} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} onToggleTaking={onToggleTaking} />
             )}
         </div>
     );

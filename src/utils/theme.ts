@@ -21,6 +21,7 @@ export function readGraphPalette() {
         ready: color("ready"),
         blocked: color("blocked"),
         completed: color("completed"),
+        taking: color("taking"),
         onStatus: color("on-status"),
         notOffered: color("not-offered"),
         fulfilled: color("fulfilled"),

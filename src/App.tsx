@@ -13,7 +13,7 @@ import useTheme from "./hooks/useTheme";
 import { PHONE_WIDTH } from "./constants";
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete} = useStoredMods();
+  const {mods, addMods, removeMods, toggleComplete, toggleTaking} = useStoredMods();
   const plan = usePlanEstimate(mods);
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
@@ -38,13 +38,14 @@ function App() {
           onAdd={addMods}
           onRemove={removeMods}
           onToggle={toggleComplete}
+          onToggleTaking={toggleTaking}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} estimate={plan.estimate} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>
+        <GraphView mods={mods} theme={theme} estimate={plan.estimate} onToggle={toggleComplete} onToggleTaking={toggleTaking} onAdd={addMods} onRemove={removeMods}/>
         {showPresets && (
           <PresetsModal
             mods={mods}

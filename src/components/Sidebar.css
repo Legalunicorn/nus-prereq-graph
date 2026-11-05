@@ -110,6 +110,8 @@
         padding: 2px 4px;
     }
 
+    .taking-toggle.active { color: var(--graph-taking); }
+
     &:hover { background: var(--surface-raised); }
     button:hover { color: var(--text); }
 }

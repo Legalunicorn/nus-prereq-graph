@@ -17,6 +17,7 @@ export interface Mod {
     code: string;
     title: string;
     completed: boolean;
+    taking?: boolean;
     prereqTree?: PrereqTree;
     fulfillRequirements?: string[];
 }

@@ -19,7 +19,8 @@ function nodeData(node: Node, offerings: Offerings | null) {
     if (node.kind === "module") {
         const wildcard = isWildcard(node.code);
         const displayCode = wildcard ? node.code.replaceAll("%", "*") : node.code;
-        const code = node.completed ? `✓ ${displayCode}` : displayCode;
+        const mark = node.taking ? "◐ " : node.completed ? "✓ " : "";
+        const code = `${mark}${displayCode}`;
         const catalogue = wildcard ? null : offerings;
         return {
             id: node.id,
@@ -27,6 +28,7 @@ function nodeData(node: Node, offerings: Offerings | null) {
             semesters: catalogue ? semesterLabel(catalogue, node.code) : "",
             kind: node.kind,
             completed: node.completed,
+            taking: node.taking ?? false,
             tracked: node.tracked,
             prereqUnfulfilled: node.prereqUnfulfilled ?? false,
             notOffered: catalogue ? !isOffered(catalogue, node.code) : false,

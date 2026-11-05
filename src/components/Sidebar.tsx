@@ -1,5 +1,6 @@
 import type usePlanEstimate from "../hooks/usePlanEstimate";
 import type { Mod } from "../types/types";
+import { isDone } from "../utils/modStatus";
 import ModuleSearch from "./ModuleSearch";
 import PlanSummary from "./PlanSummary";
 import SemesterTag from "./SemesterTag";
@@ -10,6 +11,7 @@ interface SidebarProps {
     onAdd: (mod:Mod) => void;
     onRemove:(code:string) => void;
     onToggle: (code:string) => void;
+    onToggleTaking: (code:string) => void;
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
     onOpenMathAndScience: () => void;
@@ -17,8 +19,8 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
-    const minSemestersOf = (mod: Mod) => (mod.completed ? null : plan.estimate?.(mod.code) ?? null);
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+    const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
 
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -43,6 +45,15 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
                                 )}
                             </span>
                         </div>
+                        <button
+                            className={m.taking ? "taking-toggle active" : "taking-toggle"}
+                            onClick={() => onToggleTaking(m.code)}
+                            aria-pressed={!!m.taking}
+                            aria-label={`Mark ${m.code} as currently taking`}
+                            title="Currently taking"
+                        >
+                            ◐
+                        </button>
                         <button onClick = {() => onRemove(m.code)} aria-label={`Remove ${m.code}`}>✕</button>
                     </li>
                 ))}

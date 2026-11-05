@@ -43,6 +43,10 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
             style: { "background-color": colors.completed, color: colors.onStatus, "border-width": 0 },
         },
         {
+            selector: 'node[kind="module"][?taking]',
+            style: { "background-color": colors.taking, color: colors.onStatus, "border-width": 0 },
+        },
+        {
             selector: 'node[kind="module"][?notOffered]',
             style: { "border-width": 2, "border-style": "dashed", "border-color": colors.notOffered },
         },

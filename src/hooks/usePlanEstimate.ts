@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { START_SEMESTER_KEY } from "../constants";
 import type { Mod } from "../types/types";
 import { createEstimator, nextSemester } from "../utils/minSemesters";
+import { isDone } from "../utils/modStatus";
 import type { RegularSemester } from "../utils/minSemesters";
 import useSnapshot from "./useSnapshot";
 
@@ -34,7 +35,7 @@ export default function usePlanEstimate(mods: Mod[]) {
         if (!snapshot) {
             return null;
         }
-        const completed = new Set(mods.filter(mod => mod.completed).map(mod => mod.code));
+        const completed = new Set(mods.filter(isDone).map(mod => mod.code));
         return createEstimator({ modules: snapshot.modules, completed, start });
     }, [snapshot, mods, start]);
 
