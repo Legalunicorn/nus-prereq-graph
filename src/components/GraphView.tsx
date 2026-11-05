@@ -30,13 +30,15 @@ interface GraphViewProps {
     theme: Theme;
     longestPath: string[];
     selectedCode: string | null;
+    hoveredCode: string | null;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPath, selectedCode, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPath, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
+    const previewChainRef = useRef<((code: string | null) => void) | null>(null);
     const [isFullChain, setIsFullChain] = useState(false);
     const [isLongestPathOn, setIsLongestPathOn] = useState(false);
     const { direction, toggleDirection } = useGraphDirection();
@@ -84,14 +86,19 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, onSe
             straighten(evt.target.connectedEdges());
         });
 
-        attachChainHighlight(cy);
+        previewChainRef.current = attachChainHighlight(cy);
 
         cyRef.current = cy;
         return () => {
             cy.destroy();
             cyRef.current = null;
+            previewChainRef.current = null;
         };
     }, [onSelect]);
+
+    useEffect(() => {
+        previewChainRef.current?.(hoveredCode);
+    }, [hoveredCode]);
 
     useEffect(() => {
         cyRef.current?.style(buildStyles(readGraphPalette()));
