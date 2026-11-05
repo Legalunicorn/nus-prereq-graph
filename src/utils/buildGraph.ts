@@ -1,10 +1,12 @@
-import type { Mod } from "../types/types";
+import type { Mod, PrereqTree } from "../types/types";
 import type { Graph } from "../types/graph";
 import { edgeStatus, filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
-export function buildGraph(mods: Mod[]) : Graph{
+/** With `treeOf`, modules not in the plan also show their prerequisites, giving the full chain. */
+export function buildGraph(mods: Mod[], treeOf?: (code: string) => PrereqTree | undefined) : Graph{
     const graph: Graph = {nodes: new Map(), edges:[]};
     const trackedCodes = new Set(mods.map(m => m.code));
+    const ctx = { mods, graph, treeOf };
 
     for (const mod of mods){
         graph.nodes.set(mod.code, {
@@ -16,7 +18,7 @@ export function buildGraph(mods: Mod[]) : Graph{
         if (prereqTree){
             const treeToRender = mod.completed ? filterTree(prereqTree, trackedCodes) : prereqTree;
             if (treeToRender){
-                const root = walkTree(treeToRender, mods, graph, mod.code, mod.completed);
+                const root = walkTree(treeToRender, ctx, mod.code, mod.completed);
                 graph.edges.push({
                     from: root.id,
                     to: mod.code,
