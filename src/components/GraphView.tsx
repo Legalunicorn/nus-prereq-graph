@@ -1,5 +1,4 @@
 import cytoscape from "cytoscape";
-import dagre from "cytoscape-dagre";
 import "./GraphView.css";
 import type { Mod } from "../types/types";
 import { createRank } from "../utils/alternatives";
@@ -11,7 +10,7 @@ import { toElements } from "../utils/graphElements";
 import { applyLongestPath } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
-import { applyEdgeCurves } from "../utils/edgeCurves";
+import { straighten } from "../utils/graphLayout";
 import { moveTagWithNode } from "../utils/semesterTags";
 import { rewrapOnResize, syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
@@ -20,8 +19,6 @@ import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import Legend from "./Legend";
 import ShareButton from "./ShareButton";
-
-cytoscape.use(dagre);
 
 const FIT_PADDING = 30;
 const MIN_ZOOM = 0.4;
@@ -81,7 +78,10 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, onSe
 
         cy.on("position", 'node[kind != "tag"]', (evt) => {
             moveTagWithNode(cy, evt.target);
-            applyEdgeCurves(cy, evt.target.connectedEdges());
+        });
+        // A dragged node leaves its route behind, so its edges go straight until the next layout.
+        cy.on("drag", 'node[kind != "tag"]', (evt) => {
+            straighten(evt.target.connectedEdges());
         });
 
         attachChainHighlight(cy);

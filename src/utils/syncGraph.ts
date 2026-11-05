@@ -1,7 +1,6 @@
 import type cytoscape from "cytoscape";
-import { layoutFor } from "./cytoscapeConfig";
 import type { GraphDirection } from "./cytoscapeConfig";
-import { applyEdgeCurves, getDirection, setDirection } from "./edgeCurves";
+import { applyRoutes, computeLayout, wrappedRoutes } from "./graphLayout";
 import type { toElements } from "./graphElements";
 import { syncSemesterTags, withoutTags } from "./semesterTags";
 import { CELL_WIDTH, wrapRanks } from "./wrapRanks";
@@ -12,6 +11,7 @@ const FIT_PADDING = 48;
 const READABLE_ZOOM = 0.8;
 const MIN_PER_ROW = 2;
 const MAX_PER_ROW_KEY = "maxPerRow";
+const DIRECTION_KEY = "direction";
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -24,7 +24,9 @@ function fadeIn(elements: cytoscape.CollectionReturnValue) {
     });
 }
 
-const maxPerRowFor = (cy: cytoscape.Core) =>
+const toLayoutEdge = (edge: cytoscape.EdgeSingular) => ({ id: edge.id(), source: edge.source().id(), target: edge.target().id() });
+
+const maxPerRowFor =(cy: cytoscape.Core) =>
     Math.max(MIN_PER_ROW, Math.floor(cy.width() / READABLE_ZOOM / CELL_WIDTH));
 
 function fitToWidth(cy: cytoscape.Core) {
@@ -42,8 +44,33 @@ function fitToWidth(cy: cytoscape.Core) {
                 node.position(position);
             }
         });
+        const positions = Object.fromEntries(nodes.map(node => [node.id(), node.position()]));
+        applyRoutes(cy, wrappedRoutes(withoutTags(cy).edges().map(toLayoutEdge), positions), positions);
     }
     cy.fit(nodes, FIT_PADDING);
+}
+
+function runLayout(cy: cytoscape.Core, direction: GraphDirection, added: cytoscape.CollectionReturnValue, shouldAnimate: boolean) {
+    const elements = withoutTags(cy);
+    const { positions, routes } = computeLayout(
+        elements.nodes().map(node => ({ id: node.id(), width: node.outerWidth(), height: node.outerHeight() })),
+        elements.edges().map(toLayoutEdge),
+        direction,
+    );
+    applyRoutes(cy, routes, positions);
+    elements.layout({
+        name: "preset",
+        positions,
+        animate: shouldAnimate,
+        animationDuration: MOVE_DURATION,
+        animationEasing: "ease-out-cubic",
+        animateFilter: (node: cytoscape.NodeSingular) => !added.contains(node),
+        stop: () => {
+            if (direction === "vertical") {
+                fitToWidth(cy);
+            }
+        },
+    } as cytoscape.LayoutOptions).run();
 }
 
 /**
@@ -56,8 +83,8 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
     const nextIds = new Set(elements.map(element => element.data.id));
     const newElements = elements.filter(element => !currentIds.has(element.data.id));
     const isSameStructure = newElements.length === 0 && currentIds.size === nextIds.size;
-    const isSameDirection = getDirection(cy) === direction;
-    setDirection(cy, direction);
+    const isSameDirection = cy.scratch(DIRECTION_KEY) === direction;
+    cy.scratch(DIRECTION_KEY, direction);
 
     cy.batch(() => {
         current.filter(element => !nextIds.has(element.id())).remove();
@@ -70,22 +97,9 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
 
     if (!isSameStructure || !isSameDirection) {
         const added = cy.add(newElements);
-        const isVertical = direction === "vertical";
         // Vertical layouts are packed once they finish, so gliding to the unpacked spot would look wrong.
-        const shouldAnimate = !isVertical && currentIds.size > 0 && !prefersReducedMotion();
-        withoutTags(cy).layout({
-            ...layoutFor(direction),
-            animate: shouldAnimate,
-            animationDuration: MOVE_DURATION,
-            animationEasing: "ease-out-cubic",
-            animateFilter: (node: cytoscape.NodeSingular) => !added.contains(node),
-            stop: () => {
-                if (isVertical) {
-                    fitToWidth(cy);
-                }
-                applyEdgeCurves(cy, cy.edges());
-            },
-        } as cytoscape.LayoutOptions).run();
+        const shouldAnimate = direction !== "vertical" && currentIds.size > 0 && !prefersReducedMotion();
+        runLayout(cy, direction, added, shouldAnimate);
         if (shouldAnimate) {
             fadeIn(added);
         }
@@ -97,15 +111,8 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
 /** Only re-wraps when the row size changes, so panels opening or a phone's address bar hiding keep the view. */
 export function rewrapOnResize(cy: cytoscape.Core) {
     cy.resize();
-    if (getDirection(cy) !== "vertical" || maxPerRowFor(cy) === cy.scratch(MAX_PER_ROW_KEY)) {
+    if (cy.scratch(DIRECTION_KEY) !== "vertical" || maxPerRowFor(cy) === cy.scratch(MAX_PER_ROW_KEY)) {
         return;
     }
-    withoutTags(cy).layout({
-        ...layoutFor("vertical"),
-        animate: false,
-        stop: () => {
-            fitToWidth(cy);
-            applyEdgeCurves(cy, cy.edges());
-        },
-    } as cytoscape.LayoutOptions).run();
+    runLayout(cy, "vertical", cy.collection(), false);
 }
