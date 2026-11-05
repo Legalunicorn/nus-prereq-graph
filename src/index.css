@@ -6,14 +6,14 @@
 
 /* The graph reads the --graph-* values through utils/theme.ts. */
 :root {
-  --canvas: #14161a;
-  --surface: #1b1e23;
-  --surface-raised: #24282f;
-  --surface-hover: #2d323a;
-  --border: #33383f;
-  --text: #e8e6e1;
-  --text-muted: #9a9c9f;
-  --accent: #ef8a2b;
+  --canvas: #0c0f14;
+  --surface: #12161c;
+  --surface-raised: #1a1f27;
+  --surface-hover: #222833;
+  --border: #262d37;
+  --text: #e3e8ef;
+  --text-muted: #8691a0;
+  --accent: #35d0e6;
   --danger: #e58f85;
   --success: #8fbf7a;
   --scrim: rgba(0, 0, 0, 0.55);
@@ -21,8 +21,8 @@
   --grid-dot-near: rgba(232, 230, 225, 0.12);
   --vignette: rgba(0, 0, 0, 0.35);
 
-  --graph-not-planned-fill: #1b1e23;
-  --graph-not-planned-border: #4d525a;
+  --graph-not-planned-fill: #12161c;
+  --graph-not-planned-border: #3a4350;
   --graph-not-planned-text: #b5b6b4;
   --graph-ready: #3d74c9;
   --graph-blocked: #b8483f;
@@ -32,10 +32,10 @@
   --graph-not-offered: #d8c26a;
   --graph-fulfilled: #7fb069;
   --graph-unfulfilled: #d0635a;
-  --graph-neutral: #5a5f66;
+  --graph-neutral: #4f5966;
   --graph-gate-text: #c9c8c4;
-  --graph-tag: #24282f;
-  --graph-tag-text: #9a9c9f;
+  --graph-tag: #1a1f27;
+  --graph-tag-text: #8691a0;
 
   --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
 
@@ -49,14 +49,14 @@
 }
 
 :root[data-theme="light"] {
-  --canvas: #f6f5f2;
+  --canvas: #f5f7fa;
   --surface: #ffffff;
-  --surface-raised: #f0efeb;
-  --surface-hover: #e8e6e1;
-  --border: #dcd9d2;
-  --text: #23252a;
-  --text-muted: #6b6e75;
-  --accent: #c8620a;
+  --surface-raised: #eef1f5;
+  --surface-hover: #e4e8ee;
+  --border: #d8dee6;
+  --text: #1c2430;
+  --text-muted: #5f6b7a;
+  --accent: #0b8ba0;
   --danger: #b8433a;
   --success: #3a7a46;
   --scrim: rgba(35, 37, 42, 0.35);
