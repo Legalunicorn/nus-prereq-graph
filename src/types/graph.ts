@@ -1,5 +1,5 @@
-export type Node = 
-    | {kind: "module"; id:string; code: string; title?: string; completed:boolean; tracked: boolean}
+export type Node =
+    | {kind: "module"; id:string; code: string; title?: string; completed:boolean; tracked: boolean; prereqUnfulfilled?: boolean}
     | {kind: "gate"; id:string;  gateType: "and"|"or"|"nOf"; n?: number; fulfilled: boolean};
 
 export interface Edge {

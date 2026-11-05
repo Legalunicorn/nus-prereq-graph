@@ -30,12 +30,35 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
         const elements = [
             ...Array.from(graph.nodes.values()).map(node => {
                 if (node.kind === "module") {
-                    return { data: { id: node.id, label: node.code, kind: node.kind, completed: node.completed, tracked: node.tracked } };
+                    return {
+                        data: {
+                            id: node.id,
+                            label: node.code,
+                            kind: node.kind,
+                            completed: node.completed,
+                            tracked: node.tracked,
+                            prereqUnfulfilled: node.prereqUnfulfilled,
+                        },
+                    };
                 }
                 let label = node.gateType === "and" ? "AND" : node.gateType === "or" ? "OR" : `${node.n} OF`;
                 return { data: { id: node.id, label, kind: node.kind, fulfilled: node.fulfilled } };
             }),
-            ...graph.edges.map(edge => ({ data: { source: edge.from, target: edge.to, minGrade: edge.minGrade ?? "" } })),
+            ...graph.edges.map(edge => {
+                const source = graph.nodes.get(edge.from);
+                const fulfilled = source?.kind === "gate"
+                    ? source.fulfilled
+                    : source?.completed ?? false;
+
+                return {
+                    data: {
+                        source: edge.from,
+                        target: edge.to,
+                        minGrade: edge.minGrade ?? "",
+                        status: fulfilled ? "fulfilled" : "unfulfilled",
+                    },
+                };
+            }),
         ];
 
         cyRef.current?.destroy();

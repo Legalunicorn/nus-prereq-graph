@@ -9,15 +9,17 @@
 }
 
 .presets-modal {
-    background: #1e1e2e;
+    background: #212333;
     color: #eee;
     width: 640px;
     max-width: 90vw;
     max-height: 80vh;
     display: flex;
     flex-direction: column;
-    border-radius: 8px;
+    border: 1px solid #444a60;
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .presets-header {
@@ -144,9 +146,12 @@
     cursor: pointer;
     color : white;
     border-radius: 0.5rem;
-    background-color: #1e1e2e;
-    border: 2px solid #cacaca;
+    background-color: #303449;
+    border: 1px solid #6a718c;
+    transition: background 0.15s ease, border-color 0.15s ease;
 }
+
+.presets-add-btn:hover:not(:disabled) { background: #3b4058; border-color: #9ca6ca; }
 
 .presets-add-btn:disabled {
     opacity: 0.5;

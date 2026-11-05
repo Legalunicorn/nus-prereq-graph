@@ -2,8 +2,9 @@
     position: relative;
     flex: 1;
      height: 100%; 
-     background-color: #1a1a26;
-    background-image: radial-gradient(circle, #2c2c40 1px, transparent 1px); background-size: 24px 24px;
+     background-color: #191b29;
+    background-image: radial-gradient(circle, rgba(105, 116, 159, 0.22) 1px, transparent 1px), linear-gradient(135deg, rgba(55, 64, 101, 0.16), transparent 46%);
+    background-size: 24px 24px, 100% 100%;
 }
 .graph-container {
     width: 100%; 

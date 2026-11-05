@@ -11,6 +11,10 @@ export const cytoscapeStyles = [
         selector: 'node[kind="module"][?tracked]',
         style: {"background-color":"#2c4f83",}
     },
+    {
+        selector: 'node[kind="module"][?tracked][?prereqUnfulfilled]',
+        style: { "background-color": "#82424a" },
+    },
     { selector: 'node[kind="module"][?completed]', style: { "background-color": "#658f4d" } },
 
     {
@@ -25,9 +29,17 @@ export const cytoscapeStyles = [
     {
         selector: "edge",
         style: {
-            width: 1.5, "line-color": "#4a4e5e", "target-arrow-color": "#4a4e5e",
+            width: 1.8, "line-color": "#4a4e5e", "target-arrow-color": "#4a4e5e",
             "target-arrow-shape": "triangle", "arrow-scale": 0.8, "curve-style": "bezier", opacity: 0.7,
         }
+    },
+    {
+        selector: 'edge[status = "fulfilled"]',
+        style: { "line-color": "#82b366", "target-arrow-color": "#82b366", opacity: 0.9 }
+    },
+    {
+        selector: 'edge[status = "unfulfilled"]',
+        style: { "line-color": "#c0524a", "target-arrow-color": "#c0524a", opacity: 0.85 }
     },
     { selector: ".dimmed", style: { opacity: 0.15 } },
 ];

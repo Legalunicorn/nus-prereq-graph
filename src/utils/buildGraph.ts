@@ -17,6 +17,10 @@ export function buildGraph(mods: Mod[]) : Graph{
             if (treeToRender){
                 const root = walkTree(treeToRender, mods, graph);
                 graph.edges.push({from: root.id, to: mod.code, minGrade: root.minGrade});
+                const courseNode = graph.nodes.get(mod.code);
+                if (courseNode?.kind === "module") {
+                    courseNode.prereqUnfulfilled = !root.fulfilled;
+                }
             }
         }
     }
