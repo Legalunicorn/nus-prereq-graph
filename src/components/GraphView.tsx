@@ -7,6 +7,7 @@ import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
 import { useEffect, useRef, useState } from "react";
 import useOfferings from "../hooks/useOfferings";
+import Legend from "./Legend";
 import NodePopup from "./NodePopup";
 
 cytoscape.use(dagre);
@@ -82,9 +83,12 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
         <div className="graph-wrapper">
             <div ref={containerRef} className="graph-container" />
             {mods.length > 0 && (
-                <button className="graph-fit" onClick={() => cyRef.current?.fit(undefined, FIT_PADDING)}>
-                    Fit
-                </button>
+                <>
+                    <button className="graph-fit" onClick={() => cyRef.current?.fit(undefined, FIT_PADDING)}>
+                        Fit
+                    </button>
+                    <Legend />
+                </>
             )}
             {popup && (
                 <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />

@@ -49,6 +49,13 @@ describe("toElements", () => {
         expect(element.data).toMatchObject({ label: "X1", notOffered: false });
     });
 
+    it("marks completed modules and fulfilled gates with a tick", () => {
+        const elements = toElements(buildGraph([mod("X1", "A1:D"), mod("Y1", { or: ["A1:D"] }), mod("A1", undefined, true)]));
+        const label = (id: string) => elements.find(element => element.data.id === id)?.data;
+        expect(label("A1")).toMatchObject({ label: "✓ A1" });
+        expect(label("gate:Y1")).toMatchObject({ label: "OR ✓" });
+    });
+
     it("labels nOf gates with n", () => {
         const elements = toElements(buildGraph([mod("X1", { nOf: [2, ["A1:D", "B1:D"]] })]));
         expect(elements.find(element => element.data.id === "gate:X1")?.data).toMatchObject({ label: "2 OF" });

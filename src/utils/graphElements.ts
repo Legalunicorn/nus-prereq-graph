@@ -3,16 +3,18 @@ import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
 
 function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
-    if (node.gateType === "and") return "AND";
-    if (node.gateType === "or") return "OR";
-    return `${node.n} OF`;
+    const mark = node.fulfilled ? " ✓" : "";
+    if (node.gateType === "and") return `AND${mark}`;
+    if (node.gateType === "or") return `OR${mark}`;
+    return `${node.n} OF${mark}`;
 }
 
 function nodeData(node: Node, offerings: Offerings | null) {
     if (node.kind === "module") {
+        const code = node.completed ? `✓ ${node.code}` : node.code;
         return {
             id: node.id,
-            label: offerings ? `${node.code}\n${semesterLabel(offerings, node.code)}` : node.code,
+            label: offerings ? `${code}\n${semesterLabel(offerings, node.code)}` : code,
             kind: node.kind,
             completed: node.completed,
             tracked: node.tracked,
