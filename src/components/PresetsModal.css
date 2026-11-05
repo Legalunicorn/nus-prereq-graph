@@ -65,6 +65,33 @@
     cursor: pointer;
 }
 
+.presets-progress {
+    margin-left: auto;
+    margin-right: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+}
+
+.presets-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.presets-add-all {
+    padding: 0;
+    font-size: 11px;
+    text-transform: none;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.presets-add-all:hover:not(:disabled) { text-decoration: underline; }
+.presets-add-all:disabled { opacity: 0.5; cursor: default; }
+
 .presets-chevron {
     display: inline-block;
     transition: transform 0.2s ease;
