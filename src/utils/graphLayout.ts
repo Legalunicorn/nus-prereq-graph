@@ -1,19 +1,19 @@
 import dagre from "@dagrejs/dagre";
 import type { GraphLabel } from "@dagrejs/dagre";
-import type cytoscape from "cytoscape";
 import type { GraphDirection } from "./cytoscapeConfig";
 
-interface Point { x: number; y: number; }
+export interface Point { x: number; y: number; }
 export interface LayoutNode { id: string; width: number; height: number; }
 export interface LayoutEdge { id: string; source: string; target: string; }
 /** `sourceEnd` and `targetEnd` are where the edge touches each node, relative to its centre. */
 export interface Route { bends: Point[]; sourceEnd: Point; targetEnd: Point; }
 
-const CORNER_RADIUS = 8;
+type Positions = Record<string, Point>;
+
 const COLLINEAR_TOLERANCE = 1;
 const PORT_SPACING = 7;
 const PORT_MARGIN = 3;
-// Dagre's ordering is a heuristic, so several starting orders often beat one. Larger graphs get one for speed.
+// Dagre's ordering is a heuristic, so several starting orders often beat one.
 const LAYOUT_TRIES = 16;
 const MAX_NODES_FOR_TRIES = 90;
 const TIE_BREAK_WEIGHT = 1e-4;
@@ -24,6 +24,22 @@ const SETTINGS: Record<GraphDirection, GraphLabel> = {
 };
 // Vertical needs more, as semester tags sit under the cards.
 const TURN_ROOM: Record<GraphDirection, number> = { horizontal: 10, vertical: 26 };
+
+const axesFor = (direction: GraphDirection) => direction === "horizontal"
+    ? {
+        along: (p: Point) => p.x,
+        across: (p: Point) => p.y,
+        at: (along: number, across: number): Point => ({ x: along, y: across }),
+        length: (node: LayoutNode) => node.width,
+        side: (node: LayoutNode) => node.height,
+    }
+    : {
+        along: (p: Point) => p.y,
+        across: (p: Point) => p.x,
+        at: (along: number, across: number): Point => ({ x: across, y: along }),
+        length: (node: LayoutNode) => node.height,
+        side: (node: LayoutNode) => node.width,
+    };
 
 function distanceFromLine(point: Point, start: Point, end: Point) {
     const dx = end.x - start.x;
@@ -90,7 +106,7 @@ function shuffled<T>(items: T[], seed: number): T[] {
     return result;
 }
 
-function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection) {
+function runDagre(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection) {
     const graph = new dagre.graphlib.Graph({ multigraph: true });
     graph.setGraph({ ...SETTINGS[direction] });
     graph.setDefaultEdgeLabel(() => ({}));
@@ -102,81 +118,82 @@ function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDi
     }
     dagre.layout(graph);
 
-    const positions: Record<string, Point> = {};
+    const positions: Positions = {};
     for (const { id } of nodes) {
         const { x, y } = graph.node(id);
         positions[id] = { x, y };
     }
-
-    const isHorizontal = direction === "horizontal";
-    const alongOf = (point: Point) => (isHorizontal ? point.x : point.y);
-    const acrossOf = (point: Point) => (isHorizontal ? point.y : point.x);
-    const pointAt = (along: number, across: number) => (isHorizontal ? { x: along, y: across } : { x: across, y: along });
-    const sizes = new Map(nodes.map(node => [node.id, node]));
-    const alongHalf = (id: string) => (isHorizontal ? (sizes.get(id)?.width ?? 0) : (sizes.get(id)?.height ?? 0)) / 2;
-    const sideLength = (id: string) => (isHorizontal ? (sizes.get(id)?.height ?? 0) : (sizes.get(id)?.width ?? 0));
-
-    // Half the length of each rank along the direction, plus room to turn after leaving a card.
-    const bands = new Map<number, number>();
-    for (const { id } of nodes) {
-        const key = Math.round(alongOf(positions[id]));
-        bands.set(key, Math.max(bands.get(key) ?? 0, alongHalf(id) + TURN_ROOM[direction]));
-    }
-    const bandAt = (along: number) => bands.get(Math.round(along)) ?? TURN_ROOM[direction];
-
     // Ranks are doubled inside dagre, so every second point of a long edge sits in a real rank.
-    const passesOf = new Map(edges.map(({ id, source, target }) => {
+    const passes = new Map(edges.map(({ id, source, target }) => {
         const points: Point[] = graph.edge(source, target, id).points ?? [];
         return [id, points.slice(1, -1).filter((_, i) => i % 2 === 1)];
     }));
+    return { positions, passes };
+}
 
-    // Each edge gets its own spot on the node, ordered by where it's heading so that fans don't cross.
-    const assignPorts = (key: "source" | "target", neighbourAcross: (edge: LayoutEdge) => number) => {
-        const offsets = new Map<string, number>();
-        for (const { id } of nodes) {
-            const attached = edges.filter(edge => edge[key] === id)
-                .sort((a, b) => neighbourAcross(a) - neighbourAcross(b));
-            const spots = portOffsets(attached.length, sideLength(id));
-            attached.forEach((edge, i) => offsets.set(edge.id, spots[i]));
-        }
-        return offsets;
-    };
-    const sourcePorts = assignPorts("source", edge => {
-        const [first] = passesOf.get(edge.id) ?? [];
-        return acrossOf(first ?? positions[edge.target]);
-    });
-    const targetPorts = assignPorts("target", edge => {
-        const passes = passesOf.get(edge.id) ?? [];
-        return acrossOf(passes[passes.length - 1] ?? positions[edge.source]);
-    });
+function assignPorts(
+    nodes: LayoutNode[],
+    edges: LayoutEdge[],
+    end: "source" | "target",
+    sideOf: (node: LayoutNode) => number,
+    heading: (edge: LayoutEdge) => number,
+) {
+    const offsets = new Map<string, number>();
+    for (const node of nodes) {
+        const attached = edges.filter(edge => edge[end] === node.id).sort((a, b) => heading(a) - heading(b));
+        const spots = portOffsets(attached.length, sideOf(node));
+        attached.forEach((edge, i) => offsets.set(edge.id, spots[i]));
+    }
+    return offsets;
+}
+
+function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection) {
+    const { positions, passes } = runDagre(nodes, edges, direction);
+    const axes = axesFor(direction);
+    const nodeById = new Map(nodes.map(node => [node.id, node]));
+    const halfLength = (id: string) => axes.length(nodeById.get(id) as LayoutNode) / 2;
+
+    // Turning only outside a rank's widest card is what keeps edges from crossing cards.
+    const bands = new Map<number, number>();
+    for (const { id } of nodes) {
+        const key = Math.round(axes.along(positions[id]));
+        bands.set(key, Math.max(bands.get(key) ?? 0, halfLength(id) + TURN_ROOM[direction]));
+    }
+    const bandAt = (along: number) => bands.get(Math.round(along)) ?? TURN_ROOM[direction];
+
+    const passesOf = (edge: LayoutEdge) => passes.get(edge.id) ?? [];
+    const sourcePorts = assignPorts(nodes, edges, "source", axes.side,
+        edge => axes.across(passesOf(edge)[0] ?? positions[edge.target]));
+    const targetPorts = assignPorts(nodes, edges, "target", axes.side,
+        edge => axes.across(passesOf(edge).at(-1) ?? positions[edge.source]));
 
     const routes = new Map<string, Route>();
-    const lines: Point[][] = [];
-    for (const edge of edges) {
-        const { id, source, target } = edge;
-        const start = positions[source];
-        const end = positions[target];
-        const startAcross = acrossOf(start) + (sourcePorts.get(id) ?? 0);
-        const endAcross = acrossOf(end) + (targetPorts.get(id) ?? 0);
-        const from = pointAt(alongOf(start) + alongHalf(source), startAcross);
-        const to = pointAt(alongOf(end) - alongHalf(target), endAcross);
-        const route = [
+    const lines = edges.map(edge => {
+        const start = positions[edge.source];
+        const end = positions[edge.target];
+        const startAlong = axes.along(start);
+        const endAlong = axes.along(end);
+        const startAcross = axes.across(start) + (sourcePorts.get(edge.id) ?? 0);
+        const endAcross = axes.across(end) + (targetPorts.get(edge.id) ?? 0);
+        const from = axes.at(startAlong + halfLength(edge.source), startAcross);
+        const to = axes.at(endAlong - halfLength(edge.target), endAcross);
+        const line = [
             from,
-            pointAt(alongOf(start) + bandAt(alongOf(start)), startAcross),
-            ...(passesOf.get(id) ?? []).flatMap(pass => [
-                pointAt(alongOf(pass) - bandAt(alongOf(pass)), acrossOf(pass)),
-                pointAt(alongOf(pass) + bandAt(alongOf(pass)), acrossOf(pass)),
-            ]),
-            pointAt(alongOf(end) - bandAt(alongOf(end)), endAcross),
+            axes.at(startAlong + bandAt(startAlong), startAcross),
+            ...passesOf(edge).flatMap(pass => {
+                const along = axes.along(pass);
+                return [axes.at(along - bandAt(along), axes.across(pass)), axes.at(along + bandAt(along), axes.across(pass))];
+            }),
+            axes.at(endAlong - bandAt(endAlong), endAcross),
             to,
         ];
-        lines.push(route);
-        routes.set(id, {
-            bends: bendsOf(route),
+        routes.set(edge.id, {
+            bends: bendsOf(line),
             sourceEnd: { x: from.x - start.x, y: from.y - start.y },
             targetEnd: { x: to.x - end.x, y: to.y - end.y },
         });
-    }
+        return line;
+    });
 
     const score = countCrossings(lines) + TIE_BREAK_WEIGHT * lines.reduce((sum, line) => sum + pathLength(line), 0);
     return { positions, routes, score };
@@ -196,52 +213,3 @@ export function computeLayout(nodes: LayoutNode[], edges: LayoutEdge[], directio
     }
     return best;
 }
-
-/** Converts points to the form cytoscape expects: a weight along the source-target line and a perpendicular distance. */
-export function segmentsFor(source: Point, target: Point, bends: Point[]) {
-    const dx = target.x - source.x;
-    const dy = target.y - source.y;
-    const lengthSquared = dx * dx + dy * dy;
-    if (lengthSquared === 0) {
-        return { weights: [], distances: [] };
-    }
-    const length = Math.sqrt(lengthSquared);
-    return {
-        weights: bends.map(p => ((p.x - source.x) * dx + (p.y - source.y) * dy) / lengthSquared),
-        distances: bends.map(p => ((p.y - source.y) * dx - (p.x - source.x) * dy) / length),
-    };
-}
-
-const endpoint = ({ x, y }: Point) => `${x.toFixed(1)}px ${y.toFixed(1)}px`;
-
-export function applyRoutes(cy: cytoscape.Core, routes: Map<string, Route>, positions: Record<string, Point>) {
-    cy.batch(() => {
-        cy.edges().forEach(edge => {
-            const source = positions[edge.source().id()];
-            const target = positions[edge.target().id()];
-            const route = routes.get(edge.id());
-            if (!source || !target || !route) {
-                return;
-            }
-            const { weights, distances } = segmentsFor(source, target, route.bends);
-            edge.style({
-                "source-endpoint": endpoint(route.sourceEnd),
-                "target-endpoint": endpoint(route.targetEnd),
-                ...(route.bends.length === 0
-                    ? { "curve-style": "straight" }
-                    : {
-                        "curve-style": "round-segments",
-                        "segment-radius": CORNER_RADIUS,
-                        "segment-weights": weights.map(w => w.toFixed(3)).join(" "),
-                        "segment-distances": distances.map(d => d.toFixed(1)).join(" "),
-                    }),
-            });
-        });
-    });
-}
-
-export const straighten = (edges: cytoscape.EdgeCollection) => edges.style({
-    "curve-style": "straight",
-    "source-endpoint": "outside-to-node",
-    "target-endpoint": "outside-to-node",
-});

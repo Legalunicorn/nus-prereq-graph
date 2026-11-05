@@ -10,7 +10,7 @@ import { toElements } from "../utils/graphElements";
 import { applyLongestPath } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
-import { straighten } from "../utils/graphLayout";
+import { straighten } from "../utils/edgeRouteStyle";
 import { moveTagWithNode } from "../utils/semesterTags";
 import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
