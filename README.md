@@ -38,4 +38,6 @@ npm run dev
 | `npm run deploy` | Builds and publishes to GitHub Pages. CI does this on every push to `main` |
 | `npm run snapshot` | Rebuilds `public/data/snapshot.json` from NUSMods |
 
+PRs go to `dev`. A release is a PR from `dev` to `main`, which deploys.
+
 Once a semester, or when moving to a new AY: update `CURR_ACAD_YEAR` in `src/constants.ts` if needed, then run `npm run snapshot`.

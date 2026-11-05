@@ -23,8 +23,12 @@ jobs:
     needs: check
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       contents: write
+      pages: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +40,19 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # Pushing during a Pages build can leave its deployment stuck, which fails every later one.
+      - name: Wait for any running Pages build
+        run: |
+          for _ in $(seq 1 30); do
+            status=$(gh api "repos/$GITHUB_REPOSITORY/pages/builds/latest" --jq .status)
+            if [ "$status" != "building" ] && [ "$status" != "queued" ]; then
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::Pages was still building after 5 minutes"
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Build and publish to the gh-pages branch
         run: npm run deploy -- -r "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
         env:
