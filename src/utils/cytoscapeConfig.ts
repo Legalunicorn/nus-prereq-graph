@@ -70,6 +70,13 @@ export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
             "line-style": "dashed", opacity: 0.85,
         }
     },
+    {
+        selector: 'edge[gradeLabel != ""]',
+        style: {
+            label: "data(gradeLabel)", "font-size": 10, "font-weight": "bold", color: COLORS.notOffered,
+            "text-background-color": "#171925", "text-background-opacity": 1, "text-background-padding": "2px",
+        },
+    },
     { selector: ".dimmed", style: { opacity: 0.15 } },
 ];
 

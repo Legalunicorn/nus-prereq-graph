@@ -68,8 +68,9 @@ export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }:
         cy.on("pan zoom layoutstop", () => setPopup(null));
 
         cy.on("mouseover", "node", (evt) => {
-            const neighborhood = evt.target.closedNeighborhood();
-            cy.elements().not(neighborhood).addClass("dimmed");
+            const node = evt.target;
+            const chain = node.predecessors().union(node.successors()).union(node);
+            cy.elements().not(chain).addClass("dimmed");
         });
         cy.on("mouseout", "node", () => cy.elements().removeClass("dimmed"));
 
