@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useModSearch } from "../hooks/useModSearch";
 import type { Mod } from "../types/types";
+import ModuleSearch from "./ModuleSearch";
 import SemesterTag from "./SemesterTag";
 import "./Sidebar.css";
 
@@ -16,36 +15,12 @@ interface SidebarProps {
 }
 
 export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets, onOpenFoundations, onOpenMathAndScience, collapsed}: SidebarProps){
-    const [query, setQuery] = useState("");
-    const {searchMod, loading, error} = useModSearch();
-
-    const handleAdd = async () => {
-        const code = query.trim().toUpperCase();
-        if (!code) return;
-        // if already exist 
-        if (mods.some(m => m.code === code)) {
-            setQuery("");
-            return;
-        }
-        const mod = await searchMod(code);
-        if (mod) onAdd(mod);
-        setQuery("");
-    }
-
     return (
         <div className={`sidebar ${collapsed?"collapsed":""}`}>
-            <input
-
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleAdd()} 
-                placeholder="e.g. CS2100"
-             />
-             {/* <button onClick={handleAdd} disabled={loading}> Add</button> */}
+             <ModuleSearch mods={mods} onAdd={onAdd} />
              <button className="preset" onClick={onOpenPresets}> CS Focus Areas Preset</button>
              <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
              <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
-             {error && <p className="error"> {error} </p>}
              <ul>
                 {mods.map(m =>(
                     <li className="mod-li" key={m.code}>
