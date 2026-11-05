@@ -12,6 +12,7 @@ interface SidebarProps {
     onRemove:(code:string) => void;
     onToggle: (code:string) => void;
     onToggleTaking: (code:string) => void;
+    onSelect: (code: string) => void;
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
     onOpenMathAndScience: () => void;
@@ -19,7 +20,7 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking, onSelect, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
 
     return (
@@ -35,7 +36,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking
                 {mods.map(m =>(
                     <li className="mod-li" key={m.code}>
                         <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} aria-label={`Mark ${m.code} completed`} />
-                        <div className="mod-info">
+                        <button className="mod-info" onClick={() => onSelect(m.code)}>
                             <span className="mod-code">{m.code}</span>
                             <span className="mod-title" title={m.title}>{m.title}</span>
                             <span className="mod-meta">
@@ -44,7 +45,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onToggleTaking
                                     <span className="mod-estimate">{minSemestersOf(m)} sem</span>
                                 )}
                             </span>
-                        </div>
+                        </button>
                         <button
                             className={m.taking ? "taking-toggle active" : "taking-toggle"}
                             onClick={() => onToggleTaking(m.code)}

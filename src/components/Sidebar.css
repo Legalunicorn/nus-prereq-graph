@@ -71,6 +71,14 @@
         flex-direction: column;
         min-width: 0;
         flex: 1;
+        margin: 0;
+        padding: 0;
+        color: var(--text);
+        text-align: left;
+    }
+
+    .mod-info:hover{
+        color: var(--text);
     }
 
     .mod-code{

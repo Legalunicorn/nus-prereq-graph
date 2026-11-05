@@ -109,6 +109,10 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 "text-background-color": colors.canvas, "text-background-opacity": 1, "text-background-padding": "2px",
             },
         },
+        {
+            selector: 'node[kind="module"]:selected',
+            style: { "border-width": 2, "border-style": "solid", "border-color": colors.gateText },
+        },
         { selector: "node.longest", style: { "border-width": 2, "border-style": "solid", "border-color": colors.accent } },
         {
             selector: "edge.longest",
