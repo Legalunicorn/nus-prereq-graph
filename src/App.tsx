@@ -6,6 +6,7 @@ import PresetsModal from "./components/PresetsModal";
 import CourseListModal from "./components/CourseListModal";
 import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
+import DetailsPanel from "./components/DetailsPanel";
 import Header from "./components/Header";
 import SharedPlanBanner from "./components/SharedPlanBanner";
 import usePlanEstimate from "./hooks/usePlanEstimate";
@@ -23,6 +24,7 @@ function App() {
   const [showMathAndScience, setShowMathAndScience] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
   const { theme, toggleTheme } = useTheme();
+  const [selectedCode, setSelectedCode] = useState<string | null>(null);
 
   return (
     <div className="app-shell">
@@ -50,13 +52,28 @@ function App() {
           onRemove={removeMods}
           onToggle={toggleComplete}
           onToggleTaking={toggleTaking}
+          onSelect={setSelectedCode}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} estimate={plan.estimate} longestPath={plan.longestPath} onToggle={toggleComplete} onToggleTaking={toggleTaking} onAdd={addMods} onRemove={removeMods}/>
+        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} onSelect={setSelectedCode} />
+        {selectedCode && (
+          <DetailsPanel
+            key={selectedCode}
+            code={selectedCode}
+            mods={mods}
+            minSemesters={plan.estimate?.(selectedCode) ?? null}
+            onClose={() => setSelectedCode(null)}
+            onSelect={setSelectedCode}
+            onAdd={addMods}
+            onRemove={removeMods}
+            onToggle={toggleComplete}
+            onToggleTaking={toggleTaking}
+          />
+        )}
         {showPresets && (
           <PresetsModal
             mods={mods}
