@@ -1,26 +1,40 @@
-## NUS module pre-requisite graph 
+## NUS module prerequisite graph
 
-Made to trace the entire pre-requite chain needed to complete a set of modules/courses, or specialization planning (ie. one or more focus areas in CS)
+Traces the prerequisite chain for a set of NUS modules, for planning modules or CS focus areas. It's a static site, and your plan is saved in your browser.
 
+Live: https://hiroc.dev/nus-prereq-graph/
 
-API taken from NUSMOD
+Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 
-
-Demo: a student interest in Parallel Computing focus area
 ![Preview](assets/preview.png)
 
+### Using it
 
-### usage
-- does not show required grades yet 
-- does not show preclusions 
-#### side bar 
-- search mods by code in the side bar and press enter
-- click on focus area preset to browse and add categorized modules
+- Search by code or title, or add modules from the focus area, foundation and maths presets.
+- Tick a module to mark it completed. You can also click a node in the graph.
+- Each module shows the semesters it runs in this AY, and the minimum semesters to finish it.
+- **Full chain** expands modules outside your plan to show the whole path. **Fit** recentres the graph.
+- The legend explains node and arrow colours. Hover over a node to highlight its neighbours.
 
-##### graph
-- hover over logic gates or mods to see edges clearly
-- In the graph, searched mods have a white border, mods without borders are added due to being pre-req
-- logic gates (diamond) will be marked in green if fulfilled, otherise red
-- completed mods are in green in the graph
-- if a logic gate is fulfiled, redundant mods (not added by user) will be hidden
-- automatically simplify tree and hides pre-requisites if a mod is completed
+### Limits
+
+- Minimum semesters is a lower bound. It assumes no workload limit, this year's offerings repeating, and no MA1301 needed.
+- Minimum grades and preclusions aren't shown yet.
+- Non-course conditions, such as cohort rules, aren't checked.
+
+### Development
+
+```bash
+npm install
+npm run dev
+```
+
+| Command | What it does |
+|---|---|
+| `npm test` | Runs the tests |
+| `npm run lint` | Runs ESLint |
+| `npm run build` | Type-checks and builds to `dist/` |
+| `npm run deploy` | Builds and publishes to GitHub Pages |
+| `npm run snapshot` | Rebuilds `public/data/snapshot.json` from NUSMods |
+
+Once a semester, or when moving to a new AY: update `CURR_ACAD_YEAR` in `src/constants.ts` if needed, then run `npm run snapshot`.
