@@ -38,8 +38,8 @@ export async function fetchMod(code: string): Promise<Mod> {
 export async function fetchOfferings(): Promise<Offerings> {
     const res = await fetch(`https://api.nusmods.com/v2/${CURR_ACAD_YEAR}/moduleList.json`);
     if (!res.ok) throw new Error("Couldn't load the module list");
-    const list: { moduleCode: string; semesters: number[] }[] = await res.json();
-    return new Map(list.map(mod => [mod.moduleCode, mod.semesters]));
+    const list: { moduleCode: string; title: string; semesters: number[] }[] = await res.json();
+    return new Map(list.map(({ moduleCode, title, semesters }) => [moduleCode, { title, semesters }]));
 }
 
 /** A module the API no longer has, such as a retired one a student took in an earlier year. */
