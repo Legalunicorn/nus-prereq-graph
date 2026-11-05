@@ -10,8 +10,7 @@ import Header from "./components/Header";
 import usePlanEstimate from "./hooks/usePlanEstimate";
 import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
-
-const PHONE_WIDTH = "(max-width: 768px)";
+import { PHONE_WIDTH } from "./constants";
 
 function App() {
   const {mods, addMods, removeMods, toggleComplete} = useStoredMods();

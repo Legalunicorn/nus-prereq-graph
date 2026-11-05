@@ -4,7 +4,9 @@ import "./GraphView.css";
 import type { Mod } from "../types/types";
 import { createRank } from "../utils/alternatives";
 import { buildGraph } from "../utils/buildGraph";
+import { PHONE_WIDTH } from "../constants";
 import { buildStyles } from "../utils/cytoscapeConfig";
+import type { GraphDirection } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
@@ -38,6 +40,9 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
     const [isFullChain, setIsFullChain] = useState(false);
+    const [direction, setDirection] = useState<GraphDirection>(
+        () => (window.matchMedia(PHONE_WIDTH).matches ? "vertical" : "horizontal"),
+    );
     const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
     const snapshot = useSnapshot();
@@ -95,8 +100,8 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
             : undefined;
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
-        syncGraph(cyRef.current, toElements(graph, offerings));
-    }, [mods, offerings, isFullChain, snapshot, expandedGates]);
+        syncGraph(cyRef.current, toElements(graph, offerings), direction);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction]);
 
     return (
         <div className="graph-wrapper">
@@ -115,6 +120,9 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
                                 Full chain
                             </button>
                         )}
+                        <button onClick={() => setDirection(prev => (prev === "horizontal" ? "vertical" : "horizontal"))}>
+                            {direction === "horizontal" ? "Vertical" : "Horizontal"}
+                        </button>
                         <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
                     </div>
                     <Legend />
