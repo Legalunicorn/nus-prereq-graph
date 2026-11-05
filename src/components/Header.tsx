@@ -10,7 +10,7 @@ export default function Header({ theme, onToggleTheme }: HeaderProps) {
     return (
         <header className="app-header">
             <div className="header-content">
-                <h1>NUS Prereq Graph</h1>
+                <h1>NUS Prereq</h1>
                 <a
                     className="header-icon"
                     href="https://github.com/Legalunicorn/nus-prereq-graph"
