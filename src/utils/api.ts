@@ -1,8 +1,9 @@
 import { CURR_ACAD_YEAR } from "../constants";
 import type { Mod } from "../types/types";
+import type { Offerings } from "./offerings";
 
 const REFRESH_CONCURRENCY = 4;
-const ACAD_YEAR_LABEL = `AY${CURR_ACAD_YEAR.replace('-20', '/')}`;
+export const ACAD_YEAR_LABEL =`AY${CURR_ACAD_YEAR.replace('-20', '/')}`;
 export const NOT_IN_CATALOGUE = `Not in the ${ACAD_YEAR_LABEL} catalogue`;
 
 export class ModNotFoundError extends Error {
@@ -32,6 +33,13 @@ export async function fetchMod(code: string): Promise<Mod> {
         prereqTree: data.prereqTree,
         fulfillRequirements: data.fulfillRequirements
     }
+}
+
+export async function fetchOfferings(): Promise<Offerings> {
+    const res = await fetch(`https://api.nusmods.com/v2/${CURR_ACAD_YEAR}/moduleList.json`);
+    if (!res.ok) throw new Error("Couldn't load the module list");
+    const list: { moduleCode: string; semesters: number[] }[] = await res.json();
+    return new Map(list.map(mod => [mod.moduleCode, mod.semesters]));
 }
 
 /** A module the API no longer has, such as a retired one a student took in an earlier year. */
