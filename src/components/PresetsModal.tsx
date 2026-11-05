@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FOCUS_AREAS } from "../data/focusAreas";
-import { fetchMod } from "../utils/api";
+import useCourseAdd from "../hooks/useCourseAdd";
 import type { Mod } from "../types/types";
 import "./PresetsModal.css";
 import CourseRow from "./CourseRow";
@@ -11,17 +11,9 @@ interface PresetsModalProps {
 
 export default function PresetsModal({ mods, onAdd, onRemove, onClose }: PresetsModalProps) {
     const [expandedId, setExpandedId] = useState<string | null>(null);
-    const [loadingCode, setLoadingCode] = useState<string | null>(null);
-    const [errorCode, setErrorCode] = useState<string | null>(null);
-    const trackedCodes = new Set(mods.map(m => m.code));
+    const { rowProps } = useCourseAdd(mods, onAdd);
 
     const handleToggleArea = (id: string) => setExpandedId(prev => (prev === id ? null : id));
-
-    const handleAddCourse = async (code: string) => {
-        if (trackedCodes.has(code)) return;
-        setLoadingCode(code); setErrorCode(null);
-        try { onAdd(await fetchMod(code)); } catch { setErrorCode(code); } finally { setLoadingCode(null); }
-    };
 
     return (
         <div className="presets-overlay" onClick={onClose}>
@@ -45,13 +37,13 @@ export default function PresetsModal({ mods, onAdd, onRemove, onClose }: Presets
                                         <h4>Primaries</h4>
                                         <ul className="presets-course-list">
                                             {area.primaries.map(course => (
-                                                <CourseRow key={course.code} course={course} tracked={trackedCodes.has(course.code)} loading={loadingCode === course.code} hasError={errorCode === course.code} onAdd={() => handleAddCourse(course.code)} onRemove={() => onRemove(course.code)} />
+                                                <CourseRow key={course.code} course={course} {...rowProps(course.code)} onRemove={() => onRemove(course.code)} />
                                             ))}
                                         </ul>
                                         <h4>Electives</h4>
                                         <ul className="presets-course-list">
                                             {area.electives.map(course => (
-                                                <CourseRow key={course.code} course={course} tracked={trackedCodes.has(course.code)} loading={loadingCode === course.code} hasError={errorCode === course.code} onAdd={() => handleAddCourse(course.code)} onRemove={() => onRemove(course.code)} />
+                                                <CourseRow key={course.code} course={course} {...rowProps(course.code)} onRemove={() => onRemove(course.code)} />
                                             ))}
                                         </ul>
                                     </div>
