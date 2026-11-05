@@ -17,6 +17,7 @@ import { useEffect, useRef, useState } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
+import GraphControls from "./GraphControls";
 import Legend from "./Legend";
 import ShareButton from "./ShareButton";
 
@@ -149,7 +150,7 @@ export default function GraphView({ mods, theme, longestPaths, selectedCode, hov
             {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (
                 <>
-                    <div className="graph-controls">
+                    <GraphControls>
                         {snapshot && (
                             <button
                                 className={isFullChain ? "active" : ""}
@@ -175,7 +176,7 @@ export default function GraphView({ mods, theme, longestPaths, selectedCode, hov
                         </button>
                         <ShareButton mods={mods} />
                         <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
-                    </div>
+                    </GraphControls>
                     <Legend />
                 </>
             )}
