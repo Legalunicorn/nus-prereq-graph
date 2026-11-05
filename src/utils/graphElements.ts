@@ -6,10 +6,9 @@ import type { Offerings } from "./offerings";
 const USUAL_MIN_GRADE = "D";
 
 function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
-    const mark = node.fulfilled ? " ✓" : "";
-    if (node.gateType === "and") return `AND${mark}`;
-    if (node.gateType === "or") return `OR${mark}`;
-    return `${node.n} OF${mark}`;
+    if (node.gateType === "and") return "AND";
+    if (node.gateType === "or") return "OR";
+    return `${node.n} OF`;
 }
 
 function nodeData(node: Node, offerings: Offerings | null) {

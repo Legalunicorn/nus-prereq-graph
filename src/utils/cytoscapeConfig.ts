@@ -1,106 +1,112 @@
 import type cytoscape from "cytoscape";
+import type { GraphPalette } from "./theme";
 
-// Graph colours. Cytoscape draws on a canvas, so it can't use the CSS variables in index.css.
-// Legend.css repeats the node and edge colours.
-const COLORS = {
-    notPlannedFill: "#232638",
-    notPlannedBorder: "#5a6078",
-    notPlannedText: "#b7bcd0",
-    tag: "#2a2d40",
-    ready: "#2f6bd6",
-    blocked: "#b3453c",
-    completed: "#3f7d4a",
-    notOffered: "#e0a458",
-    fulfilled: "#7fb069",
-    unfulfilled: "#d0635a",
-    neutral: "#5a6078",
-};
+// Lets hover dimming and new elements fade rather than snap.
+const FADE = { "transition-property": "opacity", "transition-duration": 180 };
 
-export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
-    {
-        selector: 'node[kind="module"]',
-        style: {
-            label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
-            "background-color": COLORS.notPlannedFill, "text-valign": "center", "text-halign": "center",
-            color: COLORS.notPlannedText, "font-weight": "bold", width: 90, height: 36, "font-size": 14,
-            "border-width": 1, "border-color": COLORS.notPlannedBorder,
-        }
-    },
-    {
-        selector: 'node[kind="tag"]',
-        style: {
-            label: "data(label)", shape: "round-rectangle", "corner-radius": "7px",
-            width: 50, height: 14, "font-size": 10, "text-valign": "center", "text-halign": "center",
-            color: COLORS.notPlannedText, "background-color": COLORS.tag, "border-width": 0,
-            events: "no",
+export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
+    return [
+        {
+            selector: 'node[kind="module"]',
+            style: {
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "6px",
+                "background-color": colors.notPlannedFill, "text-valign": "center", "text-halign": "center",
+                color: colors.notPlannedText, "font-weight": 600, "font-family": colors.mono,
+                width: 86, height: 32, "font-size": 12,
+                "border-width": 1, "border-color": colors.notPlannedBorder,
+                ...FADE,
+            }
         },
-    },
-    {
-        selector: 'node[kind="tag"][?notOffered]',
-        style: { width: 62, color: COLORS.notOffered },
-    },
-    {
-        selector: 'node[kind="module"][?tracked]',
-        style: { "background-color": COLORS.ready, color: "#fff", "border-width": 0 },
-    },
-    {
-        selector: 'node[kind="module"][?tracked][?prereqUnfulfilled]',
-        style: { "background-color": COLORS.blocked },
-    },
-    {
-        selector: 'node[kind="module"][?completed]',
-        style: { "background-color": COLORS.completed, color: "#fff", "border-width": 0 },
-    },
-    {
-        selector: 'node[kind="module"][?notOffered]',
-        style: { "border-width": 2, "border-style": "dashed", "border-color": COLORS.notOffered },
-    },
-
-    {
-        selector: 'node[kind="more"]',
-        style: {
-            label: "data(label)", shape: "round-rectangle", "corner-radius": "12px",
-            width: 76, height: 24, "font-size": 11, "text-valign": "center", "text-halign": "center",
-            color: COLORS.notPlannedText, "background-color": COLORS.notPlannedFill,
-            "border-width": 1, "border-color": COLORS.notPlannedBorder,
+        {
+            selector: 'node[kind="tag"]',
+            style: {
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "7px",
+                width: 46, height: 13, "font-size": 9, "text-valign": "center", "text-halign": "center",
+                color: colors.tagText, "background-color": colors.tag, "border-width": 0,
+                events: "no",
+                ...FADE,
+            },
         },
-    },
-    {
-        selector: 'node[kind="gate"]',
-        style: {
-            label: "data(label)", width: 20, height: 20,
-            shape: "diamond", "font-size": 10, color: "#e0dbdb", "text-valign": "top", "text-margin-y": -2,
-        }
-    },
-    { selector: 'node[kind="gate"][?fulfilled]', style: { "background-color": COLORS.fulfilled } },
-    { selector: 'node[kind="gate"][!fulfilled]', style: { "background-color": COLORS.unfulfilled } },
-    {
-        selector: "edge",
-        style: {
-            width: 1.8, "line-color": COLORS.neutral, "target-arrow-color": COLORS.neutral,
-            "target-arrow-shape": "triangle", "arrow-scale": 0.8, "curve-style": "bezier", opacity: 0.8,
-        }
-    },
-    {
-        selector: 'edge[status = "fulfilled"]',
-        style: { "line-color": COLORS.fulfilled, "target-arrow-color": COLORS.fulfilled, opacity: 0.9 }
-    },
-    {
-        selector: 'edge[status = "unfulfilled"]',
-        style: {
-            "line-color": COLORS.unfulfilled, "target-arrow-color": COLORS.unfulfilled,
-            "line-style": "dashed", opacity: 0.85,
-        }
-    },
-    {
-        selector: 'edge[gradeLabel != ""]',
-        style: {
-            label: "data(gradeLabel)", "font-size": 10, "font-weight": "bold", color: COLORS.notOffered,
-            "text-background-color": "#171925", "text-background-opacity": 1, "text-background-padding": "2px",
+        {
+            selector: 'node[kind="tag"][?notOffered]',
+            style: { width: 58, color: colors.notOffered },
         },
-    },
-    { selector: ".dimmed", style: { opacity: 0.15 } },
-];
+        {
+            selector: 'node[kind="module"][?tracked]',
+            style: { "background-color": colors.ready, color: colors.onStatus, "border-width": 0 },
+        },
+        {
+            selector: 'node[kind="module"][?tracked][?prereqUnfulfilled]',
+            style: { "background-color": colors.blocked },
+        },
+        {
+            selector: 'node[kind="module"][?completed]',
+            style: { "background-color": colors.completed, color: colors.onStatus, "border-width": 0 },
+        },
+        {
+            selector: 'node[kind="module"][?notOffered]',
+            style: { "border-width": 2, "border-style": "dashed", "border-color": colors.notOffered },
+        },
+        {
+            selector: 'node[kind="more"]',
+            style: {
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "12px",
+                width: 66, height: 20, "font-size": 10, "text-valign": "center", "text-halign": "center",
+                color: colors.notPlannedText, "background-color": colors.notPlannedFill,
+                "border-width": 1, "border-color": colors.notPlannedBorder,
+                ...FADE,
+            },
+        },
+        {
+            selector: 'node[kind="gate"]',
+            style: {
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
+                width: 32, height: 16, "font-size": 9, "font-weight": 700, "font-family": colors.mono,
+                "text-valign": "center", "text-halign": "center",
+                ...FADE,
+            }
+        },
+        {
+            selector: 'node[kind="gate"][?fulfilled]',
+            style: { "background-color": colors.fulfilled, color: colors.canvas },
+        },
+        {
+            selector: 'node[kind="gate"][!fulfilled]',
+            style: {
+                "background-color": colors.canvas, color: colors.unfulfilled,
+                "border-width": 1, "border-color": colors.unfulfilled,
+            },
+        },
+        {
+            selector: "edge",
+            style: {
+                width: 1.25, "line-color": colors.neutral, "target-arrow-color": colors.neutral,
+                "target-arrow-shape": "triangle", "arrow-scale": 0.7,
+                "curve-style": "taxi", "taxi-direction": "rightward", "taxi-turn": "60%", opacity: 0.8,
+                ...FADE,
+            }
+        },
+        {
+            selector: 'edge[status = "fulfilled"]',
+            style: { "line-color": colors.fulfilled, "target-arrow-color": colors.fulfilled, opacity: 0.9 }
+        },
+        {
+            selector: 'edge[status = "unfulfilled"]',
+            style: {
+                "line-color": colors.unfulfilled, "target-arrow-color": colors.unfulfilled,
+                "line-style": "dashed", "line-dash-pattern": [4, 3], opacity: 0.85,
+            }
+        },
+        {
+            selector: 'edge[gradeLabel != ""]',
+            style: {
+                label: "data(gradeLabel)", "font-size": 10, "font-weight": "bold", color: colors.notOffered,
+                "text-background-color": colors.canvas, "text-background-opacity": 1, "text-background-padding": "2px",
+            },
+        },
+        { selector: ".dimmed", style: { opacity: 0.15 } },
+    ];
+}
 
 interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
     name: "dagre";
@@ -111,7 +117,7 @@ interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
 }
 
 const dagreLayout: DagreLayoutOptions = {
-    name: "dagre", rankDir: "LR", nodeSep: 28, rankSep: 60, edgeSep: 10,
+    name: "dagre", rankDir: "LR", nodeSep: 36, rankSep: 60, edgeSep: 10,
 };
 
 // The cytoscape types only list built-in layouts, so dagre needs a cast here.
