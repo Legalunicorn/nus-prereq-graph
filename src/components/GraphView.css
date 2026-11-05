@@ -3,6 +3,7 @@
     flex: 1;
     min-width: 0;
     height: 100%;
+    overflow: hidden;
     background-color: var(--canvas);
     background-image: radial-gradient(circle, rgba(105, 116, 159, 0.2) 1px, transparent 1px);
     background-size: 24px 24px;
