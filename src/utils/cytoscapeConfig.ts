@@ -6,6 +6,7 @@ const COLORS = {
     notPlannedFill: "#232638",
     notPlannedBorder: "#5a6078",
     notPlannedText: "#b7bcd0",
+    tag: "#2a2d40",
     ready: "#2f6bd6",
     blocked: "#b3453c",
     completed: "#3f7d4a",
@@ -21,10 +22,22 @@ export const cytoscapeStyles: cytoscape.StylesheetStyle[] = [
         style: {
             label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
             "background-color": COLORS.notPlannedFill, "text-valign": "center", "text-halign": "center",
-            color: COLORS.notPlannedText, "font-weight": "bold", width: 90, height: 44, "font-size": 13,
+            color: COLORS.notPlannedText, "font-weight": "bold", width: 90, height: 36, "font-size": 14,
             "border-width": 1, "border-color": COLORS.notPlannedBorder,
-            "text-wrap": "wrap",
         }
+    },
+    {
+        selector: 'node[kind="tag"]',
+        style: {
+            label: "data(label)", shape: "round-rectangle", "corner-radius": "7px",
+            width: 50, height: 14, "font-size": 10, "text-valign": "center", "text-halign": "center",
+            color: COLORS.notPlannedText, "background-color": COLORS.tag, "border-width": 0,
+            events: "no",
+        },
+    },
+    {
+        selector: 'node[kind="tag"][?notOffered]',
+        style: { width: 62, color: COLORS.notOffered },
     },
     {
         selector: 'node[kind="module"][?tracked]',
@@ -98,7 +111,7 @@ interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
 }
 
 const dagreLayout: DagreLayoutOptions = {
-    name: "dagre", rankDir: "LR", nodeSep: 15, rankSep: 60, edgeSep: 10,
+    name: "dagre", rankDir: "LR", nodeSep: 28, rankSep: 60, edgeSep: 10,
 };
 
 // The cytoscape types only list built-in layouts, so dagre needs a cast here.

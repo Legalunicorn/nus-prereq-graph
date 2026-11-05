@@ -20,7 +20,8 @@ function nodeData(node: Node, offerings: Offerings | null) {
         const catalogue = wildcard ? null : offerings;
         return {
             id: node.id,
-            label: catalogue ? `${code}\n${semesterLabel(catalogue, node.code)}` : code,
+            label: code,
+            semesters: catalogue ? semesterLabel(catalogue, node.code) : "",
             kind: node.kind,
             completed: node.completed,
             tracked: node.tracked,

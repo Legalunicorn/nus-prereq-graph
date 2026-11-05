@@ -32,13 +32,14 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
                     <li className="mod-li" key={m.code}>
                         <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} aria-label={`Mark ${m.code} completed`} />
                         <div className="mod-info">
-                            <span className="mod-code">
-                                {m.code} <SemesterTag code={m.code} />
+                            <span className="mod-code">{m.code}</span>
+                            <span className="mod-title" title={m.title}>{m.title}</span>
+                            <span className="mod-meta">
+                                <SemesterTag code={m.code} />
                                 {!m.completed && plan.estimate?.(m.code) != null && (
-                                    <span className="mod-estimate"> · {plan.estimate(m.code)} sem</span>
+                                    <span className="mod-estimate">{plan.estimate(m.code)} sem</span>
                                 )}
                             </span>
-                            <span className="mod-title" title={m.title}>{m.title}</span>
                         </div>
                         <button onClick = {() => onRemove(m.code)} aria-label={`Remove ${m.code}`}>✕</button>
                     </li>
