@@ -32,10 +32,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Set the git identity for the deploy commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - name: Build and publish to the gh-pages branch
-        run: >-
-          npm run deploy --
-          -r "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          -u "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+        run: npm run deploy -- -r "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
         env:
           GH_TOKEN: ${{ github.token }}
