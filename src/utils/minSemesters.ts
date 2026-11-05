@@ -18,14 +18,16 @@ interface EstimatorOptions {
     modules: Record<string, SnapshotModule>;
     completed: ReadonlySet<string>;
     start: RegularSemester;
+    /** Chosen first when several prerequisites tie, usually the modules in the plan. */
+    preferred?: ReadonlySet<string>;
 }
 
 /**
- * Returns a function giving the minimum number of semesters to finish a module: 0 if it's
- * completed, or null if it can't be worked out, such as a module outside the snapshot or
- * one with no regular semester offering. It works on term numbers counted from `start`.
+ * `estimate` gives the minimum number of semesters to finish a module: 0 if it's completed, or
+ * null if it can't be worked out, such as a module outside the snapshot or one with no regular
+ * semester offering. It works on term numbers counted from `start`.
  */
-export function createEstimator({ modules, completed, start }: EstimatorOptions) {
+export function createEstimator({ modules, completed, start, preferred = new Set() }: EstimatorOptions) {
     const memo = new Map<string, number>();
     const inProgress = new Set<string>();
     const allCodes = [...Object.keys(modules), ...completed];
@@ -85,8 +87,37 @@ export function createEstimator({ modules, completed, start }: EstimatorOptions)
         return ALREADY_DONE;
     };
 
-    return (code: string): number | null => {
-        const term = earliestTerm(code);
-        return term === NOT_POSSIBLE ? null : term + 1;
+    const pickDeciding = (options: { code: string | null; term: number }[], term: number) => {
+        const tied = options.filter(option => option.term === term).map(option => option.code);
+        return tied.find(code => code !== null && preferred.has(code)) ?? tied[0] ?? null;
+    };
+
+    const decidingCode = (tree: PrereqTree): string | null => {
+        if (typeof tree === "string") {
+            const options = matchingCodes(tree.split(":")[0]).map(code => ({ code, term: earliestTerm(code) }));
+            return pickDeciding(options, evaluate(tree));
+        }
+        const kids = tree.and ?? tree.or ?? tree.nOf?.[1] ?? [];
+        return pickDeciding(kids.map(kid => ({ code: decidingCode(kid), term: evaluate(kid) })), evaluate(tree));
+    };
+
+    return {
+        estimate: (code: string): number | null => {
+            const term = earliestTerm(code);
+            return term === NOT_POSSIBLE ? null : term + 1;
+        },
+
+        /** The modules still to take that decide how long `code` takes, earliest first. */
+        longestChain: (code: string): string[] => {
+            const chain: string[] = [];
+            let current: string | null = code;
+            while (current && !chain.includes(current) && earliestTerm(current) >= 0 && earliestTerm(current) !== NOT_POSSIBLE) {
+                chain.unshift(current);
+                const prereqTree: PrereqTree | undefined = modules[current]?.prereqTree;
+                const tree: PrereqTree | null = prereqTree ? normalizeTree(prereqTree) : null;
+                current = tree ? decidingCode(tree) : null;
+            }
+            return chain;
+        },
     };
 }

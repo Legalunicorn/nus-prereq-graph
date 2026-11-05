@@ -27,7 +27,48 @@ const modules: Record<string, SnapshotModule> = {
 };
 
 const estimate = (code: string, completed: string[] = [], start: RegularSemester = 1) =>
-    createEstimator({ modules, completed: new Set(completed), start })(code);
+    createEstimator({ modules, completed: new Set(completed), start }).estimate(code);
+
+describe("longestChain", () => {
+    const chain = (code: string, completed: string[] = [], preferred: string[] = []) =>
+        createEstimator({
+            modules,
+            completed: new Set(completed),
+            start: 1,
+            preferred: new Set(preferred),
+        }).longestChain(code);
+
+    it("follows the prerequisites that decide the time", () => {
+        expect(chain("C1")).toEqual(["A1", "B1", "C1"]);
+    });
+
+    it("skips what's already done", () => {
+        expect(chain("C1", ["A1"])).toEqual(["B1", "C1"]);
+    });
+
+    it("takes the quickest route through an OR", () => {
+        expect(chain("OR1")).toEqual(["A1", "OR1"]);
+    });
+
+    it("prefers a planned module when alternatives tie", () => {
+        const tied: Record<string, SnapshotModule> = {
+            X1: mod([1, 2]),
+            Y1: mod([1, 2]),
+            Z1: mod([1, 2], { or: ["X1:D", "Y1:D"] }),
+        };
+        const estimator = createEstimator({ modules: tied, completed: new Set(), start: 1, preferred: new Set(["Y1"]) });
+        expect(estimator.longestChain("Z1")).toEqual(["Y1", "Z1"]);
+    });
+
+    it("is empty for a module that can't be reached or is completed", () => {
+        expect(chain("NEVER")).toEqual([]);
+        expect(chain("A1", ["A1"])).toEqual([]);
+    });
+
+    it("stops at a cycle", () => {
+        expect(chain("CYCLE1")).toEqual([]);
+    });
+});
 
 describe("createEstimator", () => {
     it.each([
