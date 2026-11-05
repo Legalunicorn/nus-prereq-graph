@@ -9,6 +9,8 @@ interface NodePopupProps {
     x: number;
     y: number;
     mods: Mod[];
+    /** Minimum semesters to finish this module, if known. */
+    semesters: number | null;
     onClose: () => void;
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
@@ -17,7 +19,7 @@ interface NodePopupProps {
 
 const errorMessage = (err: unknown) => (err instanceof Error ? err.message : "Something went wrong.");
 
-export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
+export default function NodePopup({ code, x, y, mods, semesters, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
     const [loading, setLoading] = useState(false);
     const [notFound, setNotFound] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -72,6 +74,9 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
                 <button className="node-popup-close" onClick={onClose}>✕</button>
             </div>
             {title && <div className="node-popup-title" title={title}>{title}</div>}
+            {semesters !== null && semesters > 0 && (
+                <div className="node-popup-note">At least {semesters} {semesters === 1 ? "semester" : "semesters"} to finish</div>
+            )}
             {unavailable && (
                 <div className="node-popup-note">{NOT_IN_CATALOGUE}. If you took it, you can still mark it completed.</div>
             )}
