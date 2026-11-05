@@ -65,6 +65,8 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 ...FADE,
             }
         },
+        { selector: 'node[gateType="and"]', style: { shape: "hexagon", width: 40, height: 20 } },
+        { selector: 'node[gateType="nOf"]', style: { shape: "cut-rectangle", width: 38, height: 18 } },
         {
             selector: 'node[kind="gate"][?fulfilled]',
             style: { "background-color": colors.fulfilled, color: colors.canvas },

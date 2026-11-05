@@ -37,6 +37,8 @@ export default function Legend() {
                             {item.label}
                         </li>
                     ))}
+                    <li><span className="legend-gate and" />AND: all needed</li>
+                    <li><span className="legend-gate or" />OR: any one</li>
                 </ul>
             )}
         </div>

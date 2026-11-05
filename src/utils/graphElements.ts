@@ -37,7 +37,7 @@ function nodeData(node: Node, offerings: Offerings | null) {
         const label = node.expanded ? "Show fewer" : `+${node.hiddenCount} more`;
         return { id: node.id, label, kind: node.kind, gateId: node.gateId };
     }
-    return { id: node.id, label: gateLabel(node), kind: node.kind, fulfilled: node.fulfilled };
+    return { id: node.id, label: gateLabel(node), kind: node.kind, gateType: node.gateType, fulfilled: node.fulfilled };
 }
 
 export function toElements(graph: Graph, offerings: Offerings | null = null) {
