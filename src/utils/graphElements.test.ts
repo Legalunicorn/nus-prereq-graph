@@ -34,7 +34,7 @@ describe("toElements", () => {
     });
 
     it("adds the semesters to module labels once offerings are known", () => {
-        const offerings = new Map([["X1", [2]]]);
+        const offerings = new Map([["X1", { title: "X", semesters: [2] }]]);
         const [element] = toElements(buildGraph([mod("X1")]), offerings);
         expect(element.data).toMatchObject({ label: "X1\nS2", notOffered: false });
     });
