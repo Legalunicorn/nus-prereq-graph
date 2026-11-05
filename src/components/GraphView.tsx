@@ -7,7 +7,7 @@ import { buildStyles } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
-import { applyLongestPath } from "../utils/longestPath";
+import { applyLongestPaths } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
 import { straighten } from "../utils/edgeRouteStyle";
@@ -27,13 +27,13 @@ const MAX_ZOOM = 1.25;
 interface GraphViewProps {
     mods: Mod[];
     theme: Theme;
-    longestPath: string[];
+    longestPaths: string[][];
     selectedCode: string | null;
     hoveredCode: string | null;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPath, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPaths, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
@@ -140,8 +140,8 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
         syncGraph(cyRef.current, toElements(graph, offerings), direction);
-        applyLongestPath(cyRef.current, isLongestPathOn ? longestPath : []);
-    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPath]);
+        applyLongestPaths(cyRef.current, isLongestPathOn ? longestPaths : []);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPaths]);
 
     return (
         <div ref={wrapperRef} className="graph-wrapper">
@@ -160,14 +160,14 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
                                 Full chain
                             </button>
                         )}
-                        {longestPath.length > 0 && (
+                        {longestPaths.length > 0 && (
                             <button
                                 className={isLongestPathOn ? "active" : ""}
                                 aria-pressed={isLongestPathOn}
-                                title="Highlight the chain that decides the minimum semesters"
+                                title="Highlight every chain that decides the minimum semesters"
                                 onClick={() => setIsLongestPathOn(prev => !prev)}
                             >
-                                Longest path
+                                Longest paths
                             </button>
                         )}
                         <button onClick={toggleDirection}>
