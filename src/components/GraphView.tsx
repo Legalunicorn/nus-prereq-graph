@@ -12,7 +12,7 @@ import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
 import { straighten } from "../utils/graphLayout";
 import { moveTagWithNode } from "../utils/semesterTags";
-import { rewrapOnResize, syncGraph } from "../utils/syncGraph";
+import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
@@ -21,9 +21,8 @@ import Legend from "./Legend";
 import ShareButton from "./ShareButton";
 
 const FIT_PADDING = 30;
-const MIN_ZOOM = 0.4;
+const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 1.25;
-const RESIZE_DELAY = 150;
 
 interface GraphViewProps {
     mods: Mod[];
@@ -109,20 +108,9 @@ export default function GraphView({ mods, theme, longestPath, selectedCode, hove
         if (!container) {
             return;
         }
-        let timer: number | undefined;
-        const observer = new ResizeObserver(() => {
-            window.clearTimeout(timer);
-            timer = window.setTimeout(() => {
-                if (cyRef.current) {
-                    rewrapOnResize(cyRef.current);
-                }
-            }, RESIZE_DELAY);
-        });
+        const observer = new ResizeObserver(() => cyRef.current?.resize());
         observer.observe(container);
-        return () => {
-            window.clearTimeout(timer);
-            observer.disconnect();
-        };
+        return () => observer.disconnect();
     }, []);
 
     useEffect(() => {
