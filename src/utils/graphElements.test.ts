@@ -1,0 +1,40 @@
+import { describe, expect, it } from "vitest";
+import type { Mod, PrereqTree } from "../types/types";
+import { buildGraph } from "./buildGraph";
+import { toElements } from "./graphElements";
+
+function mod(code: string, prereqTree?: PrereqTree, completed = false): Mod {
+    return { code, title: code, completed, prereqTree };
+}
+
+const ids = (mods: Mod[]) => toElements(buildGraph(mods)).map(element => element.data.id);
+
+describe("toElements", () => {
+    const tree: PrereqTree = { and: [{ or: ["A1:D", "B1:D"] }, "C1:D"] };
+
+    it("gives the same IDs when the same graph is built twice", () => {
+        expect(ids([mod("X1", tree)])).toEqual(ids([mod("X1", tree)]));
+    });
+
+    it("gives each module's gates their own IDs", () => {
+        const all = ids([mod("X1", tree), mod("Y1", tree)]);
+        expect(new Set(all).size).toBe(all.length);
+        expect(all).toContain("gate:X1");
+        expect(all).toContain("gate:Y1");
+    });
+
+    it("merges a prerequisite listed twice under one gate into one edge", () => {
+        const all = ids([mod("X1", { or: ["A1:D", "A1:D"] })]);
+        expect(all.filter(id => id === "A1->gate:X1")).toHaveLength(1);
+    });
+
+    it("always sets boolean status fields", () => {
+        const [element] = toElements(buildGraph([mod("X1")]));
+        expect(element.data).toMatchObject({ completed: false, tracked: true, prereqUnfulfilled: false });
+    });
+
+    it("labels nOf gates with n", () => {
+        const elements = toElements(buildGraph([mod("X1", { nOf: [2, ["A1:D", "B1:D"]] })]));
+        expect(elements.find(element => element.data.id === "gate:X1")?.data).toMatchObject({ label: "2 OF" });
+    });
+});

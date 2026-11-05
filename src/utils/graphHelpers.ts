@@ -5,12 +5,6 @@ export function findMod(mods: Mod[], code: string): Mod | undefined {
     return mods.find(m => m.code === code);
 }
 
-let gateId = 0;
-export function nextGateid(): string{
-    gateId++;
-    return `gate-${gateId}`;
-}
-
 /**
  * Reduces a tree from the API to just its course requirements.
  * `then` is the requirement behind a cohort or programType condition. A bare
@@ -76,8 +70,11 @@ export function edgeStatus(fulfilled: boolean, cleared: boolean): EdgeStatus {
     return cleared ? "cleared" : "unfulfilled";
 }
 
-/** With `cleared` set, the tree belongs to a completed module, so nothing in it renders as unmet. */
-export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, cleared = false): WalkResult{
+/**
+ * `path` is this tree's position under its module, which keeps gate IDs the same between builds.
+ * With `cleared` set, the tree belongs to a completed module, so nothing in it renders as unmet.
+ */
+export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, path: string, cleared = false): WalkResult{
     if (typeof tree == "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
@@ -109,7 +106,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, cleared = 
         children  = tree.nOf![1];
     }
 
-    const childResults = children.map(child => walkTree(child, mods, graph, cleared));
+    const childResults = children.map((child, i) => walkTree(child, mods, graph, `${path}.${i}`, cleared));
 
     let fulfilled: boolean;
     if (gateType === "and"){
@@ -120,7 +117,7 @@ export function walkTree(tree: PrereqTree, mods: Mod[], graph: Graph, cleared = 
         fulfilled = childResults.filter(r => r.fulfilled).length >= n!;
     }
 
-    const thisGateId = nextGateid();
+    const thisGateId = `gate:${path}`;
     graph.nodes.set(thisGateId, {
         kind: "gate",
         id: thisGateId,
