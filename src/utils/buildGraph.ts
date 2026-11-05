@@ -16,7 +16,7 @@ export function buildGraph(mods: Mod[]) : Graph{
         if (prereqTree){
             const treeToRender = mod.completed ? filterTree(prereqTree, trackedCodes) : prereqTree;
             if (treeToRender){
-                const root = walkTree(treeToRender, mods, graph, mod.completed);
+                const root = walkTree(treeToRender, mods, graph, mod.code, mod.completed);
                 graph.edges.push({
                     from: root.id,
                     to: mod.code,
