@@ -87,7 +87,7 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
             style: {
                 width: 1.25, "line-color": colors.neutral, "target-arrow-color": colors.neutral,
                 "target-arrow-shape": "triangle", "arrow-scale": 0.7,
-                "curve-style": "taxi", "taxi-direction": "rightward", "taxi-turn": "60%", opacity: 0.8,
+                "curve-style": "unbundled-bezier", "edge-distances": "node-position", opacity: 0.8,
                 ...FADE,
             }
         },
