@@ -10,6 +10,7 @@ import type { GraphDirection } from "../utils/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
 import { toElements } from "../utils/graphElements";
+import { applyParallax } from "../utils/parallax";
 import { popupPosition } from "../utils/popupPosition";
 import { includeTags, moveTagWithNode } from "../utils/semesterTags";
 import { syncGraph } from "../utils/syncGraph";
@@ -22,7 +23,8 @@ import NodePopup from "./NodePopup";
 cytoscape.use(dagre);
 
 const FIT_PADDING = 30;
-const MAX_ZOOM = 1.5;
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 1.25;
 
 interface GraphViewProps {
     mods: Mod[];
@@ -37,6 +39,7 @@ interface GraphViewProps {
 interface PopupState { code: string; x: number; y: number; }
 
 export default function GraphView({ mods, theme, estimate, onToggle, onToggleTaking, onAdd, onRemove }: GraphViewProps) {
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
@@ -52,6 +55,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
         const cy = cytoscape({
             container: containerRef.current,
             style: buildStyles(readGraphPalette()),
+            minZoom: MIN_ZOOM,
             maxZoom: MAX_ZOOM,
         });
 
@@ -71,6 +75,11 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
         });
         cy.on("tap", (evt) => { if (evt.target === cy) { setPopup(null); } });
         cy.on("pan zoom layoutstop", () => setPopup(null));
+        cy.on("pan", () => {
+            if (wrapperRef.current) {
+                applyParallax(wrapperRef.current, cy.pan());
+            }
+        });
 
         cy.on("position", 'node[kind="module"]', (evt) => moveTagWithNode(cy, evt.target));
 
@@ -105,7 +114,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onToggleTak
     }, [mods, offerings, isFullChain, snapshot, expandedGates, direction]);
 
     return (
-        <div className="graph-wrapper">
+        <div ref={wrapperRef} className="graph-wrapper">
             <div ref={containerRef} className="graph-container" />
             {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (

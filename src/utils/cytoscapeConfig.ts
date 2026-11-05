@@ -124,7 +124,7 @@ interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
 export type GraphDirection = "horizontal" | "vertical";
 
 const DAGRE_LAYOUTS: Record<GraphDirection, DagreLayoutOptions> = {
-    horizontal: { name: "dagre", rankDir: "LR", nodeSep: 36, rankSep: 60, edgeSep: 10 },
+    horizontal: { name: "dagre", rankDir: "LR", nodeSep: 32, rankSep: 48, edgeSep: 10 },
     vertical: { name: "dagre", rankDir: "TB", nodeSep: 14, rankSep: 72, edgeSep: 10 },
 };
 

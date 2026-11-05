@@ -5,8 +5,15 @@
     height: 100%;
     overflow: hidden;
     background-color: var(--canvas);
-    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
-    background-size: 22px 22px;
+    background-image:
+        radial-gradient(ellipse at center, transparent 45%, var(--vignette) 100%),
+        radial-gradient(circle, var(--grid-dot-near) 1.5px, transparent 1.5px),
+        radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 100% 100%, 88px 88px, 22px 22px;
+    background-position:
+        0 0,
+        var(--near-x, 0) var(--near-y, 0),
+        var(--far-x, 0) var(--far-y, 0);
 }
 .graph-controls {
     position: absolute;
