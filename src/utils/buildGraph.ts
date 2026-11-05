@@ -1,6 +1,6 @@
 import type { Mod } from "../types/types";
 import type { Graph } from "../types/graph";
-import { filterTree, walkTree, pruneUnreachable } from "./graphHelpers";
+import { filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
 export function buildGraph(mods: Mod[]) : Graph{
     const graph: Graph = {nodes: new Map(), edges:[]};
@@ -12,8 +12,9 @@ export function buildGraph(mods: Mod[]) : Graph{
             title:mod.title, completed: mod.completed, tracked: true,
         });
 
-        if (mod.prereqTree){
-            const treeToRender = mod.completed ? filterTree(mod.prereqTree, trackedCodes) : mod.prereqTree;
+        const prereqTree = mod.prereqTree ? normalizeTree(mod.prereqTree) : null;
+        if (prereqTree){
+            const treeToRender = mod.completed ? filterTree(prereqTree, trackedCodes) : prereqTree;
             if (treeToRender){
                 const root = walkTree(treeToRender, mods, graph);
                 graph.edges.push({from: root.id, to: mod.code, minGrade: root.minGrade});
