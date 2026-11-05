@@ -11,6 +11,33 @@ export function nextGateid(): string{
     return `gate-${gateId}`;
 }
 
+/**
+ * Reduces a tree from the API to just its course requirements.
+ * `then` is the requirement behind a cohort or programType condition. A bare
+ * condition has no course to show, so it is dropped.
+ */
+export function normalizeTree(tree: PrereqTree): PrereqTree | null {
+    if (typeof tree === "string") return tree;
+
+    const normalizeBranch = (branch: PrereqTree[]) =>
+        branch.map(normalizeTree).filter((t): t is PrereqTree => t !== null);
+
+    if (tree.and) {
+        const and = normalizeBranch(tree.and);
+        return and.length > 0 ? { and } : null;
+    }
+    if (tree.or) {
+        const or = normalizeBranch(tree.or);
+        return or.length > 0 ? { or } : null;
+    }
+    if (tree.nOf) {
+        const [n, kids] = tree.nOf;
+        const normalized = normalizeBranch(kids);
+        return normalized.length > 0 ? { nOf: [n, normalized] } : null;
+    }
+    return tree.then ? normalizeTree(tree.then) : null;
+}
+
 export function filterTree(tree: PrereqTree, trackedCodes: Set<string>): PrereqTree | null {
     if (typeof tree === "string") {
         const [code] = tree.split(":");

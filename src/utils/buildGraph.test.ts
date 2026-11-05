@@ -140,6 +140,58 @@ describe("buildGraph", () => {
         });
     });
 
+    describe("cohort and programType conditions", () => {
+        // Real tree for CS2103DE, which used to crash the app (#3).
+        const CS2103DE: PrereqTree = {
+            or: [
+                {
+                    programType: { rule: "IF_IN", types: ["Undergraduate Degree"] },
+                    then: { and: ["CS2030DE:D", "CS2040DE:D"] },
+                },
+                {
+                    programType: { rule: "IF_IN", types: ["Undergraduate Degree"] },
+                    then: { and: ["CS2030S:D", "CS2040S:D"] },
+                },
+            ],
+        };
+
+        it("evaluates the requirement inside then", () => {
+            const graph = buildGraph([
+                mod("CS2103DE", CS2103DE),
+                mod("CS2030S", undefined, true),
+                mod("CS2040S", undefined, true),
+            ]);
+            expect(moduleNode(graph, "CS2103DE").prereqUnfulfilled).toBe(false);
+        });
+
+        it("shows every branch when nothing is completed", () => {
+            const graph = buildGraph([mod("CS2103DE", CS2103DE)]);
+            expect(moduleCodes(graph)).toEqual([
+                "CS2030DE", "CS2030S", "CS2040DE", "CS2040S", "CS2103DE",
+            ]);
+            expect(moduleNode(graph, "CS2103DE").prereqUnfulfilled).toBe(true);
+        });
+
+        it("treats a module with only a bare condition as having no prerequisites", () => {
+            const tree: PrereqTree = { cohort: { rule: "MUST_BE_IN", years: ["S:2021/22"] } };
+            const graph = buildGraph([mod("NM4259", tree)]);
+            expect(graph.edges).toEqual([]);
+            expect(moduleNode(graph, "NM4259").prereqUnfulfilled).toBeUndefined();
+        });
+
+        it("drops a bare condition next to course requirements", () => {
+            const tree: PrereqTree = {
+                and: [{ cohort: { rule: "MUST_BE_IN", years: ["E:2020/21"] } }, "A1:D"],
+            };
+            const graph = buildGraph([mod("X1", tree), mod("A1", undefined, true)]);
+            expect(moduleNode(graph, "X1").prereqUnfulfilled).toBe(false);
+        });
+
+        it("does not crash for a completed module with these conditions", () => {
+            expect(() => buildGraph([mod("CS2103DE", CS2103DE, true)])).not.toThrow();
+        });
+    });
+
     it("shares one node when two modules need the same prerequisite", () => {
         const graph = buildGraph([mod("CS5234", CS5234), mod("CS5237", "CS3230:D")]);
         expect(moduleCodes(graph)).toEqual(["CS3230", "CS5234", "CS5237"]);
