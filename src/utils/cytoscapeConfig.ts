@@ -87,7 +87,7 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
             style: {
                 width: 1.25, "line-color": colors.neutral, "target-arrow-color": colors.neutral,
                 "target-arrow-shape": "triangle", "arrow-scale": 0.7,
-                "curve-style": "unbundled-bezier", "edge-distances": "node-position", opacity: 0.8,
+                "curve-style": "straight", "edge-distances": "node-position", opacity: 0.8,
                 ...FADE,
             }
         },
@@ -122,20 +122,4 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
     ];
 }
 
-interface DagreLayoutOptions extends cytoscape.BaseLayoutOptions {
-    name: "dagre";
-    rankDir: "LR" | "TB";
-    nodeSep: number;
-    rankSep: number;
-    edgeSep: number;
-}
-
 export type GraphDirection = "horizontal" | "vertical";
-
-const DAGRE_LAYOUTS: Record<GraphDirection, DagreLayoutOptions> = {
-    horizontal: { name: "dagre", rankDir: "LR", nodeSep: 32, rankSep: 48, edgeSep: 10 },
-    vertical: { name: "dagre", rankDir: "TB", nodeSep: 14, rankSep: 72, edgeSep: 10 },
-};
-
-// The cytoscape types only list built-in layouts, so dagre needs a cast here.
-export const layoutFor = (direction: GraphDirection) => DAGRE_LAYOUTS[direction] as unknown as cytoscape.LayoutOptions;

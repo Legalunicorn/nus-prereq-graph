@@ -23,6 +23,10 @@
     display: flex;
     gap: 6px;
 }
+@media (max-width: 768px) {
+    /* Clears the sidebar toggle. */
+    .graph-controls { top: 48px; }
+}
 .graph-controls button {
     padding: 4px 10px;
     font-size: 12px;
