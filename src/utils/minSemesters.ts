@@ -87,19 +87,22 @@ export function createEstimator({ modules, completed, start, preferred = new Set
         return ALREADY_DONE;
     };
 
-    const pickDeciding = (options: { code: string | null; term: number }[], term: number) => {
-        const tied = options.filter(option => option.term === term).map(option => option.code);
-        return tied.find(code => code !== null && preferred.has(code)) ?? tied[0] ?? null;
-    };
+    const oneAlternative = (alternatives: string[][]) =>
+        alternatives.find(codes => codes.some(code => preferred.has(code))) ?? alternatives[0] ?? [];
 
-    const decidingCode = (tree: PrereqTree): string | null => {
+    /** Every AND branch tied for last decides the time, but only one of a set of alternatives needs taking. */
+    const decidingCodes = (tree: PrereqTree): string[] => {
+        const term = evaluate(tree);
         if (typeof tree === "string") {
-            const options = matchingCodes(tree.split(":")[0]).map(code => ({ code, term: earliestTerm(code) }));
-            return pickDeciding(options, evaluate(tree));
+            const tied = matchingCodes(tree.split(":")[0]).filter(code => earliestTerm(code) === term);
+            return oneAlternative(tied.map(code => [code]));
         }
         const kids = tree.and ?? tree.or ?? tree.nOf?.[1] ?? [];
-        return pickDeciding(kids.map(kid => ({ code: decidingCode(kid), term: evaluate(kid) })), evaluate(tree));
+        const tied = kids.filter(kid => evaluate(kid) === term).map(decidingCodes);
+        return tree.and ? tied.flat() : oneAlternative(tied);
     };
+
+    const isPending = (code: string) => earliestTerm(code) >= 0 && earliestTerm(code) !== NOT_POSSIBLE;
 
     return {
         estimate: (code: string): number | null => {
@@ -107,17 +110,24 @@ export function createEstimator({ modules, completed, start, preferred = new Set
             return term === NOT_POSSIBLE ? null : term + 1;
         },
 
-        /** The modules still to take that decide how long `code` takes, earliest first. */
-        longestChain: (code: string): string[] => {
-            const chain: string[] = [];
-            let current: string | null = code;
-            while (current && !chain.includes(current) && earliestTerm(current) >= 0 && earliestTerm(current) !== NOT_POSSIBLE) {
-                chain.unshift(current);
-                const prereqTree: PrereqTree | undefined = modules[current]?.prereqTree;
-                const tree: PrereqTree | null = prereqTree ? normalizeTree(prereqTree) : null;
-                current = tree ? decidingCode(tree) : null;
+        /** Every chain of modules still to take that decides how long `code` takes, earliest first. */
+        longestChains: (code: string): string[][] => {
+            const chains: string[][] = [];
+            const walk = (current: string, later: string[]) => {
+                const chain = [current, ...later];
+                const prereqTree = modules[current]?.prereqTree;
+                const tree = prereqTree ? normalizeTree(prereqTree) : null;
+                const previous = (tree ? decidingCodes(tree) : [])
+                    .filter(other => isPending(other) && !chain.includes(other));
+                if (previous.length === 0) {
+                    chains.push(chain);
+                }
+                previous.forEach(other => walk(other, chain));
+            };
+            if (isPending(code)) {
+                walk(code, []);
             }
-            return chain;
+            return chains;
         },
     };
 }

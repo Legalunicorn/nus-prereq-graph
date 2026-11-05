@@ -29,14 +29,14 @@ const modules: Record<string, SnapshotModule> = {
 const estimate = (code: string, completed: string[] = [], start: RegularSemester = 1) =>
     createEstimator({ modules, completed: new Set(completed), start }).estimate(code);
 
-describe("longestChain", () => {
+describe("longestChains", () => {
     const chain = (code: string, completed: string[] = [], preferred: string[] = []) =>
         createEstimator({
             modules,
             completed: new Set(completed),
             start: 1,
             preferred: new Set(preferred),
-        }).longestChain(code);
+        }).longestChains(code)[0] ?? [];
 
     it("follows the prerequisites that decide the time", () => {
         expect(chain("C1")).toEqual(["A1", "B1", "C1"]);
@@ -57,7 +57,33 @@ describe("longestChain", () => {
             Z1: mod([1, 2], { or: ["X1:D", "Y1:D"] }),
         };
         const estimator = createEstimator({ modules: tied, completed: new Set(), start: 1, preferred: new Set(["Y1"]) });
-        expect(estimator.longestChain("Z1")).toEqual(["Y1", "Z1"]);
+        expect(estimator.longestChains("Z1")).toEqual([["Y1", "Z1"]]);
+    });
+
+    it("returns every chain when AND branches tie", () => {
+        const tied: Record<string, SnapshotModule> = {
+            X1: mod([1, 2]),
+            Y1: mod([1, 2]),
+            Z1: mod([1, 2], { and: ["X1:D", "Y1:D"] }),
+        };
+        const estimator = createEstimator({ modules: tied, completed: new Set(), start: 1 });
+        expect(estimator.longestChains("Z1")).toEqual([["X1", "Z1"], ["Y1", "Z1"]]);
+    });
+
+    it("leaves out an AND branch that finishes sooner", () => {
+        const uneven: Record<string, SnapshotModule> = {
+            X1: mod([1, 2]),
+            X2: mod([1, 2], "X1:D"),
+            Y1: mod([1, 2]),
+            Z1: mod([1, 2], { and: ["X2:D", "Y1:D"] }),
+        };
+        const estimator = createEstimator({ modules: uneven, completed: new Set(), start: 1 });
+        expect(estimator.longestChains("Z1")).toEqual([["X1", "X2", "Z1"]]);
+    });
+
+    it("is empty for a module that's already done", () => {
+        const estimator = createEstimator({ modules, completed: new Set(["A1"]), start: 1 });
+        expect(estimator.longestChains("A1")).toEqual([]);
     });
 
     it("is empty for a module that can't be reached or is completed", () => {
@@ -123,6 +149,20 @@ describe("createEstimator", () => {
 
     it("returns null for a cycle", () => {
         expect(estimate("CYCLE1")).toBeNull();
+    });
+});
+
+describe("a module only in Sem 2", () => {
+    const only: Record<string, SnapshotModule> = { S2ONLY: mod([2]) };
+    const fromDate = (date: Date) =>
+        createEstimator({ modules: only, completed: new Set(), start: nextSemester(date) }).estimate("S2ONLY");
+
+    it("takes 1 semester during Sem 1, as Sem 2 is next", () => {
+        expect(fromDate(new Date(2026, 10, 6))).toBe(1);
+    });
+
+    it("takes 2 semesters during Sem 2, as this year's has started", () => {
+        expect(fromDate(new Date(2027, 1, 1))).toBe(2);
     });
 });
 
