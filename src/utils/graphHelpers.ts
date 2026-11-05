@@ -1,5 +1,7 @@
 import type { Mod, PrereqTree } from "../types/types";
 import type { EdgeStatus, Graph } from "../types/graph";
+import { MAX_VISIBLE_ALTERNATIVES } from "./alternatives";
+import type { AlternativeOptions } from "./alternatives";
 
 export function findMod(mods: Mod[], code: string): Mod | undefined {
     return mods.find(m => m.code === code);
@@ -75,6 +77,28 @@ export interface WalkContext {
     graph: Graph;
     /** When set, modules not in the plan are expanded using these trees, to show the full chain. */
     treeOf?: (code: string) => PrereqTree | undefined;
+    /** When set, long unfulfilled OR lists are collapsed behind a "more" node. */
+    alternatives?: AlternativeOptions;
+}
+
+function collapseAlternatives(
+    results: WalkResult[],
+    gateId: string,
+    graph: Graph,
+    { rank, expanded }: AlternativeOptions,
+): WalkResult[] {
+    if (results.length <= MAX_VISIBLE_ALTERNATIVES) return results;
+
+    const isExpanded = expanded.has(gateId);
+    const hiddenCount = results.length - MAX_VISIBLE_ALTERNATIVES;
+    const moreId = `more:${gateId}`;
+    graph.nodes.set(moreId, { kind: "more", id: moreId, gateId, hiddenCount, expanded: isExpanded });
+    graph.edges.push({ from: moreId, to: gateId, status: "cleared" });
+    if (isExpanded) return results;
+
+    // A nested gate is a requirement in its own right, so it always ranks first.
+    const rankOf = (result: WalkResult) => (result.id.startsWith("gate:") ? -1 : rank(result.id));
+    return [...results].sort((a, b) => rankOf(a) - rankOf(b)).slice(0, MAX_VISIBLE_ALTERNATIVES);
 }
 
 function expandUntracked(code: string, ctx: WalkContext) {
@@ -148,9 +172,12 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, clear
         fulfilled: fulfilled || cleared,
     });
 
-    const resultsToShow = (fulfilled && gateType !== "and")
-        ? childResults.filter(r => r.fulfilled)
-        : childResults;
+    const collapsible = gateType === "or" && !fulfilled && !cleared && ctx.alternatives;
+    const resultsToShow = collapsible
+        ? collapseAlternatives(childResults, thisGateId, graph, collapsible)
+        : (fulfilled && gateType !== "and")
+            ? childResults.filter(r => r.fulfilled)
+            : childResults;
 
     for (const result of resultsToShow){
         graph.edges.push({

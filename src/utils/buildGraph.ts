@@ -1,12 +1,19 @@
 import type { Mod, PrereqTree } from "../types/types";
 import type { Graph } from "../types/graph";
+import type { AlternativeOptions } from "./alternatives";
 import { edgeStatus, filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
-/** With `treeOf`, modules not in the plan also show their prerequisites, giving the full chain. */
-export function buildGraph(mods: Mod[], treeOf?: (code: string) => PrereqTree | undefined) : Graph{
+export interface BuildOptions {
+    /** Lets modules not in the plan show their prerequisites too, giving the full chain. */
+    treeOf?: (code: string) => PrereqTree | undefined;
+    /** Collapses long OR lists. */
+    alternatives?: AlternativeOptions;
+}
+
+export function buildGraph(mods: Mod[], options: BuildOptions = {}) : Graph{
     const graph: Graph = {nodes: new Map(), edges:[]};
     const trackedCodes = new Set(mods.map(m => m.code));
-    const ctx = { mods, graph, treeOf };
+    const ctx = { mods, graph, ...options };
 
     for (const mod of mods){
         graph.nodes.set(mod.code, {
