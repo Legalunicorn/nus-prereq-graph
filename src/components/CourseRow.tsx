@@ -1,3 +1,5 @@
+import SemesterTag from "./SemesterTag";
+
 export interface CourseRowProps {
     course: { code: string; title: string; note?: string };
     tracked: boolean;
@@ -24,6 +26,7 @@ export default function CourseRow(props: CourseRowProps) {
                 {course.title}
                 {course.note && <span className="presets-course-note"> ({course.note})</span>}
             </span>
+            <SemesterTag code={course.code} />
             <button
                 className={`presets-add-btn ${tracked ? "added" : ""}`}
                 onClick={tracked ? onRemove : onAdd}

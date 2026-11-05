@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useModSearch } from "../hooks/useModSearch";
 import type { Mod } from "../types/types";
+import SemesterTag from "./SemesterTag";
 import "./Sidebar.css";
 
 interface SidebarProps {
@@ -50,7 +51,7 @@ export default function Sidebar({mods, onAdd, onRemove, onToggle, onOpenPresets,
                     <li className="mod-li" key={m.code}>
                         <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} />
                         <div className="mod-info">
-                            <span className="mod-code">{m.code}</span>
+                            <span className="mod-code">{m.code} <SemesterTag code={m.code} /></span>
                             <span className="mod-title" title={m.title}>{m.title}</span>
                         </div>
                         <button onClick = {() => onRemove(m.code)}>✕</button>

@@ -6,6 +6,7 @@ import { buildGraph } from "../utils/buildGraph";
 import { cytoscapeStyles, cytoscapeLayout } from "../utils/cytoscapeConfig";
 import { toElements } from "../utils/graphElements";
 import { useEffect, useRef, useState } from "react";
+import useOfferings from "../hooks/useOfferings";
 import NodePopup from "./NodePopup";
 
 cytoscape.use(dagre);
@@ -44,6 +45,7 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
+    const offerings = useOfferings();
 
     useEffect(() => {
         const cy = cytoscape({
@@ -73,8 +75,8 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
     }, []);
 
     useEffect(() => {
-        if (cyRef.current) syncElements(cyRef.current, toElements(buildGraph(mods)));
-    }, [mods]);
+        if (cyRef.current) syncElements(cyRef.current, toElements(buildGraph(mods), offerings));
+    }, [mods, offerings]);
 
     return (
         <div className="graph-wrapper">

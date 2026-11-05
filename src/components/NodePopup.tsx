@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Mod } from "../types/types";
 import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
+import SemesterTag from "./SemesterTag";
 import "./NodePopup.css";
 
 interface NodePopupProps {
@@ -67,7 +68,7 @@ export default function NodePopup({ code, x, y, mods, onClose, onAdd, onRemove, 
     return (
         <div className="node-popup" style={{ left: x, top: y }}>
             <div className="node-popup-header">
-                <span>{code}</span>
+                <span>{code} <SemesterTag code={code} /></span>
                 <button className="node-popup-close" onClick={onClose}>✕</button>
             </div>
             {title && <div className="node-popup-title" title={title}>{title}</div>}
