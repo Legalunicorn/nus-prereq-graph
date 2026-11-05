@@ -14,7 +14,6 @@ const tagPosition = (node: cytoscape.NodeSingular) => ({
 
 export const withoutTags = (cy: cytoscape.Core) => cy.elements().not(TAG_SELECTOR);
 
-/** Redraws every tag from its module's current data and position. */
 export function syncSemesterTags(cy: cytoscape.Core) {
     cy.batch(() => {
         cy.nodes(TAG_SELECTOR).remove();
@@ -35,12 +34,10 @@ export function syncSemesterTags(cy: cytoscape.Core) {
     });
 }
 
-/** Keeps a tag under its card when the card is dragged. */
 export function moveTagWithNode(cy: cytoscape.Core, node: cytoscape.NodeSingular) {
     cy.getElementById(tagId(node.id())).position(tagPosition(node));
 }
 
-/** Adds the tags belonging to any modules in a collection. */
 export function includeTags(cy: cytoscape.Core, elements: cytoscape.CollectionReturnValue) {
     const tags = elements.nodes('[kind="module"]').map(node => cy.getElementById(tagId(node.id())));
     return tags.reduce((all, tag) => all.union(tag), elements);

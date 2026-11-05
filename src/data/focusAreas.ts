@@ -1,7 +1,7 @@
 export interface FocusAreaCourse {
     code: string;
     title: string;
-    note?: string; // e.g. "CFC", "not offered AY2021-22"
+    note?: string;
 }
 
 export interface FocusArea {
@@ -12,8 +12,6 @@ export interface FocusArea {
     electives: FocusAreaCourse[];
 }
 
-// might be outdated in the fuuture
-// i used claude the parse the data
 export const FOCUS_AREAS: FocusArea[] = [
     {
         id: "algo",

@@ -22,7 +22,7 @@ export function sharedResource<T>(load: () => Promise<T>) {
         useEffect(() => {
             let cancelled = false;
             loadOnce()
-                .then(result => { if (!cancelled) setValue(result); })
+                .then(result => { if (!cancelled) { setValue(result); } })
                 .catch(() => {});
             return () => { cancelled = true; };
         }, []);

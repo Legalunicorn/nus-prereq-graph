@@ -4,9 +4,7 @@ import type { AlternativeOptions } from "./alternatives";
 import { edgeStatus, filterTree, normalizeTree, walkTree, pruneUnreachable } from "./graphHelpers";
 
 export interface BuildOptions {
-    /** Lets modules not in the plan show their prerequisites too, giving the full chain. */
     treeOf?: (code: string) => PrereqTree | undefined;
-    /** Collapses long OR lists. */
     alternatives?: AlternativeOptions;
 }
 

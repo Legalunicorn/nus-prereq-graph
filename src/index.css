@@ -4,7 +4,7 @@
   padding: 0;
 }
 
-/* All app colours live here. The graph reads the --graph-* values through utils/theme.ts. */
+/* The graph reads the --graph-* values through utils/theme.ts. */
 :root {
   --canvas: #14161a;
   --surface: #1b1e23;

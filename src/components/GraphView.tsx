@@ -20,7 +20,7 @@ import NodePopup from "./NodePopup";
 cytoscape.use(dagre);
 
 const FIT_PADDING = 30;
-const MAX_ZOOM = 1.5; // stops small graphs from rendering oversized nodes
+const MAX_ZOOM = 1.5;
 
 interface GraphViewProps {
     mods: Mod[];
@@ -37,7 +37,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
-    const [fullChain, setFullChain] = useState(false);
+    const [isFullChain, setIsFullChain] = useState(false);
     const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
     const snapshot = useSnapshot();
@@ -57,11 +57,13 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
             const gateId: string = evt.target.data("gateId");
             setExpandedGates(prev => {
                 const next = new Set(prev);
-                if (!next.delete(gateId)) next.add(gateId);
+                if (!next.delete(gateId)) {
+                    next.add(gateId);
+                }
                 return next;
             });
         });
-        cy.on("tap", (evt) => { if (evt.target === cy) setPopup(null); });
+        cy.on("tap", (evt) => { if (evt.target === cy) { setPopup(null); } });
         cy.on("pan zoom layoutstop", () => setPopup(null));
 
         cy.on("position", 'node[kind="module"]', (evt) => moveTagWithNode(cy, evt.target));
@@ -85,14 +87,16 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
     }, [theme]);
 
     useEffect(() => {
-        if (!cyRef.current) return;
-        const treeOf = fullChain && snapshot
+        if (!cyRef.current) {
+            return;
+        }
+        const treeOf = isFullChain && snapshot
             ? (code: string) => snapshot.modules[code]?.prereqTree
             : undefined;
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
         syncGraph(cyRef.current, toElements(graph, offerings));
-    }, [mods, offerings, fullChain, snapshot, expandedGates]);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates]);
 
     return (
         <div className="graph-wrapper">
@@ -103,10 +107,10 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
                     <div className="graph-controls">
                         {snapshot && (
                             <button
-                                className={fullChain ? "active" : ""}
-                                aria-pressed={fullChain}
+                                className={isFullChain ? "active" : ""}
+                                aria-pressed={isFullChain}
                                 title={`Prerequisite data from ${snapshot.generatedAt}`}
-                                onClick={() => setFullChain(prev => !prev)}
+                                onClick={() => setIsFullChain(prev => !prev)}
                             >
                                 Full chain
                             </button>
@@ -117,7 +121,7 @@ export default function GraphView({ mods, theme, estimate, onToggle, onAdd, onRe
                 </>
             )}
             {popup && (
-                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} semesters={estimate?.(popup.code) ?? null} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
+                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} minSemesters={estimate?.(popup.code) ?? null} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
             )}
         </div>
     );

@@ -14,12 +14,12 @@ interface ModuleSearchProps {
 
 export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
     const [query, setQuery] = useState("");
-    const [open, setOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
-    const { searchMod, loading, error } = useModSearch();
+    const { searchMod, isLoading, error } = useModSearch();
     const offerings = useOfferings();
 
-    const results = open && offerings ? searchModules(offerings, query) : [];
+    const results = isOpen && offerings ? searchModules(offerings, query) : [];
     const isTracked = (code: string) => mods.some(mod => mod.code === code);
 
     const clear = () => {
@@ -28,7 +28,9 @@ export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
     };
 
     const add = async (code: string) => {
-        if (!code) return;
+        if (!code) {
+            return;
+        }
         if (isTracked(code)) {
             clear();
             return;
@@ -44,7 +46,7 @@ export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
         if (event.key === "Enter") {
             add(results[activeIndex]?.code ?? query.trim().toUpperCase());
         } else if (event.key === "Escape") {
-            setOpen(false);
+            setIsOpen(false);
         } else if (results.length > 0 && event.key === "ArrowDown") {
             event.preventDefault();
             setActiveIndex(index => (index + 1) % results.length);
@@ -61,14 +63,14 @@ export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
                 onChange={event => {
                     setQuery(event.target.value);
                     setActiveIndex(0);
-                    setOpen(true);
+                    setIsOpen(true);
                 }}
-                onFocus={() => setOpen(true)}
-                onBlur={() => setOpen(false)}
+                onFocus={() => setIsOpen(true)}
+                onBlur={() => setIsOpen(false)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search modules"
                 aria-label="Search modules by code or title"
-                aria-busy={loading}
+                aria-busy={isLoading}
             />
             {results.length > 0 && (
                 <ul className="module-search-results">
@@ -89,7 +91,7 @@ export default function ModuleSearch({ mods, onAdd }: ModuleSearchProps) {
                     ))}
                 </ul>
             )}
-            {loading && <p className="module-search-status">Adding...</p>}
+            {isLoading && <p className="module-search-status">Adding...</p>}
             {error && <p className="module-search-error" role="alert">{error}</p>}
         </div>
     );

@@ -33,17 +33,25 @@ export function createEstimator({ modules, completed, start }: EstimatorOptions)
     const semesterOfTerm = (term: number) => ((start - 1 + term) % 2) + 1;
 
     const matchingCodes = (code: string) => {
-        if (!code.includes("%")) return [code];
+        if (!code.includes("%")) {
+            return [code];
+        }
         const prefix = code.slice(0, code.indexOf("%"));
         return allCodes.filter(candidate => candidate.startsWith(prefix));
     };
 
     const earliestTerm = (code: string): number => {
-        if (completed.has(code) || ASSUMED_DONE.includes(code)) return ALREADY_DONE;
+        if (completed.has(code) || ASSUMED_DONE.includes(code)) {
+            return ALREADY_DONE;
+        }
         const known = memo.get(code);
-        if (known !== undefined) return known;
+        if (known !== undefined) {
+            return known;
+        }
         const mod = modules[code];
-        if (!mod || inProgress.has(code)) return NOT_POSSIBLE;
+        if (!mod || inProgress.has(code)) {
+            return NOT_POSSIBLE;
+        }
 
         inProgress.add(code);
         const tree = mod.prereqTree ? normalizeTree(mod.prereqTree) : null;
@@ -63,8 +71,12 @@ export function createEstimator({ modules, completed, start }: EstimatorOptions)
             const options = matchingCodes(tree.split(":")[0]).map(earliestTerm);
             return Math.min(NOT_POSSIBLE, ...options);
         }
-        if (tree.and) return Math.max(...tree.and.map(evaluate));
-        if (tree.or) return Math.min(...tree.or.map(evaluate));
+        if (tree.and) {
+            return Math.max(...tree.and.map(evaluate));
+        }
+        if (tree.or) {
+            return Math.min(...tree.or.map(evaluate));
+        }
         if (tree.nOf) {
             const [n, kids] = tree.nOf;
             const sorted = kids.map(evaluate).sort((a, b) => a - b);

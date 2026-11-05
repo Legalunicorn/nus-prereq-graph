@@ -2,23 +2,29 @@ import SemesterTag from "./SemesterTag";
 
 export interface CourseRowProps {
     course: { code: string; title: string; note?: string };
-    tracked: boolean;
-    loading: boolean;
+    isTracked: boolean;
+    isLoading: boolean;
     hasError: boolean;
-    unavailable: boolean;
+    isUnavailable: boolean;
     onAdd: () => void;
     onRemove: () => void;
 }
 
-function buttonLabel({ tracked, loading, hasError, unavailable }: CourseRowProps) {
-    if (tracked) return "Added";
-    if (loading) return "...";
-    if (unavailable) return "Unavailable";
+function buttonLabel({ isTracked, isLoading, hasError, isUnavailable }: CourseRowProps) {
+    if (isTracked) {
+        return "Added";
+    }
+    if (isLoading) {
+        return "...";
+    }
+    if (isUnavailable) {
+        return "Unavailable";
+    }
     return hasError ? "Retry" : "Add";
 }
 
 export default function CourseRow(props: CourseRowProps) {
-    const { course, tracked, loading, unavailable, onAdd, onRemove } = props;
+    const { course, isTracked, isLoading, isUnavailable, onAdd, onRemove } = props;
     return (
         <li className="presets-course-row">
             <span className="presets-course-code">{course.code}</span>
@@ -28,10 +34,10 @@ export default function CourseRow(props: CourseRowProps) {
             </span>
             <SemesterTag code={course.code} />
             <button
-                className={`presets-add-btn ${tracked ? "added" : ""}`}
-                onClick={tracked ? onRemove : onAdd}
-                disabled={loading || (unavailable && !tracked)}
-                title={unavailable && !tracked ? "This module isn't in the current NUSMods catalogue" : undefined}
+                className={`presets-add-btn ${isTracked ? "added" : ""}`}
+                onClick={isTracked ? onRemove : onAdd}
+                disabled={isLoading || (isUnavailable && !isTracked)}
+                title={isUnavailable && !isTracked ? "This module isn't in the current NUSMods catalogue" : undefined}
             >
                 {buttonLabel(props)}
             </button>

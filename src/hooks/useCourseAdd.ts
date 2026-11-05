@@ -5,18 +5,20 @@ import { fetchMod, ModNotFoundError } from "../utils/api";
 export default function useCourseAdd(mods: Mod[], onAdd: (mod: Mod) => void) {
     const [loadingCode, setLoadingCode] = useState<string | null>(null);
     const [errorCode, setErrorCode] = useState<string | null>(null);
-    const [unavailable, setUnavailable] = useState<ReadonlySet<string>>(new Set());
+    const [unavailableCodes, setUnavailableCodes] = useState<ReadonlySet<string>>(new Set());
     const trackedCodes = new Set(mods.map(mod => mod.code));
 
     const addCourse = async (code: string) => {
-        if (trackedCodes.has(code)) return;
+        if (trackedCodes.has(code)) {
+            return;
+        }
         setLoadingCode(code);
         setErrorCode(null);
         try {
             onAdd(await fetchMod(code));
         } catch (err) {
             if (err instanceof ModNotFoundError) {
-                setUnavailable(prev => new Set(prev).add(code));
+                setUnavailableCodes(prev => new Set(prev).add(code));
             } else {
                 setErrorCode(code);
             }
@@ -25,18 +27,19 @@ export default function useCourseAdd(mods: Mod[], onAdd: (mod: Mod) => void) {
         }
     };
 
-    // One at a time, so adding a whole list stays gentle on the API.
     const addCourses = async (codes: string[]) => {
-        for (const code of codes) await addCourse(code);
+        for (const code of codes) {
+            await addCourse(code);
+        }
     };
 
     const rowProps = (code: string) => ({
-        tracked: trackedCodes.has(code),
-        loading: loadingCode === code,
+        isTracked: trackedCodes.has(code),
+        isLoading: loadingCode === code,
         hasError: errorCode === code,
-        unavailable: unavailable.has(code),
+        isUnavailable: unavailableCodes.has(code),
         onAdd: () => addCourse(code),
     });
 
-    return { rowProps, addCourses, adding: loadingCode !== null };
+    return { rowProps, addCourses, isAdding: loadingCode !== null };
 }

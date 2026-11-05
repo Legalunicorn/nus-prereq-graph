@@ -6,11 +6,11 @@ import type { Mod } from "../types/types";
 
 
 export function useModSearch(){
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [error,setError] = useState<string|null>(null);
 
     const searchMod = async(code:string) : Promise<Mod|null> => {
-        setLoading(true);
+        setIsLoading(true);
         setError(null);
         try{
             const mod = await fetchMod(code);
@@ -20,9 +20,9 @@ export function useModSearch(){
             setError(msg);
             return null;
         } finally{
-            setLoading(false);
+            setIsLoading(false);
         }
     }
 
-    return {searchMod, loading, error};
+    return {searchMod, isLoading, error};
 };

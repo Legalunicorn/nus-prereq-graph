@@ -21,10 +21,14 @@ const isMod = (value: unknown): value is Mod => {
 /** `acadYear` is the year the saved catalogue data came from, which may be older than the current one. */
 export function parseStored(json: string | null): StorageData {
     const empty = { version: STORAGE_VERSION, acadYear: CURR_ACAD_YEAR, mods: [] };
-    if (!json) return empty;
+    if (!json) {
+        return empty;
+    }
     try {
         const data: Partial<StorageData> | null = JSON.parse(json);
-        if (!Array.isArray(data?.mods)) return empty;
+        if (!Array.isArray(data?.mods)) {
+            return empty;
+        }
         return {
             version: STORAGE_VERSION,
             acadYear: data.acadYear ?? CURR_ACAD_YEAR,

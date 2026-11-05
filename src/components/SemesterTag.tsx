@@ -5,11 +5,10 @@ import "./SemesterTag.css";
 
 export default function SemesterTag({ code }: { code: string }) {
     const offerings = useOfferings();
-    if (!offerings) return null;
-    const offered = isOffered(offerings, code);
-    return (
-        <span className={`semester-tag ${offered ? "" : "not-offered"}`} title={`NUSMods data for ${ACAD_YEAR_LABEL}`}>
-            {semesterLabel(offerings, code)}
-        </span>
-    );
+    const label = offerings ? semesterLabel(offerings, code) : "";
+    if (!offerings || !label) {
+        return null;
+    }
+    const className = isOffered(offerings, code) ? "semester-tag" : "semester-tag not-offered";
+    return <span className={className} title={`NUSMods data for ${ACAD_YEAR_LABEL}`}>{label}</span>;
 }

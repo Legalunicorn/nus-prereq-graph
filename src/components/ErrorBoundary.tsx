@@ -23,7 +23,9 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
     };
 
     render() {
-        if (!this.state.failed) return this.props.children;
+        if (!this.state.failed) {
+            return this.props.children;
+        }
         return (
             <div className="error-screen" role="alert">
                 <h1>Something went wrong</h1>

@@ -13,30 +13,37 @@ export default function useStoredMods(){
 
     // Saved catalogue data is from an earlier AY: update it and keep the user's plan.
     useEffect(() => {
-        if (catalogueYear === CURR_ACAD_YEAR) return;
+        if (catalogueYear === CURR_ACAD_YEAR) {
+            return;
+        }
         let cancelled = false;
         refreshCatalogue(stored.mods).then(({ refreshed, complete }) => {
-            if (cancelled) return;
+            if (cancelled) {
+                return;
+            }
             const byCode = new Map(refreshed.map(mod => [mod.code, mod]));
             setMods(prev => prev.map(cur => {
                 const fresh = byCode.get(cur.code);
                 return fresh ? { ...fresh, completed: cur.completed } : cur;
             }));
-            if (complete) setCatalogueYear(CURR_ACAD_YEAR);
+            if (complete) {
+                setCatalogueYear(CURR_ACAD_YEAR);
+            }
         });
         return () => { cancelled = true; };
     }, [catalogueYear, stored.mods]);
 
-    // Keep other open tabs in sync.
     useEffect(() => {
         const handleStorage = (event: StorageEvent) => {
-            if (event.key === STORAGE_KEY) setMods(parseStored(event.newValue).mods);
+            if (event.key === STORAGE_KEY) {
+                setMods(parseStored(event.newValue).mods);
+            }
         };
         window.addEventListener("storage", handleStorage);
         return () => window.removeEventListener("storage", handleStorage);
     }, []);
 
-    const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code == m.code) ? prev : [...prev, m]);
+    const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code === m.code) ? prev : [...prev, m]);
     const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
 
     const toggleComplete = (code: string) => setMods(prev =>

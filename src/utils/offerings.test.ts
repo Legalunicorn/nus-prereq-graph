@@ -14,9 +14,9 @@ const offerings = new Map<string, ModuleListing>([
 
 describe("semesterLabel", () => {
     it.each([
-        ["BOTH", "S1·S2"],
+        ["BOTH", ""],
         ["ONE", "S2"],
-        ["WITH_ST", "S1·S2·ST"],
+        ["WITH_ST", "+ST"],
         ["ONLY_ST", "ST"],
         ["EMPTY", NOT_OFFERED],
         ["ABSENT", NOT_OFFERED],

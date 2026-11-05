@@ -9,7 +9,9 @@ function mod(code: string, prereqTree?: PrereqTree, completed = false): Mod {
 
 function moduleNode(graph: Graph, code: string) {
     const node = graph.nodes.get(code);
-    if (node?.kind !== "module") throw new Error(`${code} is not a module node`);
+    if (node?.kind !== "module") {
+        throw new Error(`${code} is not a module node`);
+    }
     return node;
 }
 

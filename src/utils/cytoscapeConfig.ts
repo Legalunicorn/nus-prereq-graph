@@ -1,7 +1,6 @@
 import type cytoscape from "cytoscape";
 import type { GraphPalette } from "./theme";
 
-// Lets hover dimming and new elements fade rather than snap.
 const FADE = { "transition-property": "opacity", "transition-duration": 180 };
 
 export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {

@@ -9,8 +9,7 @@ interface NodePopupProps {
     x: number;
     y: number;
     mods: Mod[];
-    /** Minimum semesters to finish this module, if known. */
-    semesters: number | null;
+    minSemesters: number | null;
     onClose: () => void;
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
@@ -19,51 +18,61 @@ interface NodePopupProps {
 
 const errorMessage = (err: unknown) => (err instanceof Error ? err.message : "Something went wrong.");
 
-export default function NodePopup({ code, x, y, mods, semesters, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
-    const [loading, setLoading] = useState(false);
-    const [notFound, setNotFound] = useState(false);
+export default function NodePopup({ code, x, y, mods, minSemesters, onClose, onAdd, onRemove, onToggle }: NodePopupProps) {
+    const [isLoading, setIsLoading] = useState(false);
+    const [isNotFound, setIsNotFound] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const existing = mods.find(m => m.code === code);
-    const tracked = !!existing;
-    const completed = existing?.completed ?? false;
+    const isTracked = !!existing;
+    const isCompleted = existing?.completed ?? false;
     const [fetchedTitle, setFetchedTitle] = useState<string | undefined>();
     const title = existing?.title ?? fetchedTitle;
-    const unavailable = notFound && !tracked;
+    const isUnavailable = isNotFound && !isTracked;
 
     useEffect(() => {
-        if (existing?.title) return;
+        if (existing?.title) {
+            return;
+        }
         let cancelled = false;
         fetchMod(code)
-            .then(mod => { if (!cancelled) setFetchedTitle(mod.title); })
-            .catch(err => { if (!cancelled && err instanceof ModNotFoundError) setNotFound(true); });
+            .then(mod => { if (!cancelled) { setFetchedTitle(mod.title); } })
+            .catch(err => { if (!cancelled && err instanceof ModNotFoundError) { setIsNotFound(true); } });
         return () => { cancelled = true; };
     }, [code, existing?.title]);
 
     const handleAddRemove = async () => {
-        if (tracked) { onRemove(code); return; }
-        setLoading(true);
+        if (isTracked) { onRemove(code); return; }
+        setIsLoading(true);
         setError(null);
         try {
             onAdd(await fetchMod(code));
         } catch (err) {
-            if (err instanceof ModNotFoundError) setNotFound(true);
-            else setError(errorMessage(err));
+            if (err instanceof ModNotFoundError) {
+                setIsNotFound(true);
+            }
+            else {
+                setError(errorMessage(err));
+            }
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
     const handleToggleComplete = async () => {
-        if (tracked) { onToggle(code); return; }
-        setLoading(true);
+        if (isTracked) { onToggle(code); return; }
+        setIsLoading(true);
         setError(null);
         try {
             onAdd({ ...(await fetchMod(code)), completed: true });
         } catch (err) {
-            if (err instanceof ModNotFoundError) onAdd(missingMod(code, true));
-            else setError(errorMessage(err));
+            if (err instanceof ModNotFoundError) {
+                onAdd(missingMod(code, true));
+            }
+            else {
+                setError(errorMessage(err));
+            }
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -74,20 +83,20 @@ export default function NodePopup({ code, x, y, mods, semesters, onClose, onAdd,
                 <button className="node-popup-close" onClick={onClose}>✕</button>
             </div>
             {title && <div className="node-popup-title" title={title}>{title}</div>}
-            {semesters !== null && semesters > 0 && (
-                <div className="node-popup-note">{semesters} {semesters === 1 ? "sem" : "sems"} min</div>
+            {minSemesters !== null && minSemesters > 0 && (
+                <div className="node-popup-note">{minSemesters} {minSemesters === 1 ? "sem" : "sems"} min</div>
             )}
-            {unavailable && (
+            {isUnavailable && (
                 <div className="node-popup-note">{NOT_IN_CATALOGUE}</div>
             )}
             {error && <div className="node-popup-error" role="alert">{error}</div>}
             <label className="node-popup-row">
-                <input type="checkbox" checked={completed} onChange={handleToggleComplete} disabled={loading} />
+                <input type="checkbox" checked={isCompleted} onChange={handleToggleComplete} disabled={isLoading} />
                 Completed
             </label>
-            {!unavailable && (
-                <button className="node-popup-btn" onClick={handleAddRemove} disabled={loading}>
-                    {tracked ? "Remove from list" : loading ? "..." : "Add to list"}
+            {!isUnavailable && (
+                <button className="node-popup-btn" onClick={handleAddRemove} disabled={isLoading}>
+                    {isTracked ? "Remove from list" : isLoading ? "..." : "Add to list"}
                 </button>
             )}
             <a className="node-popup-link" href={`https://nusmods.com/courses/${code}`} target="_blank" rel="noreferrer">

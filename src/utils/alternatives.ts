@@ -15,15 +15,17 @@ const USUAL_CODES = new Set([
 export interface AlternativeOptions {
     /** Lower ranks are shown first when an OR gate's list is collapsed. */
     rank: (code: string) => number;
-    /** Gates the user has expanded. */
     expanded: ReadonlySet<string>;
 }
 
-/** Ranks by what's most useful to see: in the plan, then usual choices, then offered this AY. */
 export function createRank(trackedCodes: ReadonlySet<string>, offerings: Offerings | null) {
     return (code: string): number => {
-        if (trackedCodes.has(code)) return 0;
-        if (USUAL_CODES.has(code)) return 1;
+        if (trackedCodes.has(code)) {
+            return 0;
+        }
+        if (USUAL_CODES.has(code)) {
+            return 1;
+        }
         return offerings && !isOffered(offerings, code) ? 3 : 2;
     };
 }
