@@ -2,6 +2,7 @@ import type { Mod, PrereqTree } from "../types/types";
 import type { EdgeStatus, Graph } from "../types/graph";
 import { MAX_VISIBLE_ALTERNATIVES } from "./alternatives";
 import type { AlternativeOptions } from "./alternatives";
+import { isDone } from "./modStatus";
 
 /** A prerequisite like CS1010% stands for any module starting with CS1010. */
 export function isWildcard(code: string): boolean {
@@ -142,23 +143,24 @@ export function walkTree(tree: PrereqTree, ctx: WalkContext, path: string, isCle
     if (typeof tree === "string"){
         const [code, minGrade] = tree.split(":");
         const exist = findMod(mods, code);
-        const completed = isWildcard(code)
-            ? mods.some(mod => mod.completed && matchesWildcard(code, mod.code))
-            : exist?.completed ?? false;
+        const isMet = isWildcard(code)
+            ? mods.some(mod => isDone(mod) && matchesWildcard(code, mod.code))
+            : !!exist && isDone(exist);
         if (!graph.nodes.has(code)){
             graph.nodes.set(code,{
                 kind:"module",
                 id: code,
                 code,
                 title: exist?.title,
-                completed,
+                completed: isMet && !exist?.taking,
+                taking: !!exist?.taking,
                 tracked: !!exist,
             });
             if (!exist) {
                 expandUntracked(code, ctx);
             }
         }
-        return { id: code, minGrade, fulfilled: completed };
+        return { id: code, minGrade, fulfilled: isMet };
     }
 
     let gateType: "and"|"or"|"nOf";

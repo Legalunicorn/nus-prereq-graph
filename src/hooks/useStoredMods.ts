@@ -24,7 +24,7 @@ export default function useStoredMods(){
             const byCode = new Map(refreshed.map(mod => [mod.code, mod]));
             setMods(prev => prev.map(cur => {
                 const fresh = byCode.get(cur.code);
-                return fresh ? { ...fresh, completed: cur.completed } : cur;
+                return fresh ? { ...fresh, completed: cur.completed, taking: cur.taking } : cur;
             }));
             if (complete) {
                 setCatalogueYear(CURR_ACAD_YEAR);
@@ -47,8 +47,12 @@ export default function useStoredMods(){
     const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
 
     const toggleComplete = (code: string) => setMods(prev =>
-        prev.map(cur => cur.code === code ? {...cur, completed: !cur.completed} : cur)
+        prev.map(cur => cur.code === code ? {...cur, completed: !cur.completed, taking: false} : cur)
     );
 
-    return {mods, addMods, removeMods, toggleComplete};
+    const toggleTaking = (code: string) => setMods(prev =>
+        prev.map(cur => cur.code === code ? {...cur, taking: !cur.taking, completed: false} : cur)
+    );
+
+    return {mods, addMods, removeMods, toggleComplete, toggleTaking};
 };

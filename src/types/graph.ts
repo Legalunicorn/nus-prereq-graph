@@ -1,5 +1,5 @@
 export type Node =
-    | {kind: "module"; id:string; code: string; title?: string; completed:boolean; tracked: boolean; prereqUnfulfilled?: boolean}
+    | {kind: "module"; id:string; code: string; title?: string; completed:boolean; taking?: boolean; tracked: boolean; prereqUnfulfilled?: boolean}
     | {kind: "gate"; id:string;  gateType: "and"|"or"|"nOf"; n?: number; fulfilled: boolean}
     | {kind: "more"; id:string; gateId: string; hiddenCount: number; expanded: boolean};
 

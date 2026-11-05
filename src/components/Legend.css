@@ -38,6 +38,7 @@
 }
 
 .legend-node.completed { background: var(--graph-completed); }
+.legend-node.taking { background: var(--graph-taking); }
 .legend-node.ready { background: var(--graph-ready); }
 .legend-node.blocked { background: var(--graph-blocked); }
 .legend-node.not-planned { background: var(--graph-not-planned-fill); border: 1px solid var(--graph-not-planned-border); }

@@ -25,6 +25,7 @@
   --graph-ready: #3d74c9;
   --graph-blocked: #b8483f;
   --graph-completed: #3f7d4a;
+  --graph-taking: #8064c8;
   --graph-on-status: #ffffff;
   --graph-not-offered: #d8c26a;
   --graph-fulfilled: #7fb069;
@@ -65,6 +66,7 @@
   --graph-ready: #2f64b8;
   --graph-blocked: #b8433a;
   --graph-completed: #3a7a46;
+  --graph-taking: #6b4fb8;
   --graph-not-offered: #97811f;
   --graph-fulfilled: #4f8f3f;
   --graph-unfulfilled: #c4544a;
