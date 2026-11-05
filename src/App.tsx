@@ -7,10 +7,12 @@ import FoundationModal from "./components/FoundationModal";
 import CourseListModal from "./components/CourseListModal";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
 import Header from "./components/Header";
+import usePlanEstimate from "./hooks/usePlanEstimate";
 import useStoredMods from "./hooks/useStoredMods";
 
 function App() {
   const {mods, addMods, removeMods, toggleComplete} = useStoredMods();
+  const plan = usePlanEstimate(mods);
   const [showPresets, setShowPresets] = useState(false);
   const [showFoundations, setShowFoundations] = useState(false);
   const [showMathAndScience, setShowMathAndScience] = useState(false);
@@ -36,8 +38,9 @@ function App() {
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
           collapsed={sidebarCollapsed}
+          plan={plan}
         />
-        <GraphView mods={mods} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>
+        <GraphView mods={mods} estimate={plan.estimate} onToggle={toggleComplete} onAdd={addMods} onRemove={removeMods}/>
         {showPresets && (
           <PresetsModal
             mods={mods}

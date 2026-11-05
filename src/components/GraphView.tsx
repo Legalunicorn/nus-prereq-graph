@@ -18,6 +18,7 @@ const MAX_ZOOM = 1.5; // stops small graphs from rendering oversized nodes
 
 interface GraphViewProps {
     mods: Mod[];
+    estimate: ((code: string) => number | null) | null;
     onToggle: (code: string) => void;
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
@@ -43,7 +44,7 @@ function syncElements(cy: cytoscape.Core, elements: ReturnType<typeof toElements
     cy.layout(cytoscapeLayout).run();
 }
 
-export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphViewProps) {
+export default function GraphView({ mods, estimate, onToggle, onAdd, onRemove }: GraphViewProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const [popup, setPopup] = useState<PopupState | null>(null);
@@ -108,7 +109,7 @@ export default function GraphView({ mods, onToggle, onAdd, onRemove }: GraphView
                 </>
             )}
             {popup && (
-                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
+                <NodePopup key={popup.code} code={popup.code} x={popup.x} y={popup.y} mods={mods} semesters={estimate?.(popup.code) ?? null} onClose={() => setPopup(null)} onAdd={onAdd} onRemove={onRemove} onToggle={onToggle} />
             )}
         </div>
     );
