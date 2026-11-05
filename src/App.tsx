@@ -25,6 +25,7 @@ function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
   const { theme, toggleTheme } = useTheme();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
 
   return (
     <div className="app-shell">
@@ -54,13 +55,14 @@ function App() {
           onToggle={toggleComplete}
           onToggleTaking={toggleTaking}
           onSelect={setSelectedCode}
+          onHover={setHoveredCode}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} onSelect={setSelectedCode} />
+        <GraphView mods={mods} theme={theme} longestPath={plan.longestPath} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}

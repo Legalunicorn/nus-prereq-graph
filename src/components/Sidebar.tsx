@@ -14,6 +14,7 @@ interface SidebarProps {
     onToggle: (code:string) => void;
     onToggleTaking: (code:string) => void;
     onSelect: (code: string) => void;
+    onHover: (code: string | null) => void;
     onOpenPresets: () => void;
     onOpenFoundations: () => void;
     onOpenMathAndScience: () => void;
@@ -21,7 +22,7 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onToggleTaking, onSelect, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onToggleTaking, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
     const handleClearAll = () => {
         if (window.confirm(`Remove all ${mods.length} modules from your plan?`)) {
@@ -40,7 +41,17 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
              )}
              <ul>
                 {mods.map(m =>(
-                    <li className="mod-li" key={m.code}>
+                    <li
+                        className="mod-li"
+                        key={m.code}
+                        onPointerEnter={event => {
+                            // A touch has no matching leave, so it would stay highlighted.
+                            if (event.pointerType === "mouse") {
+                                onHover(m.code);
+                            }
+                        }}
+                        onPointerLeave={() => onHover(null)}
+                    >
                         <input className="custom-cb" type="checkbox" checked={m.completed} onChange={()=> onToggle(m.code)} aria-label={`Mark ${m.code} completed`} />
                         <button className="mod-info" onClick={() => onSelect(m.code)}>
                             <span className="mod-code">{m.code}</span>
