@@ -65,6 +65,13 @@ describe("toElements", () => {
         });
     });
 
+    it("labels only unusual minimum grades", () => {
+        const elements = toElements(buildGraph([mod("X1", { and: ["A1:A-", "B1:D"] })]));
+        const edge = (id: string) => elements.find(element => element.data.id === id)?.data;
+        expect(edge("A1->gate:X1")).toMatchObject({ gradeLabel: "A-" });
+        expect(edge("B1->gate:X1")).toMatchObject({ gradeLabel: "" });
+    });
+
     it("labels nOf gates with n", () => {
         const elements = toElements(buildGraph([mod("X1", { nOf: [2, ["A1:D", "B1:D"]] })]));
         expect(elements.find(element => element.data.id === "gate:X1")?.data).toMatchObject({ label: "2 OF" });

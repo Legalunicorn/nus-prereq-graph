@@ -34,7 +34,7 @@ npm run dev
 | `npm test` | Runs the tests |
 | `npm run lint` | Runs ESLint |
 | `npm run build` | Type-checks and builds to `dist/` |
-| `npm run deploy` | Builds and publishes to GitHub Pages |
+| `npm run deploy` | Builds and publishes to GitHub Pages. CI does this on every push to `main` |
 | `npm run snapshot` | Rebuilds `public/data/snapshot.json` from NUSMods |
 
 Once a semester, or when moving to a new AY: update `CURR_ACAD_YEAR` in `src/constants.ts` if needed, then run `npm run snapshot`.
