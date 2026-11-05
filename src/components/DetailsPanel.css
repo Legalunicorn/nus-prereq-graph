@@ -43,6 +43,7 @@
 .details-error { margin-top: 6px; color: var(--danger); }
 
 .details-actions {
+    flex-wrap: wrap;
     display: flex;
     align-items: center;
     gap: 10px;

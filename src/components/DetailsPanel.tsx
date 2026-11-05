@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import useEscapeKey from "../hooks/useEscapeKey";
-import type { Mod } from "../types/types";
+import useOfferings from "../hooks/useOfferings";
+import type { Mod, Term } from "../types/types";
 import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
+import { planWarnings, TERMS } from "../utils/semesterPlan";
 import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
 import SemesterTag from "./SemesterTag";
@@ -19,6 +21,7 @@ interface DetailsPanelProps {
     onRemove: (code: string) => void;
     onToggle: (code: string) => void;
     onToggleTaking: (code: string) => void;
+    onPlanTerm: (code: string, term: Term | undefined) => void;
 }
 
 const errorMessage = (err: unknown) => (err instanceof Error ? err.message : "Something went wrong.");
@@ -36,11 +39,12 @@ function Requirement({ label, text }: { label: string; text?: string }) {
 }
 
 export default function DetailsPanel(props: DetailsPanelProps) {
-    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onToggle, onToggleTaking } = props;
+    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onToggle, onToggleTaking, onPlanTerm } = props;
     const [details, setDetails] = useState<ModuleDetails | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const offerings = useOfferings();
     useEscapeKey(onClose);
 
     const existing = mods.find(mod => mod.code === code);
@@ -49,6 +53,7 @@ export default function DetailsPanel(props: DetailsPanelProps) {
     const plannedCodes = new Set(mods.map(mod => mod.code));
     const precludedCodes = codesIn(details?.preclusionRule ?? details?.preclusion).filter(other => other !== code);
     const clashes = precludedCodes.filter(other => plannedCodes.has(other));
+    const warnings = planWarnings(mods, offerings).get(code) ?? [];
     const focusAreas = focusAreasFor(code);
     const unlocks = details?.fulfillRequirements ?? [];
 
@@ -137,7 +142,18 @@ export default function DetailsPanel(props: DetailsPanelProps) {
                 {!isUnavailable && (
                     <button onClick={handleAddRemove} disabled={isBusy}>{isTracked ? "Remove" : "Add"}</button>
                 )}
+                {isTracked && (
+                    <select
+                        aria-label={`Planned term for ${code}`}
+                        value={existing.plannedTerm ?? ""}
+                        onChange={event => onPlanTerm(code, (event.target.value || undefined) as Term | undefined)}
+                    >
+                        <option value="">No term</option>
+                        {TERMS.map(term => <option key={term} value={term}>{term}</option>)}
+                    </select>
+                )}
             </div>
+            {warnings.map(warning => <p key={warning} className="details-error">{warning}</p>)}
 
             <Requirement label="Prerequisites" text={details?.prerequisite} />
             <Requirement label="Corequisites" text={details?.corequisite} />
