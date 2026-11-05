@@ -1,12 +1,13 @@
-.presets-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--scrim);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
+.presets-dialog {
+    margin: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    max-width: none;
+    max-height: none;
 }
+
+.presets-dialog::backdrop { background: var(--scrim); }
 
 .presets-modal {
     background: var(--surface);
