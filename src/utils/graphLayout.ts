@@ -16,11 +16,11 @@ const PORT_MARGIN = 3;
 // Dagre's ordering is a heuristic, so several starting orders often beat one.
 const LAYOUT_TRIES = 16;
 const MAX_NODES_FOR_TRIES = 90;
-const TIE_BREAK_WEIGHT = 1e-4;
+const LENGTH_WEIGHT = 1e-3;
 
 const SETTINGS: Record<GraphDirection, GraphLabel> = {
-    horizontal: { rankdir: "LR", nodesep: 48, ranksep: 110, edgesep: 18 },
-    vertical: { rankdir: "TB", nodesep: 28, ranksep: 120, edgesep: 18 },
+    horizontal: { rankdir: "LR", nodesep: 40, ranksep: 72, edgesep: 16 },
+    vertical: { rankdir: "TB", nodesep: 24, ranksep: 88, edgesep: 16 },
 };
 // Vertical needs more, as semester tags sit under the cards.
 const TURN_ROOM: Record<GraphDirection, number> = { horizontal: 10, vertical: 26 };
@@ -195,7 +195,7 @@ function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDi
         return line;
     });
 
-    const score = countCrossings(lines) + TIE_BREAK_WEIGHT * lines.reduce((sum, line) => sum + pathLength(line), 0);
+    const score = countCrossings(lines) + LENGTH_WEIGHT * lines.reduce((sum, line) => sum + pathLength(line), 0);
     return { positions, routes, score };
 }
 
