@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <Header mods={mods} theme={theme} onToggleTheme={toggleTheme} />
       <div className="app">
         {sharedPlan.pendingCount > 0 && (
           <SharedPlanBanner

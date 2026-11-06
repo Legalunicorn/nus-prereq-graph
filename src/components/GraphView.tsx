@@ -21,7 +21,6 @@ import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import GraphControls from "./GraphControls";
 import Legend from "./Legend";
-import ShareButton from "./ShareButton";
 
 
 interface GraphViewProps {
@@ -194,7 +193,6 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
                         <button onClick={toggleDirection}>
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
-                        <ShareButton mods={mods} />
                         <button onClick={() => cyRef.current && fitAll(cyRef.current)}>Fit</button>
                     </GraphControls>
                     <Legend />
