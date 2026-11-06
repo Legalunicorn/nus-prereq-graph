@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
 import type { Mod } from "../types/types";
-import { loadStored, parseStored, saveMods } from "./storage";
+import { isFirstVisit, loadStored, parseStored, saveMods } from "./storage";
 
 const mod: Mod = { code: "CS3230", title: "Algorithms", completed: true };
 
@@ -69,5 +69,21 @@ describe("saveMods", () => {
             getItem: () => { throw new Error("SecurityError"); },
         });
         expect(loadStored().mods).toEqual([]);
+    });
+});
+
+describe("isFirstVisit", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("is true only when nothing has been saved", () => {
+        vi.stubGlobal("localStorage", { getItem: () => null });
+        expect(isFirstVisit()).toBe(true);
+        vi.stubGlobal("localStorage", { getItem: () => "{\"mods\":[]}" });
+        expect(isFirstVisit()).toBe(false);
+    });
+
+    it("is false when storage is unavailable", () => {
+        vi.stubGlobal("localStorage", { getItem: () => { throw new Error("blocked"); } });
+        expect(isFirstVisit()).toBe(false);
     });
 });

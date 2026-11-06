@@ -6,3 +6,4 @@ export const SIDEBAR_WIDTH_KEY = 'nus-graph-sidebar-width';
 export const GROUP_BY_KEY = 'nus-graph-group-by';
 export const COLLAPSED_GROUPS_KEY = 'nus-graph-collapsed-groups';
 export const PHONE_WIDTH = '(max-width: 768px)';
+export const DEFAULT_MODULE_CODES = ['CS1231S', 'CS1101S', 'CS2040S'];
