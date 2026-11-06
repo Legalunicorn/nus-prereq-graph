@@ -35,6 +35,7 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
             key={mod.code}
             mod={mod}
             minSemesters={minSemestersOf(mod)}
+            semestersHint={plan.explain?.(mod.code)}
             warnings={warnings.get(mod.code)}
             onRemove={onRemove}
             onStatusChange={onStatusChange}

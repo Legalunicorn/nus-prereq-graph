@@ -19,6 +19,7 @@ interface DetailsPanelProps {
     code: string;
     mods: Mod[];
     minSemesters: number | null;
+    semestersHint?: string | null;
     onClose: () => void;
     onSelect: (code: string) => void;
     onAdd: (mod: Mod) => void;
@@ -42,7 +43,7 @@ function Requirement({ label, text }: { label: string; text?: string }) {
 }
 
 export default function DetailsPanel(props: DetailsPanelProps) {
-    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onStatusChange, onPlanTerm } = props;
+    const { code, mods, minSemesters, semestersHint, onClose, onSelect, onAdd, onRemove, onStatusChange, onPlanTerm } = props;
     const [details, setDetails] = useState<ModuleDetails | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
@@ -112,7 +113,10 @@ export default function DetailsPanel(props: DetailsPanelProps) {
             <p className="details-title">{details?.title ?? existing?.title}</p>
             {isUnavailable && <p className="details-note">{NOT_IN_CATALOGUE}</p>}
             {minSemesters !== null && minSemesters > 0 && (
-                <p className="details-note">{minSemestersLabel(minSemesters)}</p>
+                <>
+                    <p className="details-note">{minSemestersLabel(minSemesters)}</p>
+                    {semestersHint && <p className="details-hint">{semestersHint}</p>}
+                </>
             )}
             {error && <p className="details-error" role="alert">{error}</p>}
             {clashes.length > 0 && <p className="details-error">Precluded by {clashes.join(", ")} in your plan</p>}

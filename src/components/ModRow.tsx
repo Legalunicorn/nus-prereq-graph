@@ -8,6 +8,7 @@ import StatusSelect from "./StatusSelect";
 interface ModRowProps {
     mod: Mod;
     minSemesters: number | null;
+    semestersHint?: string | null;
     warnings?: string[];
     onRemove: (code: string) => void;
     onStatusChange: (code: string, status: ModStatus) => void;
@@ -15,7 +16,7 @@ interface ModRowProps {
     onHover: (code: string | null) => void;
 }
 
-export default function ModRow({ mod, minSemesters, warnings, onRemove, onStatusChange, onSelect, onHover }: ModRowProps) {
+export default function ModRow({ mod, minSemesters, semestersHint, warnings, onRemove, onStatusChange, onSelect, onHover }: ModRowProps) {
     const { code, title } = mod;
     return (
         <li
@@ -34,7 +35,7 @@ export default function ModRow({ mod, minSemesters, warnings, onRemove, onStatus
                 <span className="mod-meta">
                     <SemesterTag code={code} />
                     {mod.plannedTerm && <span className="mod-term">{mod.plannedTerm}</span>}
-                    {minSemesters !== null && <span className="mod-estimate">{minSemestersLabel(minSemesters)}</span>}
+                    {minSemesters !== null && <span className="mod-estimate" title={semestersHint ?? undefined}>{minSemestersLabel(minSemesters)}</span>}
                     {warnings && (
                         <span className="mod-warning" role="img" aria-label={warnings.join(". ")} title={warnings.join(". ")}>⚠</span>
                     )}

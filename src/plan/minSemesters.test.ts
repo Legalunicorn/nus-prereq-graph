@@ -152,6 +152,32 @@ describe("createEstimator", () => {
     });
 });
 
+describe("explain", () => {
+    const planned: Record<string, SnapshotModule> = {
+        X1: mod([1, 2]),
+        X2: mod([2], "X1:D"),
+    };
+    const explain = (code: string, completed: string[] = [], start: RegularSemester = 2) =>
+        createEstimator({ modules: planned, completed: new Set(completed), start }).explain(code);
+
+    it("includes a semester spent waiting for an offering", () => {
+        expect(explain("X2")).toBe("S2: X1 → S1: wait → S2: X2");
+    });
+
+    it("shows a module that can be taken next", () => {
+        expect(explain("X1")).toBe("S2: X1");
+    });
+
+    it("skips what's already done", () => {
+        expect(explain("X2", ["X1"])).toBe("S2: X2");
+    });
+
+    it("is null for a module that's done or unknown", () => {
+        expect(explain("X1", ["X1"])).toBeNull();
+        expect(explain("NOPE")).toBeNull();
+    });
+});
+
 describe("a module only in Sem 2", () => {
     const only: Record<string, SnapshotModule> = { S2ONLY: mod([2]) };
     const fromDate = (date: Date) =>

@@ -40,6 +40,7 @@
 
 .details-title { margin-top: 2px; color: var(--text-muted); }
 .details-note { margin-top: 6px; color: var(--accent); }
+.details-hint { margin-top: 2px; color: var(--text-muted); }
 .details-error { margin-top: 6px; color: var(--danger); }
 
 .details-actions {
