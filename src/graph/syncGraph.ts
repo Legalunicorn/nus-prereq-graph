@@ -1,34 +1,65 @@
 import type cytoscape from "cytoscape";
 import type { GraphDirection } from "./cytoscapeConfig";
 import { applyRoutes } from "./edgeRouteStyle";
-import { computeLayout } from "./graphLayout";
+import type { LayoutResult } from "./graphLayout";
+import { requestLayout } from "./layoutClient";
 import type { toElements } from "./graphElements";
-import { syncSemesterTags, withoutTags } from "./semesterTags";
+import { removeOrphanTags, syncSemesterTags, withoutTags } from "./semesterTags";
 import { openView } from "./viewport";
 
 const FADE_MS = 120;
 const FADE_TIMER_KEY = "fadeTimer";
 const DIRECTION_KEY = "direction";
+const LAYOUT_TOKEN_KEY = "layoutToken";
+const IS_LAYOUT_PENDING_KEY = "isLayoutPending";
 
-const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-function runLayout(cy: cytoscape.Core, direction: GraphDirection) {
+function showLayout(cy: cytoscape.Core, direction: GraphDirection, { positions, routes }: LayoutResult) {
     const elements = withoutTags(cy);
-    const { positions, routes } = computeLayout(
-        elements.nodes().map(node => ({ id: node.id(), width: node.outerWidth(), height: node.outerHeight() })),
-        elements.edges().map(edge => ({ id: edge.id(), source: edge.source().id(), target: edge.target().id() })),
-        direction,
-    );
     applyRoutes(cy, routes, positions);
     elements.layout({ name: "preset", positions, fit: false, stop: () => openView(cy, direction) } as cytoscape.LayoutOptions).run();
     syncSemesterTags(cy);
     elements.removeStyle("opacity");
+    cy.scratch(IS_LAYOUT_PENDING_KEY, false);
+    const container = cy.container();
+    if (container) {
+        container.style.opacity = "";
+    }
+}
+
+function relayout(cy: cytoscape.Core, direction: GraphDirection, isFirstDraw: boolean) {
+    const token = (cy.scratch(LAYOUT_TOKEN_KEY) ?? 0) + 1;
+    cy.scratch(LAYOUT_TOKEN_KEY, token);
+    cy.scratch(IS_LAYOUT_PENDING_KEY, true);
+    clearTimeout(cy.scratch(FADE_TIMER_KEY));
+    const isCurrent = () => !cy.destroyed() && cy.scratch(LAYOUT_TOKEN_KEY) === token;
+
+    const elements = withoutTags(cy);
+    requestLayout(
+        elements.nodes().map(node => ({ id: node.id(), width: node.outerWidth(), height: node.outerHeight() })),
+        elements.edges().map(edge => ({ id: edge.id(), source: edge.source().id(), target: edge.target().id() })),
+        direction,
+    ).then(layout => {
+        if (!isCurrent()) {
+            return;
+        }
+        const container = cy.container();
+        if (isFirstDraw || !container) {
+            showLayout(cy, direction, layout);
+            return;
+        }
+        // The old graph stays usable until the new layout is ready, then they crossfade.
+        container.style.opacity = "0";
+        cy.scratch(FADE_TIMER_KEY, setTimeout(() => {
+            if (isCurrent()) {
+                showLayout(cy, direction, layout);
+            }
+        }, FADE_MS));
+    });
 }
 
 /**
  * Updates what's on screen. Kept elements update in place. The layout, and so the view, only
- * changes if elements were added or removed, or the direction changed. That change is a crossfade,
- * as curved edges distort if their nodes glide to new positions.
+ * changes if elements were added or removed, or the direction changed.
  */
 export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElements>, direction: GraphDirection) {
     const current = withoutTags(cy);
@@ -49,26 +80,14 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
     });
 
     if (isSameStructure && isSameDirection) {
-        syncSemesterTags(cy);
+        // A pending layout brings tags up to date itself, and new modules aren't placed yet.
+        if (!cy.scratch(IS_LAYOUT_PENDING_KEY)) {
+            syncSemesterTags(cy);
+        }
         return;
     }
 
-    const added = cy.add(newElements);
-    const container = cy.container();
-    clearTimeout(cy.scratch(FADE_TIMER_KEY));
-    if (currentIds.size === 0 || !container || prefersReducedMotion()) {
-        runLayout(cy, direction);
-        if (container) {
-            container.style.opacity = "";
-        }
-        return;
-    }
-    added.style("opacity", 0);
-    container.style.opacity = "0";
-    cy.scratch(FADE_TIMER_KEY, setTimeout(() => {
-        if (!cy.destroyed()) {
-            runLayout(cy, direction);
-            container.style.opacity = "";
-        }
-    }, FADE_MS));
+    cy.add(newElements).style("opacity", 0);
+    removeOrphanTags(cy);
+    relayout(cy, direction, currentIds.size === 0);
 }

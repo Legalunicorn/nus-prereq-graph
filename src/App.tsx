@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import "./App.css";
 import Sidebar from "./components/Sidebar";
 import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
@@ -32,7 +32,7 @@ function App() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => window.matchMedia(PHONE_WIDTH).matches);
   const { theme, toggleTheme } = useTheme();
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
+  const previewChainRef = useRef<((code: string | null) => void) | null>(null);
 
   return (
     <div className="app-shell">
@@ -61,7 +61,7 @@ function App() {
           onClear={removal.clear}
           onStatusChange={setStatus}
           onSelect={setSelectedCode}
-          onHover={setHoveredCode}
+          onHover={code => previewChainRef.current?.(code)}
           onOpenPresets={() => setShowPresets(true)}
           onOpenFoundations={() => setShowFoundations(true)}
           onOpenMathAndScience={() => setShowMathAndScience(true)}
@@ -70,7 +70,7 @@ function App() {
         />
         {!isSidebarCollapsed && <SidebarHandle />}
         <Suspense fallback={<div className="graph-loading" />}>
-          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} previewChainRef={previewChainRef} onSelect={setSelectedCode} />
         </Suspense>
         <Suspense fallback={null}>
         {selectedCode && (

@@ -7,13 +7,7 @@
     background-color: var(--canvas);
     background-image:
         radial-gradient(ellipse at center, transparent 40%, var(--vignette) 100%),
-        radial-gradient(ellipse at center, var(--canvas-glow), transparent 70%),
-        radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 16px 16px;
-    background-position:
-        0 0,
-        0 0,
-        var(--dots-x, 0) var(--dots-y, 0);
+        radial-gradient(ellipse at center, var(--canvas-glow), transparent 70%);
 }
 .graph-controls {
     position: absolute;
@@ -28,8 +22,7 @@
     font-family: var(--mono);
     font-size: 13px;
     color: var(--text-muted);
-    background: color-mix(in srgb, var(--surface) 70%, transparent);
-    backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
     border: 1px solid var(--border);
     border-radius: 4px;
     cursor: pointer;
@@ -41,7 +34,16 @@
     .graph-controls { right: 6px; left: 6px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
     .graph-controls button { padding: 4px 6px; font-size: 12px; }
 }
+.graph-dots {
+    position: absolute;
+    inset: -16px;
+    pointer-events: none;
+    background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
+    background-size: 16px 16px;
+    will-change: transform;
+}
 .graph-container {
+    position: relative;
     width: 100%;
     height: 100%;
     transition: opacity 0.12s ease;
