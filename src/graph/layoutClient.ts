@@ -1,4 +1,5 @@
 import type { GraphDirection } from "./cytoscapeConfig";
+import { computeLayout } from "./graphLayout";
 import type { LayoutEdge, LayoutNode, LayoutResult } from "./graphLayout";
 
 export interface LayoutRequest {
@@ -8,10 +9,15 @@ export interface LayoutRequest {
     direction: GraphDirection;
 }
 
+interface PendingLayout {
+    request: LayoutRequest;
+    finish: (layout: LayoutResult) => void;
+}
+
 const MAX_CACHED = 16;
 
 const cache = new Map<string, LayoutResult>();
-const pending = new Map<number, (layout: LayoutResult) => void>();
+const pending = new Map<number, PendingLayout>();
 let nextId = 0;
 let worker: Worker | null | undefined;
 
@@ -25,14 +31,24 @@ function remember(key: string, layout: LayoutResult) {
     }
 }
 
+/** The worker file can fail to load, such as in a tab left open across a deploy, so never wait on it forever. */
+function fallBackToMainThread() {
+    worker = null;
+    for (const { request, finish } of pending.values()) {
+        finish(computeLayout(request.nodes, request.edges, request.direction));
+    }
+    pending.clear();
+}
+
 function getWorker() {
     if (worker === undefined) {
         try {
             worker = new Worker(new URL("./layout.worker.ts", import.meta.url), { type: "module" });
             worker.addEventListener("message", ({ data }: MessageEvent<{ id: number; layout: LayoutResult }>) => {
-                pending.get(data.id)?.(data.layout);
+                pending.get(data.id)?.finish(data.layout);
                 pending.delete(data.id);
             });
+            worker.addEventListener("error", fallBackToMainThread);
         } catch {
             worker = null;
         }
@@ -41,25 +57,24 @@ function getWorker() {
 }
 
 /** Runs the layout off the main thread when possible, as it takes long enough to freeze the page. */
-export async function requestLayout(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection): Promise<LayoutResult> {
+export function requestLayout(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection): Promise<LayoutResult> {
     const key = layoutKey(nodes, edges, direction);
     const cached = cache.get(key);
     if (cached) {
-        return cached;
-    }
-    const background = getWorker();
-    if (!background) {
-        const { computeLayout } = await import("./graphLayout");
-        const layout = computeLayout(nodes, edges, direction);
-        remember(key, layout);
-        return layout;
+        return Promise.resolve(cached);
     }
     return new Promise(resolve => {
-        const id = nextId++;
-        pending.set(id, layout => {
+        const finish = (layout: LayoutResult) => {
             remember(key, layout);
             resolve(layout);
-        });
-        background.postMessage({ id, nodes, edges, direction } satisfies LayoutRequest);
+        };
+        const background = getWorker();
+        if (!background) {
+            finish(computeLayout(nodes, edges, direction));
+            return;
+        }
+        const request: LayoutRequest = { id: nextId++, nodes, edges, direction };
+        pending.set(request.id, { request, finish });
+        background.postMessage(request);
     });
 }
