@@ -1,9 +1,11 @@
 import type cytoscape from "cytoscape";
 
-// Cytoscape nodes only have one label, so a module's semesters are drawn as a small separate
-// node under its card. Tags aren't part of the graph model or the layout.
+// Cytoscape nodes only have one label, so a module's tag is drawn as a small separate node under
+// its card. Tags aren't part of the graph model or the layout.
 const TAG_SELECTOR = 'node[kind="tag"]';
 const TAG_OFFSET_Y = 28;
+const TAG_CHAR_WIDTH = 5;
+const TAG_PADDING = 12;
 
 const tagId = (moduleId: string) => `tag:${moduleId}`;
 
@@ -17,13 +19,15 @@ export const withoutTags = (cy: cytoscape.Core) => cy.elements().not(TAG_SELECTO
 export function syncSemesterTags(cy: cytoscape.Core) {
     cy.batch(() => {
         cy.nodes(TAG_SELECTOR).remove();
-        cy.nodes('node[kind="module"][semesters != ""]').forEach(node => {
+        cy.nodes('node[kind="module"][tag != ""]').forEach(node => {
+            const label: string = node.data("tag");
             cy.add({
                 group: "nodes",
                 data: {
                     id: tagId(node.id()),
                     kind: "tag",
-                    label: node.data("semesters"),
+                    label,
+                    width: label.length * TAG_CHAR_WIDTH + TAG_PADDING,
                     notOffered: node.data("notOffered"),
                 },
                 classes: node.hasClass("off-path") ? "off-path" : "",

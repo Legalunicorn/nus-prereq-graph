@@ -15,6 +15,8 @@ import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
 import { PHONE_WIDTH } from "./constants";
 
+const noEstimate = () => null;
+
 function App() {
   const {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods} = useStoredMods();
   const plan = usePlanEstimate(mods);
@@ -62,7 +64,7 @@ function App() {
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
-        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}

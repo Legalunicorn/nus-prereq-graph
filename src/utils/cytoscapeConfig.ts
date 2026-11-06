@@ -20,7 +20,7 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
             selector: 'node[kind="tag"]',
             style: {
                 label: "data(label)", shape: "round-rectangle", "corner-radius": "7px",
-                width: 46, height: 13, "font-size": 9, "text-valign": "center", "text-halign": "center",
+                width: "data(width)", height: 13, "font-size": 9, "text-valign": "center", "text-halign": "center",
                 color: colors.tagText, "background-color": colors.tag, "border-width": 0,
                 events: "no",
                 ...FADE,
@@ -28,7 +28,7 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
         },
         {
             selector: 'node[kind="tag"][?notOffered]',
-            style: { width: 58, color: colors.notOffered },
+            style: { color: colors.notOffered },
         },
         {
             selector: 'node[kind="module"][?tracked]',

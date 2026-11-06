@@ -1,13 +1,32 @@
 import { describe, expect, it } from "vitest";
 import type { Mod, PrereqTree } from "../types/types";
 import { buildGraph } from "./buildGraph";
-import { toElements } from "./graphElements";
+import { tagLabel, toElements } from "./graphElements";
 
 function mod(code: string, prereqTree?: PrereqTree, completed = false): Mod {
     return { code, title: code, completed, prereqTree };
 }
 
 const ids = (mods: Mod[]) => toElements(buildGraph(mods)).map(element => element.data.id);
+
+describe("tagLabel", () => {
+    it("joins semesters and the minimum", () => {
+        expect(tagLabel("S2", 3)).toBe("S2 · 3 sem");
+    });
+
+    it("shows only the minimum for a module in both semesters", () => {
+        expect(tagLabel("", 2)).toBe("2 sem");
+    });
+
+    it("leaves out the minimum when it's unknown or already done", () => {
+        expect(tagLabel("S1", null)).toBe("S1");
+        expect(tagLabel("S1", 0)).toBe("S1");
+    });
+
+    it("is empty when there's nothing to show", () => {
+        expect(tagLabel("", null)).toBe("");
+    });
+});
 
 describe("toElements", () => {
     const tree: PrereqTree = { and: [{ or: ["A1:D", "B1:D"] }, "C1:D"] };
@@ -36,17 +55,17 @@ describe("toElements", () => {
     it("adds the semesters once offerings are known", () => {
         const offerings = new Map([["X1", { title: "X", semesters: [2] }]]);
         const [element] = toElements(buildGraph([mod("X1")]), offerings);
-        expect(element.data).toMatchObject({ label: "X1", semesters: "S2", notOffered: false });
+        expect(element.data).toMatchObject({ label: "X1", tag: "S2", notOffered: false });
     });
 
     it("marks a module missing from the offerings as not offered", () => {
         const [element] = toElements(buildGraph([mod("X1")]), new Map());
-        expect(element.data).toMatchObject({ label: "X1", semesters: "Not offered", notOffered: true });
+        expect(element.data).toMatchObject({ label: "X1", tag: "Not offered", notOffered: true });
     });
 
     it("has no semesters before offerings load", () => {
         const [element] = toElements(buildGraph([mod("X1")]));
-        expect(element.data).toMatchObject({ label: "X1", semesters: "", notOffered: false });
+        expect(element.data).toMatchObject({ label: "X1", tag: "", notOffered: false });
     });
 
     it("marks completed modules with a tick", () => {
