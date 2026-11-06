@@ -18,7 +18,7 @@ import { PHONE_WIDTH } from "./constants";
 const noEstimate = () => null;
 
 function App() {
-  const {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods} = useStoredMods();
+  const {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods} = useStoredMods();
   const plan = usePlanEstimate(mods);
   const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
@@ -54,8 +54,7 @@ function App() {
           onAdd={addMods}
           onRemove={removeMods}
           onClear={() => replaceMods([])}
-          onToggle={toggleComplete}
-          onToggleTaking={toggleTaking}
+          onStatusChange={setStatus}
           onSelect={setSelectedCode}
           onHover={setHoveredCode}
           onOpenPresets={() => setShowPresets(true)}
@@ -75,8 +74,7 @@ function App() {
             onSelect={setSelectedCode}
             onAdd={addMods}
             onRemove={removeMods}
-            onToggle={toggleComplete}
-            onToggleTaking={toggleTaking}
+            onStatusChange={setStatus}
             onPlanTerm={setPlannedTerm}
           />
         )}

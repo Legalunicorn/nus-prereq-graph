@@ -1,19 +1,21 @@
 import type { Mod } from "../types/types";
+import { statusOf } from "../utils/modStatus";
+import type { ModStatus } from "../utils/modStatus";
 import SemesterTag from "./SemesterTag";
+import StatusSelect from "./StatusSelect";
 
 interface ModRowProps {
     mod: Mod;
     minSemesters: number | null;
     warnings?: string[];
     onRemove: (code: string) => void;
-    onToggle: (code: string) => void;
-    onToggleTaking: (code: string) => void;
+    onStatusChange: (code: string, status: ModStatus) => void;
     onSelect: (code: string) => void;
     onHover: (code: string | null) => void;
 }
 
-export default function ModRow({ mod, minSemesters, warnings, onRemove, onToggle, onToggleTaking, onSelect, onHover }: ModRowProps) {
-    const { code, title, completed, taking } = mod;
+export default function ModRow({ mod, minSemesters, warnings, onRemove, onStatusChange, onSelect, onHover }: ModRowProps) {
+    const { code, title } = mod;
     return (
         <li
             className="mod-li"
@@ -25,7 +27,6 @@ export default function ModRow({ mod, minSemesters, warnings, onRemove, onToggle
             }}
             onPointerLeave={() => onHover(null)}
         >
-            <input className="custom-cb" type="checkbox" checked={completed} onChange={() => onToggle(code)} aria-label={`Mark ${code} completed`} />
             <button className="mod-info" onClick={() => onSelect(code)}>
                 <span className="mod-code">{code}</span>
                 <span className="mod-title" title={title}>{title}</span>
@@ -37,16 +38,8 @@ export default function ModRow({ mod, minSemesters, warnings, onRemove, onToggle
                     )}
                 </span>
             </button>
-            <button
-                className={taking ? "taking-toggle active" : "taking-toggle"}
-                onClick={() => onToggleTaking(code)}
-                aria-pressed={!!taking}
-                aria-label={`Mark ${code} as currently taking`}
-                title="Currently taking"
-            >
-                ◐
-            </button>
-            <button onClick={() => onRemove(code)} aria-label={`Remove ${code}`}>✕</button>
+            <StatusSelect code={code} status={statusOf(mod)} onChange={onStatusChange} />
+            <button className="mod-remove" onClick={() => onRemove(code)} aria-label={`Remove ${code}`}>✕</button>
         </li>
     );
 }

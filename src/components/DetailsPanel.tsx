@@ -6,7 +6,10 @@ import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../uti
 import { planWarnings, TERMS } from "../utils/semesterPlan";
 import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
+import { statusOf } from "../utils/modStatus";
+import type { ModStatus } from "../utils/modStatus";
 import SemesterTag from "./SemesterTag";
+import StatusSelect from "./StatusSelect";
 import "./DetailsPanel.css";
 
 const MAX_UNLOCKS = 12;
@@ -19,8 +22,7 @@ interface DetailsPanelProps {
     onSelect: (code: string) => void;
     onAdd: (mod: Mod) => void;
     onRemove: (code: string) => void;
-    onToggle: (code: string) => void;
-    onToggleTaking: (code: string) => void;
+    onStatusChange: (code: string, status: ModStatus) => void;
     onPlanTerm: (code: string, term: Term | undefined) => void;
 }
 
@@ -39,7 +41,7 @@ function Requirement({ label, text }: { label: string; text?: string }) {
 }
 
 export default function DetailsPanel(props: DetailsPanelProps) {
-    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onToggle, onToggleTaking, onPlanTerm } = props;
+    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onStatusChange, onPlanTerm } = props;
     const [details, setDetails] = useState<ModuleDetails | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
@@ -74,14 +76,14 @@ export default function DetailsPanel(props: DetailsPanelProps) {
         return () => { isCancelled = true; };
     }, [code]);
 
-    const addWithStatus = async (status: Partial<Pick<Mod, "completed" | "taking">>) => {
+    const addToPlan = async () => {
         setIsBusy(true);
         setError(null);
         try {
-            onAdd({ ...(await fetchMod(code)), ...status });
+            onAdd(await fetchMod(code));
         } catch (err) {
             if (err instanceof ModNotFoundError) {
-                onAdd({ ...missingMod(code, false), ...status });
+                onAdd(missingMod(code, false));
             } else {
                 setError(errorMessage(err));
             }
@@ -90,27 +92,11 @@ export default function DetailsPanel(props: DetailsPanelProps) {
         }
     };
 
-    const handleToggleComplete = () => {
-        if (isTracked) {
-            onToggle(code);
-        } else {
-            addWithStatus({ completed: true });
-        }
-    };
-
-    const handleToggleTaking = () => {
-        if (isTracked) {
-            onToggleTaking(code);
-        } else {
-            addWithStatus({ taking: true });
-        }
-    };
-
     const handleAddRemove = () => {
         if (isTracked) {
             onRemove(code);
         } else {
-            addWithStatus({});
+            addToPlan();
         }
     };
 
@@ -131,26 +117,21 @@ export default function DetailsPanel(props: DetailsPanelProps) {
             {clashes.length > 0 && <p className="details-error">Precluded by {clashes.join(", ")} in your plan</p>}
 
             <div className="details-actions">
-                <label>
-                    <input type="checkbox" checked={existing?.completed ?? false} onChange={handleToggleComplete} disabled={isBusy} />
-                    Completed
-                </label>
-                <label>
-                    <input type="checkbox" checked={existing?.taking ?? false} onChange={handleToggleTaking} disabled={isBusy} />
-                    Taking
-                </label>
+                {isTracked && (
+                    <>
+                        <StatusSelect code={code} status={statusOf(existing)} onChange={onStatusChange} />
+                        <select
+                            aria-label={`Planned term for ${code}`}
+                            value={existing.plannedTerm ?? ""}
+                            onChange={event => onPlanTerm(code, (event.target.value || undefined) as Term | undefined)}
+                        >
+                            <option value="">No term</option>
+                            {TERMS.map(term => <option key={term} value={term}>{term}</option>)}
+                        </select>
+                    </>
+                )}
                 {!isUnavailable && (
                     <button onClick={handleAddRemove} disabled={isBusy}>{isTracked ? "Remove" : "Add"}</button>
-                )}
-                {isTracked && (
-                    <select
-                        aria-label={`Planned term for ${code}`}
-                        value={existing.plannedTerm ?? ""}
-                        onChange={event => onPlanTerm(code, (event.target.value || undefined) as Term | undefined)}
-                    >
-                        <option value="">No term</option>
-                        {TERMS.map(term => <option key={term} value={term}>{term}</option>)}
-                    </select>
                 )}
             </div>
             {warnings.map(warning => <p key={warning} className="details-error">{warning}</p>)}

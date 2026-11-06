@@ -1,0 +1,27 @@
+.status-select {
+    padding: 2px 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.status-select.taking {
+    color: var(--graph-on-status);
+    background: var(--graph-taking);
+    border-color: var(--graph-taking);
+}
+
+.status-select.done {
+    color: var(--graph-on-status);
+    background: var(--graph-completed);
+    border-color: var(--graph-completed);
+}
+
+.status-select option {
+    color: var(--text);
+    background: var(--surface);
+}
