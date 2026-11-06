@@ -124,5 +124,5 @@ a:focus-visible {
 }
 
 @media (min-width: 769px) {
-  :root { --sidebar-width: 400px; }
+  :root { --sidebar-width: min(var(--sidebar-custom-width, 400px), 60vw); }
 }
