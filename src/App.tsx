@@ -68,13 +68,14 @@ function App() {
           plan={plan}
         />
         {!isSidebarCollapsed && <SidebarHandle />}
-        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}
             code={selectedCode}
             mods={mods}
             minSemesters={plan.estimate?.(selectedCode) ?? null}
+            semestersHint={plan.explain?.(selectedCode)}
             onClose={() => setSelectedCode(null)}
             onSelect={setSelectedCode}
             onAdd={addMods}
