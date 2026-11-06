@@ -49,6 +49,15 @@ export function loadStored(): StorageData {
     }
 }
 
+/** Only true before the first save. A plan the user has emptied still saves as an empty list. */
+export function isFirstVisit() {
+    try {
+        return localStorage.getItem(STORAGE_KEY) === null;
+    } catch {
+        return false;
+    }
+}
+
 export function saveMods(mods: Mod[], acadYear: string) {
     const data: StorageData = { version: STORAGE_VERSION, acadYear, mods };
     try {
