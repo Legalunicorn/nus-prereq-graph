@@ -1,28 +1,17 @@
 import type cytoscape from "cytoscape";
-import { shade } from "../utils/theme";
 import type { GraphPalette } from "../utils/theme";
 
-/** Cytoscape has no drop shadow, so depth comes from a lit fill, a lighter edge and a faint halo. */
-const raised = (fill: string, border = shade(fill, 0.28)) => ({
-    "background-fill": "linear-gradient" as const,
-    "background-gradient-stop-colors": `${shade(fill, 0.14)} ${shade(fill, -0.1)}`,
-    "background-gradient-stop-positions": "0% 100%",
-    "background-gradient-direction": "to-bottom" as const,
-    "border-width": 1, "border-color": border,
-    "underlay-color": fill, "underlay-padding": 3, "underlay-opacity": 0.2, "underlay-shape": "round-rectangle" as const,
-});
 
 export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
     return [
         {
             selector: 'node[kind="module"]',
             style: {
-                label: "data(label)", shape: "round-rectangle", "corner-radius": "8px", "min-zoomed-font-size": 5,
-                "text-valign": "center", "text-halign": "center",
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "6px", "min-zoomed-font-size": 5,
+                "background-color": colors.notPlannedFill, "text-valign": "center", "text-halign": "center",
                 color: colors.notPlannedText, "font-weight": 600, "font-family": colors.mono,
                 width: 86, height: 32, "font-size": 12,
-                ...raised(colors.notPlannedFill, colors.notPlannedBorder),
-                "underlay-color": colors.notPlannedBorder, "underlay-opacity": 0.12,
+                "border-width": 1, "border-color": colors.notPlannedBorder,
             }
         },
         {
@@ -40,19 +29,19 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
         },
         {
             selector: 'node[kind="module"][?tracked]',
-            style: { ...raised(colors.ready), color: colors.onStatus },
+            style: { "background-color": colors.ready, color: colors.onStatus, "border-width": 0 },
         },
         {
             selector: 'node[kind="module"][?tracked][?prereqUnfulfilled]',
-            style: raised(colors.blocked),
+            style: { "background-color": colors.blocked },
         },
         {
             selector: 'node[kind="module"][?completed]',
-            style: { ...raised(colors.completed), color: colors.onStatus },
+            style: { "background-color": colors.completed, color: colors.onStatus, "border-width": 0 },
         },
         {
             selector: 'node[kind="module"][?taking]',
-            style: { ...raised(colors.taking), color: colors.onStatus },
+            style: { "background-color": colors.taking, color: colors.onStatus, "border-width": 0 },
         },
         {
             selector: 'node[kind="module"][?notOffered]',
