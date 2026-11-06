@@ -2,7 +2,7 @@
     padding: 0.8rem;
     border-right: 1px solid var(--border);
     background: var(--surface);
-    width: 260px;
+    width: var(--sidebar-width);
     flex-shrink: 0;
     overflow-y: auto;
     transition: width 0.2s ease, padding 0.2s ease, border-width 0.2s ease;
@@ -46,7 +46,7 @@
         }
     }
 
-    .term-heading {
+    .group-heading {
         display: flex;
         justify-content: space-between;
         margin-top: 0.7rem;
@@ -86,12 +86,13 @@
         &:hover { background: var(--surface-hover); }
     }
 
-    ul {
+    ul { list-style: none; }
+
+    .mod-list {
         display: grid;
         grid-template-columns: minmax(0, 1fr);
         gap: 0.35rem;
         margin-top: 0.4rem;
-        list-style: none;
     }
 }
 
@@ -178,4 +179,8 @@
         inset: 0 auto 0 0;
         z-index: 50;
     }
+}
+
+@media (min-width: 769px) {
+    .sidebar .mod-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
