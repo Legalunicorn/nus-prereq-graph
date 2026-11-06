@@ -4,7 +4,7 @@ import { includeTags } from "./semesterTags";
 const HIGHLIGHT_CLASS = "longest";
 const FADED_CLASS = "off-path";
 const FLOW_FRAME_KEY = "flowFrame";
-const FLOW_INTERVAL_MS = 40;
+const FLOW_INTERVAL_MS = 66;
 const FLOW_SPEED = 0.03;
 
 function stopFlow(cy: cytoscape.Core) {

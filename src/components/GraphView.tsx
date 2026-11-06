@@ -16,6 +16,7 @@ import { moveTagWithNode } from "../graph/semesterTags";
 import { syncGraph } from "../graph/syncGraph";
 import { fitAll, MAX_ZOOM, MIN_ZOOM } from "../graph/viewport";
 import { useEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
@@ -30,15 +31,14 @@ interface GraphViewProps {
     minSemestersOf: (code: string) => number | null;
     explainSemesters: (code: string) => string | null;
     selectedCode: string | null;
-    hoveredCode: string | null;
+    previewChainRef: RefObject<((code: string | null) => void) | null>;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPaths, minSemestersOf, explainSemesters, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
-    const wrapperRef = useRef<HTMLDivElement>(null);
+export default function GraphView({ mods, theme, longestPaths, minSemestersOf, explainSemesters, selectedCode, previewChainRef, onSelect }: GraphViewProps) {
+    const dotsRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
-    const previewChainRef = useRef<((code: string | null) => void) | null>(null);
     const explainRef = useRef(explainSemesters);
     const [isFullChain, setIsFullChain] = useState(false);
     const [isLongestPathOn, setIsLongestPathOn] = useState(false);
@@ -58,6 +58,7 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
             style: buildStyles(readGraphPalette()),
             minZoom: MIN_ZOOM,
             maxZoom: MAX_ZOOM,
+            textureOnViewport: true,
         });
 
         cy.on("tap", 'node[kind="module"][!wildcard]', (evt) => {
@@ -79,8 +80,8 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
             }
         });
         cy.on("pan", () => {
-            if (wrapperRef.current) {
-                applyParallax(wrapperRef.current, cy.pan());
+            if (dotsRef.current) {
+                applyParallax(dotsRef.current, cy.pan());
             }
         });
 
@@ -105,11 +106,7 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
             cyRef.current = null;
             previewChainRef.current = null;
         };
-    }, [onSelect]);
-
-    useEffect(() => {
-        previewChainRef.current?.(hoveredCode);
-    }, [hoveredCode]);
+    }, [onSelect, previewChainRef]);
 
     useEffect(() => {
         cyRef.current?.style(buildStyles(readGraphPalette()));
@@ -157,7 +154,8 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
     }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, isHidingCompleted, longestPaths, minSemestersOf]);
 
     return (
-        <div ref={wrapperRef} className="graph-wrapper">
+        <div className="graph-wrapper">
+            <div ref={dotsRef} className="graph-dots" />
             <div ref={containerRef} className="graph-container" />
             {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (

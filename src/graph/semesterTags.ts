@@ -7,7 +7,9 @@ const TAG_OFFSET_Y = 28;
 const TAG_CHAR_WIDTH = 5;
 const TAG_PADDING = 12;
 
-const tagId = (moduleId: string) => `tag:${moduleId}`;
+const TAG_PREFIX = "tag:";
+
+const tagId = (moduleId: string) => `${TAG_PREFIX}${moduleId}`;
 
 const tagPosition = (node: cytoscape.NodeSingular) => ({
     x: node.position("x"),
@@ -15,6 +17,10 @@ const tagPosition = (node: cytoscape.NodeSingular) => ({
 });
 
 export const withoutTags = (cy: cytoscape.Core) => cy.elements().not(TAG_SELECTOR);
+
+export function removeOrphanTags(cy: cytoscape.Core) {
+    cy.nodes(TAG_SELECTOR).filter(tag => cy.getElementById(tag.id().slice(TAG_PREFIX.length)).empty()).remove();
+}
 
 export function syncSemesterTags(cy: cytoscape.Core) {
     cy.batch(() => {

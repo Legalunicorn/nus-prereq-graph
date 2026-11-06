@@ -1,19 +1,17 @@
 import type cytoscape from "cytoscape";
 import type { GraphPalette } from "../utils/theme";
 
-const FADE = { "transition-property": "opacity", "transition-duration": 180 };
 
 export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
     return [
         {
             selector: 'node[kind="module"]',
             style: {
-                label: "data(label)", shape: "round-rectangle", "corner-radius": "6px",
+                label: "data(label)", shape: "round-rectangle", "corner-radius": "6px", "min-zoomed-font-size": 5,
                 "background-color": colors.notPlannedFill, "text-valign": "center", "text-halign": "center",
                 color: colors.notPlannedText, "font-weight": 600, "font-family": colors.mono,
                 width: 86, height: 32, "font-size": 12,
                 "border-width": 1, "border-color": colors.notPlannedBorder,
-                ...FADE,
             }
         },
         {
@@ -23,7 +21,6 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 width: "data(width)", height: 13, "font-size": 9, "text-valign": "center", "text-halign": "center",
                 color: colors.tagText, "background-color": colors.tag, "border-width": 0,
                 events: "no",
-                ...FADE,
             },
         },
         {
@@ -57,7 +54,6 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 width: 66, height: 20, "font-size": 10, "text-valign": "center", "text-halign": "center",
                 color: colors.notPlannedText, "background-color": colors.notPlannedFill,
                 "border-width": 1, "border-color": colors.notPlannedBorder,
-                ...FADE,
             },
         },
         {
@@ -66,7 +62,6 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 label: "data(label)", shape: "round-rectangle", "corner-radius": "8px",
                 width: 32, height: 16, "font-size": 9, "font-weight": 700, "font-family": colors.mono,
                 "text-valign": "center", "text-halign": "center",
-                ...FADE,
             }
         },
         { selector: 'node[gateType="and"]', style: { shape: "hexagon", width: 40, height: 20 } },
@@ -88,7 +83,6 @@ export function buildStyles(colors: GraphPalette): cytoscape.StylesheetStyle[] {
                 width: 1.25, "line-color": colors.neutral, "target-arrow-color": colors.neutral,
                 "target-arrow-shape": "triangle", "arrow-scale": 0.7,
                 "curve-style": "straight", "edge-distances": "node-position", opacity: 0.8,
-                ...FADE,
             }
         },
         {
