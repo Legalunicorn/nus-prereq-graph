@@ -37,3 +37,13 @@ export function readGraphPalette() {
 }
 
 export type GraphPalette = ReturnType<typeof readGraphPalette>;
+
+/** Mixes a #rrggbb color toward white (amount > 0) or black (amount < 0). */
+export function shade(hex: string, amount: number) {
+    const target = amount > 0 ? 255 : 0;
+    const channels = [1, 3, 5].map(start => {
+        const channel = parseInt(hex.slice(start, start + 2), 16);
+        return Math.round(channel + (target - channel) * Math.abs(amount));
+    });
+    return `rgb(${channels.join(",")})`;
+}
