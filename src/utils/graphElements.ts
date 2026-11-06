@@ -3,6 +3,8 @@ import { isWildcard } from "./prereqTree";
 import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
 
+type MinSemestersOf = (code: string) => number | null;
+
 const USUAL_MIN_GRADE = "D";
 
 function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
@@ -15,7 +17,13 @@ function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
     return `${node.n} OF`;
 }
 
-function nodeData(node: Node, offerings: Offerings | null) {
+/** Joins a module's semesters and how many semesters it takes at minimum, leaving out whichever is empty. */
+export function tagLabel(semesters: string, minSemesters: number | null): string {
+    const estimate = minSemesters ? `${minSemesters} sem` : "";
+    return [semesters, estimate].filter(Boolean).join(" · ");
+}
+
+function nodeData(node: Node, offerings: Offerings | null, minSemestersOf: MinSemestersOf) {
     if (node.kind === "module") {
         const wildcard = isWildcard(node.code);
         const displayCode = wildcard ? node.code.replaceAll("%", "*") : node.code;
@@ -25,7 +33,7 @@ function nodeData(node: Node, offerings: Offerings | null) {
         return {
             id: node.id,
             label: code,
-            semesters: catalogue ? semesterLabel(catalogue, node.code) : "",
+            tag: tagLabel(catalogue ? semesterLabel(catalogue, node.code) : "", wildcard ? null : minSemestersOf(node.code)),
             kind: node.kind,
             completed: node.completed,
             taking: node.taking ?? false,
@@ -42,7 +50,7 @@ function nodeData(node: Node, offerings: Offerings | null) {
     return { id: node.id, label: gateLabel(node), kind: node.kind, gateType: node.gateType, fulfilled: node.fulfilled };
 }
 
-export function toElements(graph: Graph, offerings: Offerings | null = null) {
+export function toElements(graph: Graph, offerings: Offerings | null = null, minSemestersOf: MinSemestersOf = () => null) {
     const edges = new Map(graph.edges.map(edge => {
         const id = `${edge.from}->${edge.to}`;
         return [id, {
@@ -58,7 +66,7 @@ export function toElements(graph: Graph, offerings: Offerings | null = null) {
     }));
 
     return [
-        ...Array.from(graph.nodes.values(), node => ({ data: nodeData(node, offerings) })),
+        ...Array.from(graph.nodes.values(), node => ({ data: nodeData(node, offerings, minSemestersOf) })),
         ...edges.values(),
     ];
 }

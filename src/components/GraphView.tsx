@@ -29,12 +29,13 @@ interface GraphViewProps {
     mods: Mod[];
     theme: Theme;
     longestPaths: string[][];
+    minSemestersOf: (code: string) => number | null;
     selectedCode: string | null;
     hoveredCode: string | null;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPaths, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPaths, minSemestersOf, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
@@ -140,9 +141,9 @@ export default function GraphView({ mods, theme, longestPaths, selectedCode, hov
             : undefined;
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
-        syncGraph(cyRef.current, toElements(graph, offerings), direction);
+        syncGraph(cyRef.current, toElements(graph, offerings, minSemestersOf), direction);
         applyLongestPaths(cyRef.current, isLongestPathOn ? longestPaths : []);
-    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPaths]);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPaths, minSemestersOf]);
 
     return (
         <div ref={wrapperRef} className="graph-wrapper">
