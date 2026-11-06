@@ -40,3 +40,58 @@ export function openView(cy: cytoscape.Core, direction: GraphDirection) {
 
 export const fitAll = (cy: cytoscape.Core) =>
     cy.animate({ zoom: fitZoomFor(cy), center: { eles: withoutTags(cy) }, duration: FIT_DURATION });
+
+const PIXELS_PER_LINE = 33;
+const PIXELS_PER_PAGE = 800;
+const MAX_WHEEL_PIXELS = 120;
+const ZOOM_PER_PIXEL = 0.001;
+const ZOOM_PER_PINCH_PIXEL = 0.01;
+const WHEEL_SETTLE_MS = 150;
+
+interface WheelInput { deltaY: number; deltaMode: number; ctrlKey: boolean; }
+
+/** How much one wheel event scales the zoom. A trackpad pinch arrives as a wheel event with ctrlKey set. */
+export function wheelZoomFactor({ deltaY, deltaMode, ctrlKey }: WheelInput) {
+    const unit = deltaMode === 1 ? PIXELS_PER_LINE : deltaMode === 2 ? PIXELS_PER_PAGE : 1;
+    const pixels = Math.max(-MAX_WHEEL_PIXELS, Math.min(MAX_WHEEL_PIXELS, deltaY * unit));
+    return Math.exp(-pixels * (ctrlKey ? ZOOM_PER_PINCH_PIXEL : ZOOM_PER_PIXEL));
+}
+
+/**
+ * Replaces Cytoscape's wheel zoom, which guesses the input device from the first few events
+ * and can stay about 30 times too fast for the rest of the page's life.
+ * Listening on the parent during capture stops the event before Cytoscape sees it.
+ */
+export function attachWheelZoom(cy: cytoscape.Core) {
+    const container = cy.container();
+    const parent = container?.parentElement;
+    if (!container || !parent) {
+        return () => {};
+    }
+    // Cytoscape only draws from its cached texture while this private flag is set, as its own handler does.
+    const rendererData = (cy as unknown as { renderer(): { data: { wheelZooming: boolean } } }).renderer().data;
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
+    const onWheel = (event: WheelEvent) => {
+        if (!container.contains(event.target as Node)) {
+            return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        rendererData.wheelZooming = true;
+        clearTimeout(settleTimer);
+        settleTimer = setTimeout(() => {
+            rendererData.wheelZooming = false;
+            cy.forceRender();
+        }, WHEEL_SETTLE_MS);
+        const { left, top } = container.getBoundingClientRect();
+        cy.zoom({
+            level: cy.zoom() * wheelZoomFactor(event),
+            renderedPosition: { x: event.clientX - left, y: event.clientY - top },
+        });
+    };
+    parent.addEventListener("wheel", onWheel, { capture: true, passive: false });
+    return () => {
+        clearTimeout(settleTimer);
+        parent.removeEventListener("wheel", onWheel, { capture: true });
+    };
+}
