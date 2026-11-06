@@ -54,7 +54,6 @@ export const FOCUS_AREAS: FocusArea[] = [
             { code: "CS4246", title: "Reinforcement Learning and Sequential Decision Making" },
             { code: "CS4248", title: "Introduction to Large Language Models" },
             { code: "CS4262", title: "Machine Learning Systems" },
-            { code: "CS4263", title: "Artificial Intelligence Principles" },
         ],
         electives: [
             { code: "CS4220", title: "Knowledge Discovery Methods in Bioinformatics" },
@@ -62,6 +61,7 @@ export const FOCUS_AREAS: FocusArea[] = [
             { code: "CS4269", title: "Fundamentals of Logic in Computer Science" },
             { code: "CS4277", title: "3D Computer Vision" },
             { code: "CS4278", title: "Intelligent Robots: Algorithms and Systems" },
+            { code: "CS4354", title: "AI Software Engineering Project" },
             { code: "CS5215", title: "Constraint Processing" },
             { code: "CS5228", title: "Knowledge Discovery and Data Mining" },
             { code: "CS5242", title: "Neural Networks and Deep Learning" },
@@ -202,6 +202,7 @@ export const FOCUS_AREAS: FocusArea[] = [
             { code: "CS3211", title: "Concurrent Programming" },
             { code: "CS4231", title: "Parallel and Distributed Algorithms" },
             { code: "CS4223", title: "Multi-core Architecture" },
+            { code: "CS4310", title: "High-Performance Computing for Science and AI" },
         ],
         electives: [
             { code: "CS5222", title: "Advanced Computer Architectures" },
@@ -236,6 +237,7 @@ export const FOCUS_AREAS: FocusArea[] = [
         description: "A systematic and disciplined approach to modelling, designing, building, verifying, and testing complex, correct, robust software.",
         primaries: [
             { code: "CS2103", title: "Software Engineering", note: "CFC" },
+            { code: "CS2103T", title: "Software Engineering", note: "CFC" },
             { code: "CS3213", title: "Software Requirements Specification and Validation" },
             { code: "CS3217", title: "Software Engineering on Modern Application Platforms" },
             { code: "CS3219", title: "Software Design and Architecture" },
@@ -251,6 +253,7 @@ export const FOCUS_AREAS: FocusArea[] = [
             { code: "CS3216", title: "Software Development on Evolving Platforms" },
             { code: "CS3226", title: "Web Programming and Applications" },
             { code: "CS3234", title: "Logic for Proofs and Programs" },
+            { code: "CS4354", title: "AI Software Engineering Project" },
             { code: "CS5219", title: "Automatic Software Validation" },
             { code: "CS5232", title: "Formal Specification & Design Techniques" },
             { code: "CS5272", title: "Embedded Software Design" },
