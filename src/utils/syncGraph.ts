@@ -4,26 +4,13 @@ import { applyRoutes } from "./edgeRouteStyle";
 import { computeLayout } from "./graphLayout";
 import type { toElements } from "./graphElements";
 import { syncSemesterTags, withoutTags } from "./semesterTags";
+import { openView } from "./viewport";
 
 const FADE_MS = 120;
 const FADE_TIMER_KEY = "fadeTimer";
 const DIRECTION_KEY = "direction";
-const READABLE_ZOOM = 0.6;
-const START_PADDING = 56;
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-/** A graph too big to read when fitted opens at the start of its chain instead. Fit still shows all of it. */
-function keepReadable(cy: cytoscape.Core, direction: GraphDirection) {
-    if (cy.zoom() >= READABLE_ZOOM) {
-        return;
-    }
-    const box = withoutTags(cy).boundingBox();
-    cy.zoom(READABLE_ZOOM);
-    cy.pan(direction === "vertical"
-        ? { x: (cy.width() - box.w * READABLE_ZOOM) / 2 - box.x1 * READABLE_ZOOM, y: START_PADDING - box.y1 * READABLE_ZOOM }
-        : { x: START_PADDING - box.x1 * READABLE_ZOOM, y: (cy.height() - box.h * READABLE_ZOOM) / 2 - box.y1 * READABLE_ZOOM });
-}
 
 function runLayout(cy: cytoscape.Core, direction: GraphDirection) {
     const elements = withoutTags(cy);
@@ -33,7 +20,7 @@ function runLayout(cy: cytoscape.Core, direction: GraphDirection) {
         direction,
     );
     applyRoutes(cy, routes, positions);
-    elements.layout({ name: "preset", positions, stop: () => keepReadable(cy, direction) } as cytoscape.LayoutOptions).run();
+    elements.layout({ name: "preset", positions, fit: false, stop: () => openView(cy, direction) } as cytoscape.LayoutOptions).run();
     syncSemesterTags(cy);
     elements.removeStyle("opacity");
 }
