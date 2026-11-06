@@ -11,6 +11,7 @@ import { applyLongestPaths } from "../utils/longestPath";
 import { applyParallax } from "../utils/parallax";
 import { attachChainHighlight } from "../utils/chainHighlight";
 import { straighten } from "../utils/edgeRouteStyle";
+import { hideCompleted } from "../utils/hideCompleted";
 import { moveTagWithNode } from "../utils/semesterTags";
 import { syncGraph } from "../utils/syncGraph";
 import { useEffect, useRef, useState } from "react";
@@ -42,6 +43,7 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
     const previewChainRef = useRef<((code: string | null) => void) | null>(null);
     const [isFullChain, setIsFullChain] = useState(false);
     const [isLongestPathOn, setIsLongestPathOn] = useState(false);
+    const [isHidingCompleted, setIsHidingCompleted] = useState(false);
     const { direction, toggleDirection } = useGraphDirection();
     const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
@@ -141,9 +143,10 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
             : undefined;
         const rank = createRank(new Set(mods.map(mod => mod.code)), offerings);
         const graph = buildGraph(mods, { treeOf, alternatives: { rank, expanded: expandedGates } });
-        syncGraph(cyRef.current, toElements(graph, offerings, minSemestersOf), direction);
+        const shown = isHidingCompleted ? hideCompleted(graph) : graph;
+        syncGraph(cyRef.current, toElements(shown, offerings, minSemestersOf), direction);
         applyLongestPaths(cyRef.current, isLongestPathOn ? longestPaths : []);
-    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, longestPaths, minSemestersOf]);
+    }, [mods, offerings, isFullChain, snapshot, expandedGates, direction, isLongestPathOn, isHidingCompleted, longestPaths, minSemestersOf]);
 
     return (
         <div ref={wrapperRef} className="graph-wrapper">
@@ -172,6 +175,13 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
                                 Longest paths
                             </button>
                         )}
+                        <button
+                            className={isHidingCompleted ? "active" : ""}
+                            aria-pressed={isHidingCompleted}
+                            onClick={() => setIsHidingCompleted(prev => !prev)}
+                        >
+                            Hide done
+                        </button>
                         <button onClick={toggleDirection}>
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
