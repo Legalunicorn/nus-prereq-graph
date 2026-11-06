@@ -43,7 +43,7 @@ function App() {
         )}
         <button
           className="sidebar-toggle"
-          style={{ left: isSidebarCollapsed ? "12px" : "272px" }}
+          style={{ left: isSidebarCollapsed ? "12px" : "calc(var(--sidebar-width) + 12px)" }}
           onClick={() => setIsSidebarCollapsed(prev => !prev)}
           aria-label={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
         >

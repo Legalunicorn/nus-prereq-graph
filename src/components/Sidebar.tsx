@@ -4,6 +4,7 @@ import useModuleCredits from "../hooks/useModuleCredits";
 import useOfferings from "../hooks/useOfferings";
 import { isDone } from "../utils/modStatus";
 import type { ModStatus } from "../utils/modStatus";
+import { groupByLevel } from "../utils/moduleLevels";
 import { groupByTerm, planWarnings, takeableNext } from "../utils/semesterPlan";
 import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
@@ -66,15 +67,20 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
                 </div>
              )}
              {plannedCodes.length === 0 ? (
-                <ul>{mods.map(renderRow)}</ul>
+                groupByLevel(mods).map(group => (
+                    <section key={group.label}>
+                        <h3 className="group-heading">{group.label}</h3>
+                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
+                    </section>
+                ))
              ) : (
                 groupByTerm(mods, code => credits.get(code) ?? 0).map(group => (
                     <section key={group.term ?? "none"}>
-                        <h3 className="term-heading">
+                        <h3 className="group-heading">
                             {group.term ?? "No term"}
                             {group.term && <span>{group.credits} MC</span>}
                         </h3>
-                        <ul>{group.mods.map(renderRow)}</ul>
+                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
                     </section>
                 ))
              )}
