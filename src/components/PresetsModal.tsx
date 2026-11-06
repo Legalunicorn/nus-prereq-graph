@@ -24,7 +24,7 @@ export default function PresetsModal({ mods, onAdd, onRemove, onClose }: Presets
     const handleToggleArea = (id: string) => setExpandedId(prev => (prev === id ? null : id));
 
     return (
-        <Modal title="Focus areas" onClose={onClose}>
+        <Modal title="Focus Area Presets" onClose={onClose}>
             <input
                 className="presets-search"
                 type="search"

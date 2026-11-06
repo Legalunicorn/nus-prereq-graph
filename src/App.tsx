@@ -90,7 +90,7 @@ function App() {
         )}
         {showFoundations && (
           <CourseListModal
-            title="Foundations"
+            title="CS Foundations"
             courses={CS_FOUNDATION_COURSES}
             mods={mods}
             onAdd={addMods}
@@ -100,7 +100,7 @@ function App() {
         )}
         {showMathAndScience && (
           <CourseListModal
-            title="Math &amp; science"
+            title="CS Mathematics and Sciences"
             courses={CS_MATH_AND_SCIENCE_COURSES}
             mods={mods}
             onAdd={addMods}
