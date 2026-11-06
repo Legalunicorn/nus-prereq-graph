@@ -3,6 +3,7 @@ import type { Mod } from "../types/types";
 import useModuleCredits from "../hooks/useModuleCredits";
 import useOfferings from "../hooks/useOfferings";
 import { isDone } from "../utils/modStatus";
+import type { ModStatus } from "../utils/modStatus";
 import { groupByTerm, planWarnings, takeableNext } from "../utils/semesterPlan";
 import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
@@ -14,8 +15,7 @@ interface SidebarProps {
     onAdd: (mod:Mod) => void;
     onRemove:(code:string) => void;
     onClear: () => void;
-    onToggle: (code:string) => void;
-    onToggleTaking: (code:string) => void;
+    onStatusChange: (code: string, status: ModStatus) => void;
     onSelect: (code: string) => void;
     onHover: (code: string | null) => void;
     onOpenPresets: () => void;
@@ -25,7 +25,7 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onToggleTaking, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
     const offerings = useOfferings();
     const warnings = planWarnings(mods, offerings);
@@ -39,8 +39,7 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
             minSemesters={minSemestersOf(mod)}
             warnings={warnings.get(mod.code)}
             onRemove={onRemove}
-            onToggle={onToggle}
-            onToggleTaking={onToggleTaking}
+            onStatusChange={onStatusChange}
             onSelect={onSelect}
             onHover={onHover}
         />

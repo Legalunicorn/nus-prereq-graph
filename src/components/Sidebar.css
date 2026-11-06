@@ -86,12 +86,13 @@
         &:hover { background: var(--surface-hover); }
     }
 
-    input[type="checkbox"] {
-        width: auto;
-        accent-color: var(--accent);
+    ul {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.35rem;
+        margin-top: 0.4rem;
+        list-style: none;
     }
-
-    ul { list-style: none; margin-top: 0.7rem; }
 }
 
 .sidebar.collapsed{
@@ -102,24 +103,21 @@
 }
 
 .mod-li{
+    position: relative;
     display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.5rem 0.2rem;
-    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    padding: 0.5rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
     transition: background 0.15s ease;
-
-    .custom-cb{
-        margin-right: 0.5rem;
-        flex-shrink: 0;
-    }
 
     .mod-info{
         display: flex;
         flex-direction: column;
+        width: 100%;
         min-width: 0;
-        flex: 1;
-        margin: 0;
         padding: 0;
         color: var(--text);
         text-align: left;
@@ -127,6 +125,12 @@
 
     .mod-info:hover{
         color: var(--text);
+    }
+
+    .mod-remove{
+        position: absolute;
+        top: 0.3rem;
+        right: 0.3rem;
     }
 
     .mod-code{
@@ -159,14 +163,10 @@
         background: transparent;
         border: none;
         color: var(--text-muted);
-        margin-left: auto;
-        flex-shrink: 0;
         cursor: pointer;
         border-radius: 4px;
         padding: 2px 4px;
     }
-
-    .taking-toggle.active { color: var(--graph-taking); }
 
     &:hover { background: var(--surface-raised); }
     button:hover { color: var(--text); }

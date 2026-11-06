@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
 import type { Mod, Term } from "../types/types";
 import { refreshCatalogue } from "../utils/api";
+import { withStatus } from "../utils/modStatus";
+import type { ModStatus } from "../utils/modStatus";
 import { loadStored, parseStored, saveMods } from "../utils/storage";
 
 export default function useStoredMods(){
@@ -46,17 +48,13 @@ export default function useStoredMods(){
     const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code === m.code) ? prev : [...prev, m]);
     const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
 
-    const toggleComplete = (code: string) => setMods(prev =>
-        prev.map(cur => cur.code === code ? {...cur, completed: !cur.completed, taking: false} : cur)
-    );
-
-    const toggleTaking = (code: string) => setMods(prev =>
-        prev.map(cur => cur.code === code ? {...cur, taking: !cur.taking, completed: false} : cur)
+    const setStatus = (code: string, status: ModStatus) => setMods(prev =>
+        prev.map(cur => cur.code === code ? withStatus(cur, status) : cur)
     );
 
     const setPlannedTerm = (code: string, plannedTerm: Term | undefined) => setMods(prev =>
         prev.map(cur => cur.code === code ? {...cur, plannedTerm} : cur)
     );
 
-    return {mods, addMods, removeMods, toggleComplete, toggleTaking, setPlannedTerm, replaceMods: setMods};
+    return {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods: setMods};
 };
