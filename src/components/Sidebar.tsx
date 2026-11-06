@@ -3,7 +3,7 @@ import type { Mod } from "../types/types";
 import useModuleCredits from "../hooks/useModuleCredits";
 import useOfferings from "../hooks/useOfferings";
 import { isDone } from "../utils/modStatus";
-import { groupByTerm, planWarnings } from "../utils/semesterPlan";
+import { groupByTerm, planWarnings, takeableNext } from "../utils/semesterPlan";
 import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
 import PlanSummary from "./PlanSummary";
@@ -29,6 +29,7 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
     const offerings = useOfferings();
     const warnings = planWarnings(mods, offerings);
+    const nextUp = plan.estimate ? takeableNext(mods, plan.estimate) : [];
     const plannedCodes = mods.filter(mod => mod.plannedTerm).map(mod => mod.code);
     const credits = useModuleCredits(plannedCodes);
     const renderRow = (mod: Mod) => (
@@ -60,6 +61,12 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
              </div>
              {plan.estimate && (
                 <PlanSummary mods={mods} estimate={plan.estimate} start={plan.start} onStartChange={plan.setStart} />
+             )}
+             {nextUp.length > 0 && (
+                <div className="next-up" title="Prerequisites met and offered next semester">
+                    <span>Next</span>
+                    {nextUp.map(mod => <button key={mod.code} onClick={() => onSelect(mod.code)}>{mod.code}</button>)}
+                </div>
              )}
              {plannedCodes.length === 0 ? (
                 <ul>{mods.map(renderRow)}</ul>
