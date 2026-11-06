@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bendsOf, computeLayout, countCrossings, portOffsets } from "./graphLayout";
+import { bendsOf, computeLayout, countCrossings, gapFor, portOffsets } from "./graphLayout";
 
 const node = (id: string) => ({ id, width: 86, height: 32 });
 const edge = (source: string, target: string) => ({ id: `${source}-${target}`, source, target });
@@ -90,3 +90,14 @@ describe("computeLayout", () => {
     });
 });
 
+
+describe("gapFor", () => {
+    it("stays tight for straight edges", () => {
+        expect(gapFor(0)).toBe(14);
+    });
+
+    it("grows with sideways travel, up to a limit", () => {
+        expect(gapFor(200)).toBeGreaterThan(gapFor(100));
+        expect(gapFor(5000)).toBe(90);
+    });
+});

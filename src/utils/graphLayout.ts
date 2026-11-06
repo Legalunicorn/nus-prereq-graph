@@ -18,12 +18,22 @@ const LAYOUT_TRIES = 16;
 const MAX_NODES_FOR_TRIES = 90;
 const LENGTH_WEIGHT = 1e-3;
 
+const MIN_GAP = 14;
+const MAX_GAP = 90;
+const GAP_PER_DRIFT = 0.22;
+
 const SETTINGS: Record<GraphDirection, GraphLabel> = {
-    horizontal: { rankdir: "LR", nodesep: 36, ranksep: 60, edgesep: 14 },
-    vertical: { rankdir: "TB", nodesep: 22, ranksep: 76, edgesep: 14 },
+    horizontal: { rankdir: "LR", nodesep: 36, edgesep: 14 },
+    vertical: { rankdir: "TB", nodesep: 22, edgesep: 14 },
 };
-// Vertical needs more, as semester tags sit under the cards.
-const TURN_ROOM: Record<GraphDirection, number> = { horizontal: 10, vertical: 26 };
+// Vertical edges leave below the semester tags under the cards.
+const TURN_ROOM: Record<GraphDirection, { exit: number; entry: number }> = {
+    horizontal: { exit: 6, entry: 6 },
+    vertical: { exit: 24, entry: 6 },
+};
+
+/** A gap between ranks only needs room for how far its edges travel sideways. */
+export const gapFor = (drift: number) => Math.min(MAX_GAP, Math.max(MIN_GAP, drift * GAP_PER_DRIFT));
 
 const axesFor = (direction: GraphDirection) => direction === "horizontal"
     ? {
@@ -148,43 +158,77 @@ function assignPorts(
 }
 
 function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection) {
-    const { positions, passes } = runDagre(nodes, edges, direction);
+    const { positions: placed, passes } = runDagre(nodes, edges, direction);
     const axes = axesFor(direction);
+    const room = TURN_ROOM[direction];
     const nodeById = new Map(nodes.map(node => [node.id, node]));
     const halfLength = (id: string) => axes.length(nodeById.get(id) as LayoutNode) / 2;
-
-    // Turning only outside a rank's widest card is what keeps edges from crossing cards.
-    const bands = new Map<number, number>();
-    for (const { id } of nodes) {
-        const key = Math.round(axes.along(positions[id]));
-        bands.set(key, Math.max(bands.get(key) ?? 0, halfLength(id) + TURN_ROOM[direction]));
-    }
-    const bandAt = (along: number) => bands.get(Math.round(along)) ?? TURN_ROOM[direction];
-
     const passesOf = (edge: LayoutEdge) => passes.get(edge.id) ?? [];
+
+    const rankValues = [...nodes.map(({ id }) => placed[id]), ...[...passes.values()].flat()]
+        .map(point => Math.round(axes.along(point)));
+    const ranks = [...new Set(rankValues)].sort((a, b) => a - b);
+    const rankIndex = new Map(ranks.map((rank, index) => [rank, index]));
+    const rankOf = (point: Point) => rankIndex.get(Math.round(axes.along(point))) ?? 0;
+
+    const halves = ranks.map(() => 0);
+    for (const { id } of nodes) {
+        halves[rankOf(placed[id])] = Math.max(halves[rankOf(placed[id])], halfLength(id));
+    }
+
     const sourcePorts = assignPorts(nodes, edges, "source", axes.side,
-        edge => axes.across(passesOf(edge)[0] ?? positions[edge.target]));
+        edge => axes.across(passesOf(edge)[0] ?? placed[edge.target]));
     const targetPorts = assignPorts(nodes, edges, "target", axes.side,
-        edge => axes.across(passesOf(edge).at(-1) ?? positions[edge.source]));
+        edge => axes.across(passesOf(edge).at(-1) ?? placed[edge.source]));
+
+    const startAcross = (edge: LayoutEdge) => axes.across(placed[edge.source]) + (sourcePorts.get(edge.id) ?? 0);
+    const endAcross = (edge: LayoutEdge) => axes.across(placed[edge.target]) + (targetPorts.get(edge.id) ?? 0);
+
+    const drifts = ranks.map(() => 0);
+    for (const edge of edges) {
+        const stops = [
+            { rank: rankOf(placed[edge.source]), across: startAcross(edge) },
+            ...passesOf(edge).map(pass => ({ rank: rankOf(pass), across: axes.across(pass) })),
+            { rank: rankOf(placed[edge.target]), across: endAcross(edge) },
+        ];
+        stops.slice(1).forEach((stop, i) => {
+            const previous = stops[i];
+            const drift = Math.abs(stop.across - previous.across) / Math.max(1, stop.rank - previous.rank);
+            for (let rank = previous.rank; rank < stop.rank; rank++) {
+                drifts[rank] = Math.max(drifts[rank], drift);
+            }
+        });
+    }
+
+    const centres = [0];
+    for (let rank = 1; rank < ranks.length; rank++) {
+        centres[rank] = centres[rank - 1] + halves[rank - 1] + room.exit + gapFor(drifts[rank - 1]) + room.entry + halves[rank];
+    }
+
+    const positions: Positions = {};
+    for (const { id } of nodes) {
+        positions[id] = axes.at(centres[rankOf(placed[id])], axes.across(placed[id]));
+    }
 
     const routes = new Map<string, Route>();
     const lines = edges.map(edge => {
         const start = positions[edge.source];
         const end = positions[edge.target];
-        const startAlong = axes.along(start);
-        const endAlong = axes.along(end);
-        const startAcross = axes.across(start) + (sourcePorts.get(edge.id) ?? 0);
-        const endAcross = axes.across(end) + (targetPorts.get(edge.id) ?? 0);
-        const from = axes.at(startAlong + halfLength(edge.source), startAcross);
-        const to = axes.at(endAlong - halfLength(edge.target), endAcross);
+        const startRank = rankOf(placed[edge.source]);
+        const endRank = rankOf(placed[edge.target]);
+        const from = axes.at(centres[startRank] + halfLength(edge.source), startAcross(edge));
+        const to = axes.at(centres[endRank] - halfLength(edge.target), endAcross(edge));
         const line = [
             from,
-            axes.at(startAlong + bandAt(startAlong), startAcross),
+            axes.at(centres[startRank] + halves[startRank] + room.exit, startAcross(edge)),
             ...passesOf(edge).flatMap(pass => {
-                const along = axes.along(pass);
-                return [axes.at(along - bandAt(along), axes.across(pass)), axes.at(along + bandAt(along), axes.across(pass))];
+                const rank = rankOf(pass);
+                return [
+                    axes.at(centres[rank] - halves[rank] - room.entry, axes.across(pass)),
+                    axes.at(centres[rank] + halves[rank] + room.exit, axes.across(pass)),
+                ];
             }),
-            axes.at(endAlong - bandAt(endAlong), endAcross),
+            axes.at(centres[endRank] - halves[endRank] - room.entry, endAcross(edge)),
             to,
         ];
         routes.set(edge.id, {
