@@ -6,11 +6,13 @@
     overflow: hidden;
     background-color: var(--canvas);
     background-image:
-        radial-gradient(ellipse at center, transparent 45%, var(--vignette) 100%),
+        radial-gradient(ellipse at center, transparent 40%, var(--vignette) 100%),
+        radial-gradient(ellipse at center, var(--canvas-glow), transparent 70%),
         radial-gradient(circle, var(--grid-dot-near) 1.5px, transparent 1.5px),
         radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
-    background-size: 100% 100%, 88px 88px, 22px 22px;
+    background-size: 100% 100%, 100% 100%, 64px 64px, 16px 16px;
     background-position:
+        0 0,
         0 0,
         var(--near-x, 0) var(--near-y, 0),
         var(--far-x, 0) var(--far-y, 0);
@@ -38,8 +40,8 @@
 .graph-controls button:hover { color: var(--accent); border-color: var(--accent); }
 .graph-controls button.active { border-color: var(--accent); color: var(--accent); }
 @media (max-width: 768px) {
-    /* Small enough to share a row with the sidebar toggle. */
-    .graph-controls { right: 6px; gap: 4px; }
+    /* Stays clear of the sidebar toggle. */
+    .graph-controls { right: 6px; left: 46px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
     .graph-controls button { padding: 4px 6px; font-size: 11px; }
 }
 .graph-container {

@@ -21,6 +21,31 @@
         &:focus { border-color: var(--accent); outline: none; }
     }
 
+    .next-up {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+
+        span { margin-right: 0.25rem; }
+
+        button {
+            padding: 0.1rem 0.35rem;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+
+            &:hover { color: var(--accent); border-color: var(--accent); }
+        }
+    }
+
     .term-heading {
         display: flex;
         justify-content: space-between;
