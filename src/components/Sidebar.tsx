@@ -42,11 +42,6 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
             onHover={onHover}
         />
     );
-    const handleClearAll = () => {
-        if (window.confirm(`Remove all ${mods.length} modules from your plan?`)) {
-            onClear();
-        }
-    };
 
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -64,7 +59,7 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
                 </div>
              )}
              <ModList mods={mods} renderRow={renderRow} />
-             {mods.length > 0 && <button className="clear-all" onClick={handleClearAll}>Clear all</button>}
+             {mods.length > 0 && <button className="clear-all" onClick={onClear}>Clear all</button>}
         </div>
     )
 }

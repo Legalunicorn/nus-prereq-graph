@@ -10,16 +10,19 @@ import DetailsPanel from "./components/DetailsPanel";
 import Header from "./components/Header";
 import SharedPlanBanner from "./components/SharedPlanBanner";
 import SidebarHandle from "./components/SidebarHandle";
+import UndoToast from "./components/UndoToast";
 import usePlanEstimate from "./hooks/usePlanEstimate";
 import useSharedPlan from "./hooks/useSharedPlan";
 import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
+import useUndoableRemoval from "./hooks/useUndoableRemoval";
 import { PHONE_WIDTH } from "./constants";
 
 const noEstimate = () => null;
 
 function App() {
-  const {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods} = useStoredMods();
+  const {mods, addMods, setStatus, setPlannedTerm, replaceMods} = useStoredMods();
+  const removal = useUndoableRemoval(mods, replaceMods);
   const plan = usePlanEstimate(mods);
   const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
@@ -53,8 +56,8 @@ function App() {
         <Sidebar
           mods={mods}
           onAdd={addMods}
-          onRemove={removeMods}
-          onClear={() => replaceMods([])}
+          onRemove={removal.remove}
+          onClear={removal.clear}
           onStatusChange={setStatus}
           onSelect={setSelectedCode}
           onHover={setHoveredCode}
@@ -75,7 +78,7 @@ function App() {
             onClose={() => setSelectedCode(null)}
             onSelect={setSelectedCode}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onStatusChange={setStatus}
             onPlanTerm={setPlannedTerm}
           />
@@ -84,7 +87,7 @@ function App() {
           <PresetsModal
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowPresets(false)}
           />
         )}
@@ -94,7 +97,7 @@ function App() {
             courses={CS_FOUNDATION_COURSES}
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowFoundations(false)}
           />
         )}
@@ -104,9 +107,12 @@ function App() {
             courses={CS_MATH_AND_SCIENCE_COURSES}
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowMathAndScience(false)}
           />
+        )}
+        {removal.removed.length > 0 && (
+          <UndoToast removed={removal.removed} onUndo={removal.undo} onDismiss={removal.dismiss} />
         )}
       </div>
     </div>
