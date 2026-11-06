@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FOCUS_AREAS } from "../data/focusAreas";
 import useCourseAdd from "../hooks/useCourseAdd";
 import type { Course, Mod } from "../types/types";
-import { meetsFocusAreaRule, searchFocusAreas } from "../utils/focusAreaSearch";
+import { meetsFocusAreaRule, searchFocusAreas } from "../plan/focusAreaSearch";
 import "./PresetsModal.css";
 import CourseRow from "./CourseRow";
 import Modal from "./Modal";

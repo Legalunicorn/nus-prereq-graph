@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PrereqTree } from "../types/types";
 import { createEstimator, nextSemester } from "./minSemesters";
 import type { RegularSemester } from "./minSemesters";
-import type { SnapshotModule } from "./snapshot";
+import type { SnapshotModule } from "../utils/snapshot";
 
 const mod = (semesters: number[], prereqTree?: PrereqTree): SnapshotModule => ({ title: "T", semesters, prereqTree });
 
@@ -149,6 +149,32 @@ describe("createEstimator", () => {
 
     it("returns null for a cycle", () => {
         expect(estimate("CYCLE1")).toBeNull();
+    });
+});
+
+describe("explain", () => {
+    const planned: Record<string, SnapshotModule> = {
+        X1: mod([1, 2]),
+        X2: mod([2], "X1:D"),
+    };
+    const explain = (code: string, completed: string[] = [], start: RegularSemester = 2) =>
+        createEstimator({ modules: planned, completed: new Set(completed), start }).explain(code);
+
+    it("includes a semester spent waiting for an offering", () => {
+        expect(explain("X2")).toBe("S2: X1 → S1: wait → S2: X2");
+    });
+
+    it("shows a module that can be taken next", () => {
+        expect(explain("X1")).toBe("S2: X1");
+    });
+
+    it("skips what's already done", () => {
+        expect(explain("X2", ["X1"])).toBe("S2: X2");
+    });
+
+    it("is null for a module that's done or unknown", () => {
+        expect(explain("X1", ["X1"])).toBeNull();
+        expect(explain("NOPE")).toBeNull();
     });
 });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Mod, PrereqTree, Term } from "../types/types";
-import type { Offerings } from "./offerings";
+import type { Offerings } from "../utils/offerings";
 import { groupByTerm, planWarnings, takeableNext } from "./semesterPlan";
 
 const mod = (code: string, plannedTerm?: Term, prereqTree?: PrereqTree, status: Partial<Mod> = {}): Mod => ({

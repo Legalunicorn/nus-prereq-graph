@@ -1,17 +1,33 @@
 import { useEffect, useState } from "react";
-import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
+import { CURR_ACAD_YEAR, DEFAULT_MODULE_CODES, STORAGE_KEY } from "../constants";
 import type { Mod, Term } from "../types/types";
-import { refreshCatalogue } from "../utils/api";
-import { withStatus } from "../utils/modStatus";
-import type { ModStatus } from "../utils/modStatus";
-import { loadStored, parseStored, saveMods } from "../utils/storage";
+import { fetchMod, refreshCatalogue } from "../utils/api";
+import { withStatus } from "../plan/modStatus";
+import type { ModStatus } from "../plan/modStatus";
+import { decodePlan } from "../plan/sharePlan";
+import { isFirstVisit, loadStored, parseStored, saveMods } from "../utils/storage";
 
 export default function useStoredMods(){
     const [stored] = useState(loadStored);
     const [mods, setMods] = useState<Mod[]>(stored.mods);
     const [catalogueYear, setCatalogueYear] = useState(stored.acadYear);
+    const [isNewVisitor] = useState(() => isFirstVisit() && !decodePlan(location.hash));
 
     useEffect(() => { saveMods(mods, catalogueYear); }, [mods, catalogueYear]);
+
+    useEffect(() => {
+        if (!isNewVisitor) {
+            return;
+        }
+        let isCancelled = false;
+        Promise.allSettled(DEFAULT_MODULE_CODES.map(fetchMod)).then(results => {
+            if (!isCancelled) {
+                const loaded = results.flatMap(result => (result.status === "fulfilled" ? [result.value] : []));
+                setMods(prev => (prev.length > 0 ? prev : loaded));
+            }
+        });
+        return () => { isCancelled = true; };
+    }, [isNewVisitor]);
 
     // Saved catalogue data is from an earlier AY: update it and keep the user's plan.
     useEffect(() => {
@@ -46,7 +62,6 @@ export default function useStoredMods(){
     }, []);
 
     const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code === m.code) ? prev : [...prev, m]);
-    const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
 
     const setStatus = (code: string, status: ModStatus) => setMods(prev =>
         prev.map(cur => cur.code === code ? withStatus(cur, status) : cur)
@@ -56,5 +71,5 @@ export default function useStoredMods(){
         prev.map(cur => cur.code === code ? {...cur, plannedTerm} : cur)
     );
 
-    return {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods: setMods};
+    return {mods, addMods, setStatus, setPlannedTerm, replaceMods: setMods};
 };

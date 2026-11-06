@@ -1,4 +1,4 @@
-import type { ModStatus } from "../utils/modStatus";
+import type { ModStatus } from "../plan/modStatus";
 import "./StatusSelect.css";
 
 const LABELS: Record<ModStatus, string> = { planned: "Planned", taking: "Taking", done: "Done" };

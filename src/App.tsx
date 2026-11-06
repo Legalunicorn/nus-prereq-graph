@@ -1,25 +1,29 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import "./App.css";
 import Sidebar from "./components/Sidebar";
-import GraphView from "./components/GraphView";
-import PresetsModal from "./components/PresetsModal";
-import CourseListModal from "./components/CourseListModal";
 import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
-import DetailsPanel from "./components/DetailsPanel";
 import Header from "./components/Header";
 import SharedPlanBanner from "./components/SharedPlanBanner";
 import SidebarHandle from "./components/SidebarHandle";
+import UndoToast from "./components/UndoToast";
 import usePlanEstimate from "./hooks/usePlanEstimate";
 import useSharedPlan from "./hooks/useSharedPlan";
 import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
+import useUndoableRemoval from "./hooks/useUndoableRemoval";
 import { PHONE_WIDTH } from "./constants";
+
+const GraphView = lazy(() => import("./components/GraphView"));
+const DetailsPanel = lazy(() => import("./components/DetailsPanel"));
+const PresetsModal = lazy(() => import("./components/PresetsModal"));
+const CourseListModal = lazy(() => import("./components/CourseListModal"));
 
 const noEstimate = () => null;
 
 function App() {
-  const {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods} = useStoredMods();
+  const {mods, addMods, setStatus, setPlannedTerm, replaceMods} = useStoredMods();
+  const removal = useUndoableRemoval(mods, replaceMods);
   const plan = usePlanEstimate(mods);
   const sharedPlan = useSharedPlan(mods.length, replaceMods);
   const [showPresets, setShowPresets] = useState(false);
@@ -32,7 +36,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <Header mods={mods} theme={theme} onToggleTheme={toggleTheme} />
       <div className="app">
         {sharedPlan.pendingCount > 0 && (
           <SharedPlanBanner
@@ -43,18 +47,18 @@ function App() {
           />
         )}
         <button
-          className="sidebar-toggle"
-          style={{ left: isSidebarCollapsed ? "12px" : "calc(var(--sidebar-width) + 12px)" }}
+          className={isSidebarCollapsed ? "sidebar-toggle" : "sidebar-toggle open"}
           onClick={() => setIsSidebarCollapsed(prev => !prev)}
           aria-label={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
         >
-          {isSidebarCollapsed ? "›" : "‹"}
+          <span className="sidebar-toggle-icon" aria-hidden="true">{isSidebarCollapsed ? "›" : "‹"}</span>
+          <span className="sidebar-toggle-label">Modules</span>
         </button>
         <Sidebar
           mods={mods}
           onAdd={addMods}
-          onRemove={removeMods}
-          onClear={() => replaceMods([])}
+          onRemove={removal.remove}
+          onClear={removal.clear}
           onStatusChange={setStatus}
           onSelect={setSelectedCode}
           onHover={setHoveredCode}
@@ -65,17 +69,21 @@ function App() {
           plan={plan}
         />
         {!isSidebarCollapsed && <SidebarHandle />}
-        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        <Suspense fallback={<div className="graph-loading" />}>
+          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        </Suspense>
+        <Suspense fallback={null}>
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}
             code={selectedCode}
             mods={mods}
             minSemesters={plan.estimate?.(selectedCode) ?? null}
+            semestersHint={plan.explain?.(selectedCode)}
             onClose={() => setSelectedCode(null)}
             onSelect={setSelectedCode}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onStatusChange={setStatus}
             onPlanTerm={setPlannedTerm}
           />
@@ -84,7 +92,7 @@ function App() {
           <PresetsModal
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowPresets(false)}
           />
         )}
@@ -94,7 +102,7 @@ function App() {
             courses={CS_FOUNDATION_COURSES}
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowFoundations(false)}
           />
         )}
@@ -104,9 +112,13 @@ function App() {
             courses={CS_MATH_AND_SCIENCE_COURSES}
             mods={mods}
             onAdd={addMods}
-            onRemove={removeMods}
+            onRemove={removal.remove}
             onClose={() => setShowMathAndScience(false)}
           />
+        )}
+        </Suspense>
+        {removal.removed.length > 0 && (
+          <UndoToast removed={removal.removed} onUndo={removal.undo} onDismiss={removal.dismiss} />
         )}
       </div>
     </div>

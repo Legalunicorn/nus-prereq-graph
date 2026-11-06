@@ -7,6 +7,7 @@
 /* The graph reads the --graph-* values through utils/theme.ts. */
 :root {
   --sidebar-width: 260px;
+  --sheet-height: 70%;
   --canvas: #0c0f14;
   --surface: #12161c;
   --surface-raised: #1a1f27;

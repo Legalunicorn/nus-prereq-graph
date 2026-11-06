@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Mod } from "../types/types";
 import { refreshCatalogue } from "../utils/api";
-import { decodePlan } from "../utils/sharePlan";
-import type { SharedMod } from "../utils/sharePlan";
+import { decodePlan } from "../plan/sharePlan";
+import type { SharedMod } from "../plan/sharePlan";
 
 function clearHash() {
     history.replaceState(null, "", location.pathname + location.search);

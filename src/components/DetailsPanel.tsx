@@ -3,12 +3,12 @@ import useEscapeKey from "../hooks/useEscapeKey";
 import useOfferings from "../hooks/useOfferings";
 import type { Mod, Term } from "../types/types";
 import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
-import { planWarnings, TERMS } from "../utils/semesterPlan";
+import { planWarnings, TERMS } from "../plan/semesterPlan";
 import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
-import { minSemestersLabel } from "../utils/minSemesters";
-import { statusOf } from "../utils/modStatus";
-import type { ModStatus } from "../utils/modStatus";
+import { minSemestersLabel } from "../plan/minSemesters";
+import { statusOf } from "../plan/modStatus";
+import type { ModStatus } from "../plan/modStatus";
 import SemesterTag from "./SemesterTag";
 import StatusSelect from "./StatusSelect";
 import "./DetailsPanel.css";
@@ -19,6 +19,7 @@ interface DetailsPanelProps {
     code: string;
     mods: Mod[];
     minSemesters: number | null;
+    semestersHint?: string | null;
     onClose: () => void;
     onSelect: (code: string) => void;
     onAdd: (mod: Mod) => void;
@@ -42,7 +43,7 @@ function Requirement({ label, text }: { label: string; text?: string }) {
 }
 
 export default function DetailsPanel(props: DetailsPanelProps) {
-    const { code, mods, minSemesters, onClose, onSelect, onAdd, onRemove, onStatusChange, onPlanTerm } = props;
+    const { code, mods, minSemesters, semestersHint, onClose, onSelect, onAdd, onRemove, onStatusChange, onPlanTerm } = props;
     const [details, setDetails] = useState<ModuleDetails | null>(null);
     const [isNotFound, setIsNotFound] = useState(false);
     const [isBusy, setIsBusy] = useState(false);
@@ -112,7 +113,10 @@ export default function DetailsPanel(props: DetailsPanelProps) {
             <p className="details-title">{details?.title ?? existing?.title}</p>
             {isUnavailable && <p className="details-note">{NOT_IN_CATALOGUE}</p>}
             {minSemesters !== null && minSemesters > 0 && (
-                <p className="details-note">{minSemestersLabel(minSemesters)}</p>
+                <>
+                    <p className="details-note">{minSemestersLabel(minSemesters)}</p>
+                    {semestersHint && <p className="details-hint">{semestersHint}</p>}
+                </>
             )}
             {error && <p className="details-error" role="alert">{error}</p>}
             {clashes.length > 0 && <p className="details-error">Precluded by {clashes.join(", ")} in your plan</p>}

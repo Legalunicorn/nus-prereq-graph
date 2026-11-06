@@ -1,6 +1,6 @@
 import type { PrereqTree } from "../types/types";
-import { normalizeTree } from "./prereqTree";
-import type { SnapshotModule } from "./snapshot";
+import { normalizeTree } from "../graph/prereqTree";
+import type { SnapshotModule } from "../utils/snapshot";
 
 export type RegularSemester = 1 | 2;
 
@@ -106,6 +106,25 @@ export function createEstimator({ modules, completed, start, preferred = new Set
 
     const isPending = (code: string) => earliestTerm(code) >= 0 && earliestTerm(code) !== NOT_POSSIBLE;
 
+    const longestChains = (code: string): string[][] => {
+        const chains: string[][] = [];
+        const walk = (current: string, later: string[]) => {
+            const chain = [current, ...later];
+            const prereqTree = modules[current]?.prereqTree;
+            const tree = prereqTree ? normalizeTree(prereqTree) : null;
+            const previous = (tree ? decidingCodes(tree) : [])
+                .filter(other => isPending(other) && !chain.includes(other));
+            if (previous.length === 0) {
+                chains.push(chain);
+            }
+            previous.forEach(other => walk(other, chain));
+        };
+        if (isPending(code)) {
+            walk(code, []);
+        }
+        return chains;
+    };
+
     return {
         estimate: (code: string): number | null => {
             const term = earliestTerm(code);
@@ -113,23 +132,19 @@ export function createEstimator({ modules, completed, start, preferred = new Set
         },
 
         /** Every chain of modules still to take that decides how long `code` takes, earliest first. */
-        longestChains: (code: string): string[][] => {
-            const chains: string[][] = [];
-            const walk = (current: string, later: string[]) => {
-                const chain = [current, ...later];
-                const prereqTree = modules[current]?.prereqTree;
-                const tree = prereqTree ? normalizeTree(prereqTree) : null;
-                const previous = (tree ? decidingCodes(tree) : [])
-                    .filter(other => isPending(other) && !chain.includes(other));
-                if (previous.length === 0) {
-                    chains.push(chain);
-                }
-                previous.forEach(other => walk(other, chain));
-            };
-            if (isPending(code)) {
-                walk(code, []);
+        longestChains,
+
+        /** Spells out one deciding chain by semester, including any semester spent waiting for an offering. */
+        explain: (code: string): string | null => {
+            const [chain] = longestChains(code);
+            if (!chain) {
+                return null;
             }
-            return chains;
+            const steps = Array.from({ length: earliestTerm(code) + 1 }, (_, term) => {
+                const taken = chain.find(other => earliestTerm(other) === term);
+                return `S${semesterOfTerm(term)}: ${taken ?? "wait"}`;
+            });
+            return steps.join(" → ");
         },
     };
 }

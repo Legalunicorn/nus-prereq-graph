@@ -1,27 +1,26 @@
 import cytoscape from "cytoscape";
 import "./GraphView.css";
 import type { Mod } from "../types/types";
-import { createRank } from "../utils/alternatives";
-import { buildGraph } from "../utils/buildGraph";
-import { buildStyles } from "../utils/cytoscapeConfig";
+import { createRank } from "../graph/alternatives";
+import { buildGraph } from "../graph/buildGraph";
+import { buildStyles } from "../graph/cytoscapeConfig";
 import { readGraphPalette } from "../utils/theme";
 import type { Theme } from "../utils/theme";
-import { toElements } from "../utils/graphElements";
-import { applyLongestPaths } from "../utils/longestPath";
-import { applyParallax } from "../utils/parallax";
-import { attachChainHighlight } from "../utils/chainHighlight";
-import { straighten } from "../utils/edgeRouteStyle";
-import { hideCompleted } from "../utils/hideCompleted";
-import { moveTagWithNode } from "../utils/semesterTags";
-import { syncGraph } from "../utils/syncGraph";
-import { fitAll, MAX_ZOOM, MIN_ZOOM } from "../utils/viewport";
+import { toElements } from "../graph/graphElements";
+import { applyLongestPaths } from "../graph/longestPath";
+import { applyParallax } from "../graph/parallax";
+import { attachChainHighlight } from "../graph/chainHighlight";
+import { straighten } from "../graph/edgeRouteStyle";
+import { hideCompleted } from "../graph/hideCompleted";
+import { moveTagWithNode } from "../graph/semesterTags";
+import { syncGraph } from "../graph/syncGraph";
+import { fitAll, MAX_ZOOM, MIN_ZOOM } from "../graph/viewport";
 import { useEffect, useRef, useState } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import GraphControls from "./GraphControls";
 import Legend from "./Legend";
-import ShareButton from "./ShareButton";
 
 
 interface GraphViewProps {
@@ -29,16 +28,18 @@ interface GraphViewProps {
     theme: Theme;
     longestPaths: string[][];
     minSemestersOf: (code: string) => number | null;
+    explainSemesters: (code: string) => string | null;
     selectedCode: string | null;
     hoveredCode: string | null;
     onSelect: (code: string | null) => void;
 }
 
-export default function GraphView({ mods, theme, longestPaths, minSemestersOf, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPaths, minSemestersOf, explainSemesters, selectedCode, hoveredCode, onSelect }: GraphViewProps) {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
     const previewChainRef = useRef<((code: string | null) => void) | null>(null);
+    const explainRef = useRef(explainSemesters);
     const [isFullChain, setIsFullChain] = useState(false);
     const [isLongestPathOn, setIsLongestPathOn] = useState(false);
     const [isHidingCompleted, setIsHidingCompleted] = useState(false);
@@ -46,6 +47,10 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
     const [expandedGates, setExpandedGates] = useState<ReadonlySet<string>>(new Set());
     const offerings = useOfferings();
     const snapshot = useSnapshot();
+
+    useEffect(() => {
+        explainRef.current = explainSemesters;
+    }, [explainSemesters]);
 
     useEffect(() => {
         const cy = cytoscape({
@@ -86,6 +91,11 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
         cy.on("drag", 'node[kind != "tag"]', (evt) => {
             straighten(evt.target.connectedEdges());
         });
+
+        cy.on("mouseover", 'node[kind="module"]', (evt) => {
+            cy.container()?.setAttribute("title", explainRef.current(evt.target.id()) ?? "");
+        });
+        cy.on("mouseout", 'node[kind="module"]', () => cy.container()?.removeAttribute("title"));
 
         previewChainRef.current = attachChainHighlight(cy);
 
@@ -183,7 +193,6 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
                         <button onClick={toggleDirection}>
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
-                        <ShareButton mods={mods} />
                         <button onClick={() => cyRef.current && fitAll(cyRef.current)}>Fit</button>
                     </GraphControls>
                     <Legend />

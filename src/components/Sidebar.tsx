@@ -1,11 +1,10 @@
 import type usePlanEstimate from "../hooks/usePlanEstimate";
 import type { Mod } from "../types/types";
-import useModuleCredits from "../hooks/useModuleCredits";
 import useOfferings from "../hooks/useOfferings";
-import { isDone } from "../utils/modStatus";
-import type { ModStatus } from "../utils/modStatus";
-import { groupByLevel } from "../utils/moduleLevels";
-import { groupByTerm, planWarnings, takeableNext } from "../utils/semesterPlan";
+import { isDone } from "../plan/modStatus";
+import type { ModStatus } from "../plan/modStatus";
+import { planWarnings, takeableNext } from "../plan/semesterPlan";
+import ModList from "./ModList";
 import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
 import PlanSummary from "./PlanSummary";
@@ -31,13 +30,12 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
     const offerings = useOfferings();
     const warnings = planWarnings(mods, offerings);
     const nextUp = plan.estimate ? takeableNext(mods, plan.estimate) : [];
-    const plannedCodes = mods.filter(mod => mod.plannedTerm).map(mod => mod.code);
-    const credits = useModuleCredits(plannedCodes);
     const renderRow = (mod: Mod) => (
         <ModRow
             key={mod.code}
             mod={mod}
             minSemesters={minSemestersOf(mod)}
+            semestersHint={plan.explain?.(mod.code)}
             warnings={warnings.get(mod.code)}
             onRemove={onRemove}
             onStatusChange={onStatusChange}
@@ -45,11 +43,6 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
             onHover={onHover}
         />
     );
-    const handleClearAll = () => {
-        if (window.confirm(`Remove all ${mods.length} modules from your plan?`)) {
-            onClear();
-        }
-    };
 
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -66,25 +59,8 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
                     {nextUp.map(mod => <button key={mod.code} onClick={() => onSelect(mod.code)}>{mod.code}</button>)}
                 </div>
              )}
-             {plannedCodes.length === 0 ? (
-                groupByLevel(mods).map(group => (
-                    <section key={group.label}>
-                        <h3 className="group-heading">{group.label}</h3>
-                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
-                    </section>
-                ))
-             ) : (
-                groupByTerm(mods, code => credits.get(code) ?? 0).map(group => (
-                    <section key={group.term ?? "none"}>
-                        <h3 className="group-heading">
-                            {group.term ?? "No term"}
-                            {group.term && <span>{group.credits} MC</span>}
-                        </h3>
-                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
-                    </section>
-                ))
-             )}
-             {mods.length > 0 && <button className="clear-all" onClick={handleClearAll}>Clear all</button>}
+             <ModList mods={mods} renderRow={renderRow} />
+             {mods.length > 0 && <button className="clear-all" onClick={onClear}>Clear all</button>}
         </div>
     )
 }

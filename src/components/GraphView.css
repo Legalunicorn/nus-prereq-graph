@@ -38,8 +38,7 @@
 .graph-controls button:hover { color: var(--accent); border-color: var(--accent); }
 .graph-controls button.active { border-color: var(--accent); color: var(--accent); }
 @media (max-width: 768px) {
-    /* Stays clear of the sidebar toggle. */
-    .graph-controls { right: 6px; left: 46px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+    .graph-controls { right: 6px; left: 6px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
     .graph-controls button { padding: 4px 6px; font-size: 12px; }
 }
 .graph-container {

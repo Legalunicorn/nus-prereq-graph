@@ -46,14 +46,53 @@
         }
     }
 
+    .group-by {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.4rem;
+        margin-top: 0.7rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+
+        select {
+            font-size: 0.85rem;
+            color: var(--text);
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        option { background: var(--surface); }
+    }
+
     .group-heading {
         display: flex;
-        justify-content: space-between;
-        margin-top: 0.7rem;
+        align-items: center;
+        gap: 0.4rem;
+        width: 100%;
+        margin-top: 0.6rem;
+        padding: 0.15rem 0;
         font-size: 0.85rem;
         font-weight: 600;
         color: var(--text-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+
+        &:hover { color: var(--text); }
     }
+
+    .group-chevron {
+        font-size: 0.7rem;
+        transition: transform 0.15s ease;
+
+        &.open { transform: rotate(90deg); }
+    }
+
+    .group-count { font-weight: 400; }
+    .group-credits { margin-left: auto; font-weight: 400; }
 
     .mod-warning { color: var(--danger); }
 
@@ -154,6 +193,12 @@
         margin-top: 0.15rem;
     }
 
+    .mod-term{
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-muted);
+    }
+
     .mod-estimate{
         font-size: 12px;
         font-weight: 500;
@@ -174,10 +219,24 @@
 }
 
 @media (max-width: 768px) {
-    .sidebar {
+    .sidebar,
+    .sidebar.collapsed {
         position: absolute;
-        inset: 0 auto 0 0;
+        inset: auto 0 0 0;
         z-index: 50;
+        width: auto;
+        height: var(--sheet-height);
+        padding: 0.8rem;
+        overflow-y: auto;
+        border-top: 1px solid var(--border);
+        border-right: none;
+        border-radius: 12px 12px 0 0;
+        transition: transform 0.2s ease, visibility 0.2s;
+    }
+
+    .sidebar.collapsed {
+        visibility: hidden;
+        transform: translateY(100%);
     }
 }
 

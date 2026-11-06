@@ -1,0 +1,36 @@
+.undo-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: var(--text);
+    white-space: nowrap;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transform: translateX(-50%);
+}
+
+@media (max-width: 768px) {
+    .undo-toast { bottom: 56px; }
+}
+
+.undo-toast button {
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.undo-toast .undo-action {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.undo-toast .undo-action:hover { text-decoration: underline; }
+.undo-toast .undo-dismiss:hover { color: var(--text); }
