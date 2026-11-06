@@ -11,11 +11,11 @@ const ids = (mods: Mod[]) => toElements(buildGraph(mods)).map(element => element
 
 describe("tagLabel", () => {
     it("joins semesters and the minimum", () => {
-        expect(tagLabel("S2", 3)).toBe("S2 · 3 sem");
+        expect(tagLabel("S2", 3)).toBe("S2 · min 3 sems");
     });
 
     it("shows only the minimum for a module in both semesters", () => {
-        expect(tagLabel("", 2)).toBe("2 sem");
+        expect(tagLabel("", 1)).toBe("min 1 sem");
     });
 
     it("leaves out the minimum when it's unknown or already done", () => {

@@ -9,6 +9,8 @@ const ASSUMED_DONE = ["MA1301", "MA1301X"];
 const NOT_POSSIBLE = Infinity;
 const ALREADY_DONE = -1;
 
+export const minSemestersLabel = (semesters: number) => `min ${semesters} ${semesters === 1 ? "sem" : "sems"}`;
+
 /** Sem 1 runs August to December, so from August the next semester to plan for is Sem 2. */
 export function nextSemester(today: Date): RegularSemester {
     return today.getMonth() >= 7 ? 2 : 1;
