@@ -54,11 +54,9 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
              <ModuleSearch mods={mods} onAdd={onAdd} />
-             <div className="presets">
-                <button className="preset" onClick={onOpenPresets}>Focus</button>
-                <button className="preset" onClick={onOpenFoundations}>Core</button>
-                <button className="preset" onClick={onOpenMathAndScience}>Math</button>
-             </div>
+             <button className="preset" onClick={onOpenPresets}>CS Focus Areas Preset</button>
+             <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
+             <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
              {plan.estimate && (
                 <PlanSummary mods={mods} estimate={plan.estimate} start={plan.start} onStartChange={plan.setStart} />
              )}

@@ -8,14 +8,12 @@
     background-image:
         radial-gradient(ellipse at center, transparent 40%, var(--vignette) 100%),
         radial-gradient(ellipse at center, var(--canvas-glow), transparent 70%),
-        radial-gradient(circle, var(--grid-dot-near) 1.5px, transparent 1.5px),
         radial-gradient(circle, var(--grid-dot) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 64px 64px, 16px 16px;
+    background-size: 100% 100%, 100% 100%, 16px 16px;
     background-position:
         0 0,
         0 0,
-        var(--near-x, 0) var(--near-y, 0),
-        var(--far-x, 0) var(--far-y, 0);
+        var(--dots-x, 0) var(--dots-y, 0);
 }
 .graph-controls {
     position: absolute;
@@ -28,7 +26,7 @@
 .graph-controls button {
     padding: 4px 10px;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 13px;
     color: var(--text-muted);
     background: color-mix(in srgb, var(--surface) 70%, transparent);
     backdrop-filter: blur(8px);
@@ -42,7 +40,7 @@
 @media (max-width: 768px) {
     /* Stays clear of the sidebar toggle. */
     .graph-controls { right: 6px; left: 46px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
-    .graph-controls button { padding: 4px 6px; font-size: 11px; }
+    .graph-controls button { padding: 4px 6px; font-size: 12px; }
 }
 .graph-container {
     width: 100%;

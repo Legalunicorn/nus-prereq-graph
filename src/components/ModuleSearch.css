@@ -26,7 +26,7 @@
 .module-search-added { font-size: 11px; font-weight: 500; color: var(--success); }
 
 .module-search-title {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -36,7 +36,7 @@
 .module-search-status,
 .module-search-error {
     margin-bottom: 0.45rem;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
 }
 
 .module-search-status { color: var(--text-muted); }
