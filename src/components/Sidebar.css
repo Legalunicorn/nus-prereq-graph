@@ -219,10 +219,24 @@
 }
 
 @media (max-width: 768px) {
-    .sidebar {
+    .sidebar,
+    .sidebar.collapsed {
         position: absolute;
-        inset: 0 auto 0 0;
+        inset: auto 0 0 0;
         z-index: 50;
+        width: auto;
+        height: var(--sheet-height);
+        padding: 0.8rem;
+        overflow-y: auto;
+        border-top: 1px solid var(--border);
+        border-right: none;
+        border-radius: 12px 12px 0 0;
+        transition: transform 0.2s ease, visibility 0.2s;
+    }
+
+    .sidebar.collapsed {
+        visibility: hidden;
+        transform: translateY(100%);
     }
 }
 

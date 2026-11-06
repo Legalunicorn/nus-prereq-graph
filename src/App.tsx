@@ -46,12 +46,12 @@ function App() {
           />
         )}
         <button
-          className="sidebar-toggle"
-          style={{ left: isSidebarCollapsed ? "12px" : "calc(var(--sidebar-width) + 12px)" }}
+          className={isSidebarCollapsed ? "sidebar-toggle" : "sidebar-toggle open"}
           onClick={() => setIsSidebarCollapsed(prev => !prev)}
           aria-label={isSidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
         >
-          {isSidebarCollapsed ? "›" : "‹"}
+          <span className="sidebar-toggle-icon" aria-hidden="true">{isSidebarCollapsed ? "›" : "‹"}</span>
+          <span className="sidebar-toggle-label">Modules</span>
         </button>
         <Sidebar
           mods={mods}
