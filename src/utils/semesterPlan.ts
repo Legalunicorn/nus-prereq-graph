@@ -72,6 +72,10 @@ export function planWarnings(mods: Mod[], offerings: Offerings | null): Map<stri
     return warnings;
 }
 
+/** Modules still to take whose prerequisites are met and that run next semester. */
+export const takeableNext = (mods: Mod[], estimate: (code: string) => number | null) =>
+    mods.filter(mod => !isDone(mod) && estimate(mod.code) === 1);
+
 export interface TermGroup {
     term: Term | null;
     mods: Mod[];

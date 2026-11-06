@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Mod, PrereqTree, Term } from "../types/types";
 import type { Offerings } from "./offerings";
-import { groupByTerm, planWarnings } from "./semesterPlan";
+import { groupByTerm, planWarnings, takeableNext } from "./semesterPlan";
 
 const mod = (code: string, plannedTerm?: Term, prereqTree?: PrereqTree, status: Partial<Mod> = {}): Mod => ({
     code,
@@ -79,6 +79,14 @@ describe("planWarnings: offerings", () => {
     it("ignores modules with no term or already done", () => {
         const mods = [mod("CS3233"), mod("CS3230", "Y2S1", undefined, { completed: true })];
         expect(planWarnings(mods, offeredIn("CS1010", [1])).size).toBe(0);
+    });
+});
+
+describe("takeableNext", () => {
+    it("lists modules still to take with a minimum of one semester", () => {
+        const estimates: Record<string, number | null> = { A1: 1, B1: 2, C1: null, D1: 0 };
+        const mods = [mod("A1"), mod("B1"), mod("C1"), mod("D1", undefined, undefined, { completed: true })];
+        expect(takeableNext(mods, code => estimates[code]).map(({ code }) => code)).toEqual(["A1"]);
     });
 });
 
