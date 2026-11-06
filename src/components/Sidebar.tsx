@@ -3,6 +3,8 @@ import type { Mod } from "../types/types";
 import useModuleCredits from "../hooks/useModuleCredits";
 import useOfferings from "../hooks/useOfferings";
 import { isDone } from "../utils/modStatus";
+import type { ModStatus } from "../utils/modStatus";
+import { groupByLevel } from "../utils/moduleLevels";
 import { groupByTerm, planWarnings, takeableNext } from "../utils/semesterPlan";
 import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
@@ -14,8 +16,7 @@ interface SidebarProps {
     onAdd: (mod:Mod) => void;
     onRemove:(code:string) => void;
     onClear: () => void;
-    onToggle: (code:string) => void;
-    onToggleTaking: (code:string) => void;
+    onStatusChange: (code: string, status: ModStatus) => void;
     onSelect: (code: string) => void;
     onHover: (code: string | null) => void;
     onOpenPresets: () => void;
@@ -25,7 +26,7 @@ interface SidebarProps {
     plan: ReturnType<typeof usePlanEstimate>;
 }
 
-export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onToggleTaking, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
+export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
     const offerings = useOfferings();
     const warnings = planWarnings(mods, offerings);
@@ -39,8 +40,7 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
             minSemesters={minSemestersOf(mod)}
             warnings={warnings.get(mod.code)}
             onRemove={onRemove}
-            onToggle={onToggle}
-            onToggleTaking={onToggleTaking}
+            onStatusChange={onStatusChange}
             onSelect={onSelect}
             onHover={onHover}
         />
@@ -54,11 +54,9 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
              <ModuleSearch mods={mods} onAdd={onAdd} />
-             <div className="presets">
-                <button className="preset" onClick={onOpenPresets}>Focus</button>
-                <button className="preset" onClick={onOpenFoundations}>Core</button>
-                <button className="preset" onClick={onOpenMathAndScience}>Math</button>
-             </div>
+             <button className="preset" onClick={onOpenPresets}>CS Focus Areas Preset</button>
+             <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
+             <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
              {plan.estimate && (
                 <PlanSummary mods={mods} estimate={plan.estimate} start={plan.start} onStartChange={plan.setStart} />
              )}
@@ -69,15 +67,20 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onToggle, onTog
                 </div>
              )}
              {plannedCodes.length === 0 ? (
-                <ul>{mods.map(renderRow)}</ul>
+                groupByLevel(mods).map(group => (
+                    <section key={group.label}>
+                        <h3 className="group-heading">{group.label}</h3>
+                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
+                    </section>
+                ))
              ) : (
                 groupByTerm(mods, code => credits.get(code) ?? 0).map(group => (
                     <section key={group.term ?? "none"}>
-                        <h3 className="term-heading">
+                        <h3 className="group-heading">
                             {group.term ?? "No term"}
                             {group.term && <span>{group.credits} MC</span>}
                         </h3>
-                        <ul>{group.mods.map(renderRow)}</ul>
+                        <ul className="mod-list">{group.mods.map(renderRow)}</ul>
                     </section>
                 ))
              )}

@@ -6,6 +6,7 @@
 
 /* The graph reads the --graph-* values through utils/theme.ts. */
 :root {
+  --sidebar-width: 260px;
   --canvas: #0c0f14;
   --surface: #12161c;
   --surface-raised: #1a1f27;
@@ -18,7 +19,6 @@
   --success: #8fbf7a;
   --scrim: rgba(0, 0, 0, 0.55);
   --grid-dot: rgba(232, 230, 225, 0.11);
-  --grid-dot-near: rgba(232, 230, 225, 0.2);
   --vignette: rgba(0, 0, 0, 0.5);
   --canvas-glow: rgba(239, 138, 43, 0.07);
 
@@ -62,7 +62,6 @@
   --success: #3a7a46;
   --scrim: rgba(35, 37, 42, 0.35);
   --grid-dot: rgba(35, 37, 42, 0.13);
-  --grid-dot-near: rgba(35, 37, 42, 0.24);
   --vignette: rgba(35, 37, 42, 0.1);
   --canvas-glow: rgba(200, 98, 10, 0.05);
 
@@ -122,4 +121,8 @@ a:focus-visible {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+@media (min-width: 769px) {
+  :root { --sidebar-width: 400px; }
 }
