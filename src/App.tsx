@@ -1,12 +1,8 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import "./App.css";
 import Sidebar from "./components/Sidebar";
-import GraphView from "./components/GraphView";
-import PresetsModal from "./components/PresetsModal";
-import CourseListModal from "./components/CourseListModal";
 import { CS_FOUNDATION_COURSES } from "./data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
-import DetailsPanel from "./components/DetailsPanel";
 import Header from "./components/Header";
 import SharedPlanBanner from "./components/SharedPlanBanner";
 import SidebarHandle from "./components/SidebarHandle";
@@ -17,6 +13,11 @@ import useStoredMods from "./hooks/useStoredMods";
 import useTheme from "./hooks/useTheme";
 import useUndoableRemoval from "./hooks/useUndoableRemoval";
 import { PHONE_WIDTH } from "./constants";
+
+const GraphView = lazy(() => import("./components/GraphView"));
+const DetailsPanel = lazy(() => import("./components/DetailsPanel"));
+const PresetsModal = lazy(() => import("./components/PresetsModal"));
+const CourseListModal = lazy(() => import("./components/CourseListModal"));
 
 const noEstimate = () => null;
 
@@ -68,7 +69,10 @@ function App() {
           plan={plan}
         />
         {!isSidebarCollapsed && <SidebarHandle />}
-        <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        <Suspense fallback={<div className="graph-loading" />}>
+          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
+        </Suspense>
+        <Suspense fallback={null}>
         {selectedCode && (
           <DetailsPanel
             key={selectedCode}
@@ -112,6 +116,7 @@ function App() {
             onClose={() => setShowMathAndScience(false)}
           />
         )}
+        </Suspense>
         {removal.removed.length > 0 && (
           <UndoToast removed={removal.removed} onUndo={removal.undo} onDismiss={removal.dismiss} />
         )}
