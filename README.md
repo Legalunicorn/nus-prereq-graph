@@ -13,7 +13,7 @@ Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 - Search by code or title, or add modules from the focus area, foundation and maths presets.
 - Tick a module to mark it completed. You can also click a node in the graph.
 - Tags under each module show when it runs, if not both semesters, and the minimum semesters to finish it.
-- Select a module to give it a planned term. The sidebar then groups by term with MC totals, and warns about a prerequisite planned too late or a module not offered that semester.
+- Select a module to give it a planned term. Group the sidebar by term to see MC totals. Warnings cover a prerequisite planned too late or a module not offered that semester.
 - **Full chain** expands modules outside your plan to show the whole path. **Fit** recentres the graph.
 - **Share** copies a link to your plan. Nothing is sent to a server; the plan is in the link itself.
 - The legend explains node and arrow colours. Hover over a node to highlight its neighbours.
