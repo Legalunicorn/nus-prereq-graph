@@ -16,6 +16,10 @@
     transform: translateX(-50%);
 }
 
+@media (max-width: 768px) {
+    .undo-toast { bottom: 56px; }
+}
+
 .undo-toast button {
     color: var(--text-muted);
     background: none;
