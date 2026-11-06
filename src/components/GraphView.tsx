@@ -14,6 +14,7 @@ import { straighten } from "../utils/edgeRouteStyle";
 import { hideCompleted } from "../utils/hideCompleted";
 import { moveTagWithNode } from "../utils/semesterTags";
 import { syncGraph } from "../utils/syncGraph";
+import { fitAll, MAX_ZOOM, MIN_ZOOM } from "../utils/viewport";
 import { useEffect, useRef, useState } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
@@ -22,9 +23,6 @@ import GraphControls from "./GraphControls";
 import Legend from "./Legend";
 import ShareButton from "./ShareButton";
 
-const FIT_PADDING = 30;
-const MIN_ZOOM = 0.25;
-const MAX_ZOOM = 1.25;
 
 interface GraphViewProps {
     mods: Mod[];
@@ -186,7 +184,7 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, s
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
                         </button>
                         <ShareButton mods={mods} />
-                        <button onClick={() => cyRef.current?.animate({ fit: { eles: "", padding: FIT_PADDING }, duration: 200 })}>Fit</button>
+                        <button onClick={() => cyRef.current && fitAll(cyRef.current)}>Fit</button>
                     </GraphControls>
                     <Legend />
                 </>
