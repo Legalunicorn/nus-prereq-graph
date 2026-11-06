@@ -33,6 +33,7 @@ export default function ModRow({ mod, minSemesters, warnings, onRemove, onStatus
                 <span className="mod-title" title={title}>{title}</span>
                 <span className="mod-meta">
                     <SemesterTag code={code} />
+                    {mod.plannedTerm && <span className="mod-term">{mod.plannedTerm}</span>}
                     {minSemesters !== null && <span className="mod-estimate">{minSemestersLabel(minSemesters)}</span>}
                     {warnings && (
                         <span className="mod-warning" role="img" aria-label={warnings.join(". ")} title={warnings.join(". ")}>⚠</span>

@@ -3,4 +3,6 @@ export const STORAGE_KEY = 'nus-graph-modules';
 export const THEME_KEY = 'nus-graph-theme';
 export const DIRECTION_KEY = 'nus-graph-direction';
 export const SIDEBAR_WIDTH_KEY = 'nus-graph-sidebar-width';
+export const GROUP_BY_KEY = 'nus-graph-group-by';
+export const COLLAPSED_GROUPS_KEY = 'nus-graph-collapsed-groups';
 export const PHONE_WIDTH = '(max-width: 768px)';
