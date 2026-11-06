@@ -1,4 +1,5 @@
 import type { Graph, Node } from "../types/graph";
+import { minSemestersLabel } from "./minSemesters";
 import { isWildcard } from "./prereqTree";
 import { isOffered, semesterLabel } from "./offerings";
 import type { Offerings } from "./offerings";
@@ -19,7 +20,7 @@ function gateLabel(node: Extract<Node, { kind: "gate" }>): string {
 
 /** Joins a module's semesters and how many semesters it takes at minimum, leaving out whichever is empty. */
 export function tagLabel(semesters: string, minSemesters: number | null): string {
-    const estimate = minSemesters ? `${minSemesters} sem` : "";
+    const estimate = minSemesters ? minSemestersLabel(minSemesters) : "";
     return [semesters, estimate].filter(Boolean).join(" · ");
 }
 

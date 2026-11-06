@@ -23,7 +23,7 @@ export default function PlanSummary({ mods, estimate, start, onStartChange }: Pl
     return (
         <div className="plan-summary" title={ASSUMPTIONS}>
             <span>
-                <strong>{total}</strong> {total === 1 ? "sem" : "sems"} min
+                min <strong>{total}</strong> {total === 1 ? "sem" : "sems"}
                 {known.length < estimates.length && " *"}
             </span>
             <select

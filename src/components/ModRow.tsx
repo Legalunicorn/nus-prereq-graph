@@ -1,4 +1,5 @@
 import type { Mod } from "../types/types";
+import { minSemestersLabel } from "../utils/minSemesters";
 import { statusOf } from "../utils/modStatus";
 import type { ModStatus } from "../utils/modStatus";
 import SemesterTag from "./SemesterTag";
@@ -32,7 +33,7 @@ export default function ModRow({ mod, minSemesters, warnings, onRemove, onStatus
                 <span className="mod-title" title={title}>{title}</span>
                 <span className="mod-meta">
                     <SemesterTag code={code} />
-                    {minSemesters !== null && <span className="mod-estimate">{minSemesters} sem</span>}
+                    {minSemesters !== null && <span className="mod-estimate">{minSemestersLabel(minSemesters)}</span>}
                     {warnings && (
                         <span className="mod-warning" role="img" aria-label={warnings.join(". ")} title={warnings.join(". ")}>⚠</span>
                     )}
