@@ -2,7 +2,7 @@ import type { Mod, PrereqTree } from "../types/types";
 import type { EdgeStatus, Graph } from "../types/graph";
 import { MAX_VISIBLE_ALTERNATIVES } from "./alternatives";
 import type { AlternativeOptions } from "./alternatives";
-import { isDone } from "./modStatus";
+import { isDone } from "../plan/modStatus";
 import { findMod, isWildcard, matchesWildcard, normalizeTree } from "./prereqTree";
 
 interface WalkResult {

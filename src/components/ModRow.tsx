@@ -1,7 +1,7 @@
 import type { Mod } from "../types/types";
-import { minSemestersLabel } from "../utils/minSemesters";
-import { statusOf } from "../utils/modStatus";
-import type { ModStatus } from "../utils/modStatus";
+import { minSemestersLabel } from "../plan/minSemesters";
+import { statusOf } from "../plan/modStatus";
+import type { ModStatus } from "../plan/modStatus";
 import SemesterTag from "./SemesterTag";
 import StatusSelect from "./StatusSelect";
 

@@ -1,7 +1,7 @@
 import type { Mod, PrereqTree } from "../types/types";
 import type { Graph } from "../types/graph";
 import type { AlternativeOptions } from "./alternatives";
-import { isDone } from "./modStatus";
+import { isDone } from "../plan/modStatus";
 import { filterTree, normalizeTree } from "./prereqTree";
 import { edgeStatus, walkTree, pruneUnreachable } from "./walkTree";
 

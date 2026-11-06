@@ -1,8 +1,8 @@
 import type { Graph, Node } from "../types/graph";
-import { minSemestersLabel } from "./minSemesters";
+import { minSemestersLabel } from "../plan/minSemesters";
 import { isWildcard } from "./prereqTree";
-import { isOffered, semesterLabel } from "./offerings";
-import type { Offerings } from "./offerings";
+import { isOffered, semesterLabel } from "../utils/offerings";
+import type { Offerings } from "../utils/offerings";
 
 type MinSemestersOf = (code: string) => number | null;
 

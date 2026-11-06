@@ -1,8 +1,8 @@
 import type { Mod, PrereqTree, Term } from "../types/types";
 import { isDone } from "./modStatus";
-import { isOffered } from "./offerings";
-import type { Offerings } from "./offerings";
-import { isWildcard, matchesWildcard, normalizeTree } from "./prereqTree";
+import { isOffered } from "../utils/offerings";
+import type { Offerings } from "../utils/offerings";
+import { isWildcard, matchesWildcard, normalizeTree } from "../graph/prereqTree";
 
 export const TERMS: readonly Term[] = ["Y1S1", "Y1S2", "Y2S1", "Y2S2", "Y3S1", "Y3S2", "Y4S1", "Y4S2"];
 

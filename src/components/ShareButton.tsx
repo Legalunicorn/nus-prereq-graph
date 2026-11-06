@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Mod } from "../types/types";
-import { encodePlan } from "../utils/sharePlan";
+import { encodePlan } from "../plan/sharePlan";
 
 const RESET_DELAY = 1500;
 

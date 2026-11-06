@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { CURR_ACAD_YEAR, STORAGE_KEY } from "../constants";
 import type { Mod, Term } from "../types/types";
 import { refreshCatalogue } from "../utils/api";
-import { withStatus } from "../utils/modStatus";
-import type { ModStatus } from "../utils/modStatus";
+import { withStatus } from "../plan/modStatus";
+import type { ModStatus } from "../plan/modStatus";
 import { loadStored, parseStored, saveMods } from "../utils/storage";
 
 export default function useStoredMods(){

@@ -1,6 +1,6 @@
 import type { Mod } from "../types/types";
-import type { RegularSemester } from "../utils/minSemesters";
-import { isDone } from "../utils/modStatus";
+import type { RegularSemester } from "../plan/minSemesters";
+import { isDone } from "../plan/modStatus";
 import "./PlanSummary.css";
 
 interface PlanSummaryProps {

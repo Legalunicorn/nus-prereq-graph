@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import type { Mod } from "../types/types";
-import { createEstimator, nextSemester } from "../utils/minSemesters";
-import { isDone } from "../utils/modStatus";
-import type { RegularSemester } from "../utils/minSemesters";
+import { createEstimator, nextSemester } from "../plan/minSemesters";
+import { isDone } from "../plan/modStatus";
+import type { RegularSemester } from "../plan/minSemesters";
 import useSnapshot from "./useSnapshot";
 
 export default function usePlanEstimate(mods: Mod[]) {
