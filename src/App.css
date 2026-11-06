@@ -48,3 +48,9 @@
 
     .sidebar-toggle-label { display: inline; }
 }
+
+.graph-loading {
+    flex: 1;
+    min-width: 0;
+    background: var(--canvas);
+}
