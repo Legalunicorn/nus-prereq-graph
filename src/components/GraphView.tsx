@@ -14,7 +14,7 @@ import { straighten } from "../graph/edgeRouteStyle";
 import { hideCompleted } from "../graph/hideCompleted";
 import { moveTagWithNode } from "../graph/semesterTags";
 import { syncGraph } from "../graph/syncGraph";
-import { fitAll, MAX_ZOOM, MIN_ZOOM } from "../graph/viewport";
+import { attachWheelZoom, fitAll, MAX_ZOOM, MIN_ZOOM } from "../graph/viewport";
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
@@ -99,9 +99,11 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
         cy.on("mouseout", 'node[kind="module"]', () => cy.container()?.removeAttribute("title"));
 
         previewChainRef.current = attachChainHighlight(cy);
+        const detachWheelZoom = attachWheelZoom(cy);
 
         cyRef.current = cy;
         return () => {
+            detachWheelZoom();
             cy.destroy();
             cyRef.current = null;
             previewChainRef.current = null;
