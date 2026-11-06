@@ -9,6 +9,7 @@ import { CS_MATH_AND_SCIENCE_COURSES } from "./data/csMathAndScience";
 import DetailsPanel from "./components/DetailsPanel";
 import Header from "./components/Header";
 import SharedPlanBanner from "./components/SharedPlanBanner";
+import SidebarHandle from "./components/SidebarHandle";
 import usePlanEstimate from "./hooks/usePlanEstimate";
 import useSharedPlan from "./hooks/useSharedPlan";
 import useStoredMods from "./hooks/useStoredMods";
@@ -63,6 +64,7 @@ function App() {
           isCollapsed={isSidebarCollapsed}
           plan={plan}
         />
+        {!isSidebarCollapsed && <SidebarHandle />}
         <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} selectedCode={selectedCode} hoveredCode={hoveredCode} onSelect={setSelectedCode} />
         {selectedCode && (
           <DetailsPanel

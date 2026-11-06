@@ -6,6 +6,7 @@ import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../uti
 import { planWarnings, TERMS } from "../utils/semesterPlan";
 import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
+import { minSemestersLabel } from "../utils/minSemesters";
 import { statusOf } from "../utils/modStatus";
 import type { ModStatus } from "../utils/modStatus";
 import SemesterTag from "./SemesterTag";
@@ -111,7 +112,7 @@ export default function DetailsPanel(props: DetailsPanelProps) {
             <p className="details-title">{details?.title ?? existing?.title}</p>
             {isUnavailable && <p className="details-note">{NOT_IN_CATALOGUE}</p>}
             {minSemesters !== null && minSemesters > 0 && (
-                <p className="details-note">{minSemesters} {minSemesters === 1 ? "sem" : "sems"} min</p>
+                <p className="details-note">{minSemestersLabel(minSemesters)}</p>
             )}
             {error && <p className="details-error" role="alert">{error}</p>}
             {clashes.length > 0 && <p className="details-error">Precluded by {clashes.join(", ")} in your plan</p>}
