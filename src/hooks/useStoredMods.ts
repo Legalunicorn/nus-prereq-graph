@@ -46,7 +46,6 @@ export default function useStoredMods(){
     }, []);
 
     const addMods = (m: Mod) => setMods(prev => prev.some(cur => cur.code === m.code) ? prev : [...prev, m]);
-    const removeMods = (code: string) => setMods(prev => prev.filter(m => m.code !== code));
 
     const setStatus = (code: string, status: ModStatus) => setMods(prev =>
         prev.map(cur => cur.code === code ? withStatus(cur, status) : cur)
@@ -56,5 +55,5 @@ export default function useStoredMods(){
         prev.map(cur => cur.code === code ? {...cur, plannedTerm} : cur)
     );
 
-    return {mods, addMods, removeMods, setStatus, setPlannedTerm, replaceMods: setMods};
+    return {mods, addMods, setStatus, setPlannedTerm, replaceMods: setMods};
 };
