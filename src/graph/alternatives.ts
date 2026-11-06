@@ -1,7 +1,7 @@
 import { CS_FOUNDATION_COURSES } from "../data/csFoundation";
 import { CS_MATH_AND_SCIENCE_COURSES } from "../data/csMathAndScience";
-import { isOffered } from "./offerings";
-import type { Offerings } from "./offerings";
+import { isOffered } from "../utils/offerings";
+import type { Offerings } from "../utils/offerings";
 
 export const MAX_VISIBLE_ALTERNATIVES = 2;
 

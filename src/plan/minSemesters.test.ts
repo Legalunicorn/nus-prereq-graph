@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PrereqTree } from "../types/types";
 import { createEstimator, nextSemester } from "./minSemesters";
 import type { RegularSemester } from "./minSemesters";
-import type { SnapshotModule } from "./snapshot";
+import type { SnapshotModule } from "../utils/snapshot";
 
 const mod = (semesters: number[], prereqTree?: PrereqTree): SnapshotModule => ({ title: "T", semesters, prereqTree });
 

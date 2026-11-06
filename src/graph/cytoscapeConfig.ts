@@ -1,5 +1,5 @@
 import type cytoscape from "cytoscape";
-import type { GraphPalette } from "./theme";
+import type { GraphPalette } from "../utils/theme";
 
 const FADE = { "transition-property": "opacity", "transition-duration": 180 };
 

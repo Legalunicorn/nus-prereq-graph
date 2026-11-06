@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DIRECTION_KEY, PHONE_WIDTH } from "../constants";
-import type { GraphDirection } from "../utils/cytoscapeConfig";
+import type { GraphDirection } from "../graph/cytoscapeConfig";
 
 export function resolveDirection(saved: string | null, isPhone: boolean): GraphDirection {
     if (saved === "horizontal" || saved === "vertical") {
