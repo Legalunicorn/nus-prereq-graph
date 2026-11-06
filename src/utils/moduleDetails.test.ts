@@ -52,6 +52,11 @@ describe("focusAreasFor", () => {
         ]));
     });
 
+    it("counts either CS2103 code toward Software Engineering", () => {
+        expect(focusAreasFor("CS2103T")).toEqual(["Software Engineering (primary)"]);
+        expect(focusAreasFor("CS2103")).toEqual(["Software Engineering (primary)"]);
+    });
+
     it("marks electives without a label", () => {
         expect(focusAreasFor("CS3233")).toEqual(["Algorithms & Theory"]);
     });
