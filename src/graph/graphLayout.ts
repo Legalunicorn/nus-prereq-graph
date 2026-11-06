@@ -7,6 +7,7 @@ export interface LayoutNode { id: string; width: number; height: number; }
 export interface LayoutEdge { id: string; source: string; target: string; }
 /** `sourceEnd` and `targetEnd` are where the edge touches each node, relative to its centre. */
 export interface Route { bends: Point[]; sourceEnd: Point; targetEnd: Point; }
+export interface LayoutResult { positions: Record<string, Point>; routes: Map<string, Route>; }
 
 type Positions = Record<string, Point>;
 
@@ -16,6 +17,7 @@ const PORT_MARGIN = 3;
 // Dagre's ordering is a heuristic, so several starting orders often beat one.
 const LAYOUT_TRIES = 16;
 const MAX_NODES_FOR_TRIES = 90;
+const TRIES_BUDGET_MS = 600;
 const LENGTH_WEIGHT = 1e-3;
 
 const MIN_GAP = 14;
@@ -244,12 +246,13 @@ function layoutOnce(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDi
 }
 
 /** Positions and routes come from the same run, keeping the try with the fewest crossings. */
-export function computeLayout(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection) {
+export function computeLayout(nodes: LayoutNode[], edges: LayoutEdge[], direction: GraphDirection): LayoutResult {
+    const deadline = performance.now() + TRIES_BUDGET_MS;
     let best = layoutOnce(nodes, edges, direction);
     if (nodes.length > MAX_NODES_FOR_TRIES) {
         return best;
     }
-    for (let seed = 1; seed < LAYOUT_TRIES; seed++) {
+    for (let seed = 1; seed < LAYOUT_TRIES && performance.now() < deadline; seed++) {
         const attempt = layoutOnce(shuffled(nodes, seed), shuffled(edges, seed + LAYOUT_TRIES), direction);
         if (attempt.score < best.score) {
             best = attempt;
