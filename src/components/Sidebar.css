@@ -108,6 +108,23 @@
         &:hover { color: var(--text); text-decoration: underline; }
     }
 
+    .preset-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        width: 100%;
+        margin-bottom: 0.3rem;
+        padding: 0.3rem 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        background: none;
+        border: none;
+        cursor: pointer;
+
+        &:hover { color: var(--text); }
+    }
+
     .preset {
         display: block;
         width: 100%;

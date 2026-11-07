@@ -1,6 +1,8 @@
 import type usePlanEstimate from "../hooks/usePlanEstimate";
 import type { Mod } from "../types/types";
 import useOfferings from "../hooks/useOfferings";
+import useStoredState from "../hooks/useStoredState";
+import { CS_PRESETS_OPEN_KEY } from "../constants";
 import { isDone } from "../plan/modStatus";
 import type { ModStatus } from "../plan/modStatus";
 import { planWarnings, takeableNext } from "../plan/semesterPlan";
@@ -9,6 +11,8 @@ import ModRow from "./ModRow";
 import ModuleSearch from "./ModuleSearch";
 import PlanSummary from "./PlanSummary";
 import "./Sidebar.css";
+
+const isBoolean = (value: unknown): value is boolean => typeof value === "boolean";
 
 interface SidebarProps {
     mods: Mod[];
@@ -28,6 +32,7 @@ interface SidebarProps {
 export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange, onSelect, onHover, onOpenPresets, onOpenFoundations, onOpenMathAndScience, isCollapsed, plan}: SidebarProps){
     const minSemestersOf = (mod: Mod) => (isDone(mod) ? null : plan.estimate?.(mod.code) ?? null);
     const offerings = useOfferings();
+    const [isCsOpen, setIsCsOpen] = useStoredState<boolean>(CS_PRESETS_OPEN_KEY, false, isBoolean);
     const warnings = planWarnings(mods, offerings);
     const nextUp = plan.estimate ? takeableNext(mods, plan.estimate) : [];
     const renderRow = (mod: Mod) => (
@@ -47,9 +52,17 @@ export default function Sidebar({mods, onAdd, onRemove, onClear, onStatusChange,
     return (
         <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
              <ModuleSearch mods={mods} onAdd={onAdd} />
-             <button className="preset" onClick={onOpenPresets}>CS Focus Areas Preset</button>
-             <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
-             <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
+             <button className="preset-toggle" aria-expanded={isCsOpen} onClick={() => setIsCsOpen(!isCsOpen)}>
+                <span className={isCsOpen ? "group-chevron open" : "group-chevron"} aria-hidden="true">▸</span>
+                For CS students
+             </button>
+             {isCsOpen && (
+                <>
+                    <button className="preset" onClick={onOpenPresets}>CS Focus Areas Preset</button>
+                    <button className="preset" onClick={onOpenFoundations}>CS Foundations</button>
+                    <button className="preset" onClick={onOpenMathAndScience}>CS Math &amp; Science</button>
+                </>
+             )}
              {plan.estimate && (
                 <PlanSummary mods={mods} estimate={plan.estimate} start={plan.start} onStartChange={plan.setStart} />
              )}
