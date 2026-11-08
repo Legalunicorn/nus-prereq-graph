@@ -13,6 +13,7 @@ import { attachChainHighlight } from "../graph/chainHighlight";
 import { straighten } from "../graph/edgeRouteStyle";
 import { hideCompleted } from "../graph/hideCompleted";
 import { moveTagWithNode } from "../graph/semesterTags";
+import { stickToNode } from "../graph/stickToNode";
 import { syncGraph } from "../graph/syncGraph";
 import { attachWheelZoom, fitAll, MAX_ZOOM, MIN_ZOOM } from "../graph/viewport";
 import { useEffect, useRef, useState } from "react";
@@ -20,7 +21,9 @@ import type { RefObject } from "react";
 import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
+import type { ModStatus } from "../plan/modStatus";
 import GraphControls from "./GraphControls";
+import NodeStatusPicker from "./NodeStatusPicker";
 import Legend from "./Legend";
 
 
@@ -33,9 +36,13 @@ interface GraphViewProps {
     selectedCode: string | null;
     previewChainRef: RefObject<((code: string | null) => void) | null>;
     onSelect: (code: string | null) => void;
+    onAdd: (mod: Mod) => void;
+    onRemove: (code: string) => void;
+    onStatusChange: (code: string, status: ModStatus) => void;
 }
 
-export default function GraphView({ mods, theme, longestPaths, minSemestersOf, explainSemesters, selectedCode, previewChainRef, onSelect }: GraphViewProps) {
+export default function GraphView({ mods, theme, longestPaths, minSemestersOf, explainSemesters, selectedCode, previewChainRef, onSelect, onAdd, onRemove, onStatusChange }: GraphViewProps) {
+    const pickerRef = useRef<HTMLDivElement>(null);
     const dotsRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const cyRef = useRef<cytoscape.Core | null>(null);
@@ -142,6 +149,12 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
     }, [selectedCode]);
 
     useEffect(() => {
+        if (cyRef.current && pickerRef.current && selectedCode) {
+            return stickToNode(cyRef.current, selectedCode, pickerRef.current);
+        }
+    }, [selectedCode]);
+
+    useEffect(() => {
         if (!cyRef.current) {
             return;
         }
@@ -159,6 +172,17 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
         <div className="graph-wrapper">
             <div ref={dotsRef} className="graph-dots" />
             <div ref={containerRef} className="graph-container" />
+            {selectedCode && (
+                <NodeStatusPicker
+                    key={selectedCode}
+                    code={selectedCode}
+                    mods={mods}
+                    pickerRef={pickerRef}
+                    onAdd={onAdd}
+                    onRemove={onRemove}
+                    onStatusChange={onStatusChange}
+                />
+            )}
             {mods.length === 0 && <p className="graph-empty">Search for a module to start</p>}
             {mods.length > 0 && (
                 <>

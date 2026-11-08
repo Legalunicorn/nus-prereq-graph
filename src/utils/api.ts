@@ -52,6 +52,18 @@ export function missingMod(code: string, completed: boolean): Mod {
     return { code, title: NOT_IN_CATALOGUE, completed };
 }
 
+/** A module that's gone from the catalogue can still be planned, as a prerequisite elsewhere may name it. */
+export async function fetchForPlan(code: string): Promise<Mod> {
+    try {
+        return await fetchMod(code);
+    } catch (err) {
+        if (err instanceof ModNotFoundError) {
+            return missingMod(code, false);
+        }
+        throw err;
+    }
+}
+
 /**
  * Re-fetches saved modules a few at a time. A module that's gone from the catalogue becomes a
  * missing one, and `complete` is false if any request failed, so it can be tried again later.

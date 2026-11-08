@@ -1,0 +1,48 @@
+.node-status-picker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9;
+    visibility: hidden;
+}
+.node-status-options {
+    display: flex;
+    gap: 3px;
+    animation: node-status-rise 0.14s ease-out;
+}
+.node-status-options button {
+    min-width: 54px;
+    padding: 4px 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.12s ease, border-color 0.12s ease;
+}
+.node-status-options button:hover:not(.active) { color: var(--text); border-color: var(--text-muted); }
+.node-status-options button.active {
+    font-weight: 700;
+    color: var(--canvas);
+    background: var(--success);
+    border-color: var(--success);
+}
+.node-status-options button:disabled { cursor: wait; }
+.node-status-picker p {
+    margin: 3px 0 0;
+    font-size: 11px;
+    color: var(--graph-unfulfilled);
+    text-align: center;
+}
+@keyframes node-status-rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .node-status-options { animation: none; }
+}
+@media (max-width: 768px) {
+    .node-status-options button { min-width: 60px; padding: 7px 6px; font-size: 12px; }
+}
