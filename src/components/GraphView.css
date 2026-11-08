@@ -11,13 +11,15 @@
 }
 .graph-controls {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 48px;
+    left: 12px;
     z-index: 10;
     display: flex;
-    gap: 6px;
+    flex-direction: column;
+    gap: 4px;
 }
 .graph-controls button {
+    position: relative;
     padding: 4px 10px;
     font-family: var(--mono);
     font-size: 13px;
@@ -30,9 +32,34 @@
 }
 .graph-controls button:hover { color: var(--accent); border-color: var(--accent); }
 .graph-controls button.active { border-color: var(--accent); color: var(--accent); }
+.graph-controls button[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 6px);
+    width: max-content;
+    max-width: 220px;
+    padding: 3px 7px;
+    font-size: 12px;
+    color: var(--text);
+    text-align: left;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: opacity 0.1s ease;
+}
+.graph-controls button[data-tip]:hover::after,
+.graph-controls button[data-tip]:focus-visible::after {
+    opacity: 1;
+    transition-delay: 0.2s;
+}
 @media (max-width: 768px) {
-    .graph-controls { right: 6px; left: 6px; flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+    .graph-controls { top: 12px; right: 6px; left: auto; }
     .graph-controls button { padding: 4px 6px; font-size: 12px; }
+    .graph-controls button[data-tip]::after { right: calc(100% + 6px); left: auto; }
 }
 .graph-dots {
     position: absolute;

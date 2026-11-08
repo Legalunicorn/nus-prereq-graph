@@ -22,7 +22,7 @@ import useGraphDirection from "../hooks/useGraphDirection";
 import useOfferings from "../hooks/useOfferings";
 import useSnapshot from "../hooks/useSnapshot";
 import type { ModStatus } from "../plan/modStatus";
-import GraphControls from "./GraphControls";
+import GraphControls, { ControlButton } from "./GraphControls";
 import NodeStatusPicker from "./NodeStatusPicker";
 import Legend from "./Legend";
 
@@ -188,36 +188,40 @@ export default function GraphView({ mods, theme, longestPaths, minSemestersOf, e
                 <>
                     <GraphControls>
                         {snapshot && (
-                            <button
+                            <ControlButton
+                                tip="Show all prerequisites, even courses outside your plan"
                                 className={isFullChain ? "active" : ""}
                                 aria-pressed={isFullChain}
-                                title={`Prerequisite data from ${snapshot.generatedAt}`}
                                 onClick={() => setIsFullChain(prev => !prev)}
                             >
                                 Full chain
-                            </button>
+                            </ControlButton>
                         )}
                         {longestPaths.length > 0 && (
-                            <button
+                            <ControlButton
+                                tip="Highlight the chains that set your minimum semesters"
                                 className={isLongestPathOn ? "active" : ""}
                                 aria-pressed={isLongestPathOn}
-                                title="Highlight every chain that decides the minimum semesters"
                                 onClick={() => setIsLongestPathOn(prev => !prev)}
                             >
                                 Longest paths
-                            </button>
+                            </ControlButton>
                         )}
-                        <button
+                        <ControlButton
+                            tip="Hide courses you've completed"
                             className={isHidingCompleted ? "active" : ""}
                             aria-pressed={isHidingCompleted}
                             onClick={() => setIsHidingCompleted(prev => !prev)}
                         >
                             Hide done
-                        </button>
-                        <button onClick={toggleDirection}>
+                        </ControlButton>
+                        <ControlButton
+                            tip={direction === "horizontal" ? "Lay the graph out top to bottom" : "Lay the graph out left to right"}
+                            onClick={toggleDirection}
+                        >
                             {direction === "horizontal" ? "Vertical" : "Horizontal"}
-                        </button>
-                        <button onClick={() => cyRef.current && fitAll(cyRef.current)}>Fit</button>
+                        </ControlButton>
+                        <ControlButton tip="Zoom to show the whole graph" onClick={() => cyRef.current && fitAll(cyRef.current)}>Fit</ControlButton>
                     </GraphControls>
                     <Legend />
                 </>
