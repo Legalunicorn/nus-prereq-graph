@@ -13,10 +13,20 @@ const DIRECTION_KEY = "direction";
 const LAYOUT_TOKEN_KEY = "layoutToken";
 const IS_LAYOUT_PENDING_KEY = "isLayoutPending";
 
-function showLayout(cy: cytoscape.Core, direction: GraphDirection, { positions, routes }: LayoutResult) {
+function showLayout(cy: cytoscape.Core, direction: GraphDirection, { positions, routes }: LayoutResult, isSameDirection: boolean) {
     const elements = withoutTags(cy);
+    const selected = isSameDirection ? elements.nodes(":selected")[0] : undefined;
+    const anchor = selected?.renderedPosition();
+    const settleView = () => {
+        if (selected && anchor) {
+            const moved = selected.renderedPosition();
+            cy.panBy({ x: anchor.x - moved.x, y: anchor.y - moved.y });
+        } else {
+            openView(cy, direction);
+        }
+    };
     applyRoutes(cy, routes, positions);
-    elements.layout({ name: "preset", positions, fit: false, stop: () => openView(cy, direction) } as cytoscape.LayoutOptions).run();
+    elements.layout({ name: "preset", positions, fit: false, stop: settleView } as cytoscape.LayoutOptions).run();
     syncSemesterTags(cy);
     elements.removeStyle("opacity");
     cy.scratch(IS_LAYOUT_PENDING_KEY, false);
@@ -26,7 +36,7 @@ function showLayout(cy: cytoscape.Core, direction: GraphDirection, { positions, 
     }
 }
 
-function relayout(cy: cytoscape.Core, direction: GraphDirection, isFirstDraw: boolean) {
+function relayout(cy: cytoscape.Core, direction: GraphDirection, isFirstDraw: boolean, isSameDirection: boolean) {
     const token = (cy.scratch(LAYOUT_TOKEN_KEY) ?? 0) + 1;
     cy.scratch(LAYOUT_TOKEN_KEY, token);
     cy.scratch(IS_LAYOUT_PENDING_KEY, true);
@@ -44,14 +54,14 @@ function relayout(cy: cytoscape.Core, direction: GraphDirection, isFirstDraw: bo
         }
         const container = cy.container();
         if (isFirstDraw || !container) {
-            showLayout(cy, direction, layout);
+            showLayout(cy, direction, layout, isSameDirection);
             return;
         }
         // The old graph stays usable until the new layout is ready, then they crossfade.
         container.style.opacity = "0";
         cy.scratch(FADE_TIMER_KEY, setTimeout(() => {
             if (isCurrent()) {
-                showLayout(cy, direction, layout);
+                showLayout(cy, direction, layout, isSameDirection);
             }
         }, FADE_MS));
     });
@@ -89,5 +99,5 @@ export function syncGraph(cy: cytoscape.Core, elements: ReturnType<typeof toElem
 
     cy.add(newElements).style("opacity", 0);
     removeOrphanTags(cy);
-    relayout(cy, direction, currentIds.size === 0);
+    relayout(cy, direction, currentIds.size === 0, isSameDirection);
 }
