@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import useEscapeKey from "../hooks/useEscapeKey";
 import useOfferings from "../hooks/useOfferings";
 import type { Mod, Term } from "../types/types";
-import { fetchMod, missingMod, ModNotFoundError, NOT_IN_CATALOGUE } from "../utils/api";
+import { fetchForPlan, NOT_IN_CATALOGUE } from "../utils/api";
 import { planWarnings, TERMS } from "../plan/semesterPlan";
 import { cleanRequirement, codesIn, fetchDetails, focusAreasFor, mentionsProgrammes } from "../utils/moduleDetails";
 import type { ModuleDetails } from "../utils/moduleDetails";
@@ -82,13 +82,9 @@ export default function DetailsPanel(props: DetailsPanelProps) {
         setIsBusy(true);
         setError(null);
         try {
-            onAdd(await fetchMod(code));
+            onAdd(await fetchForPlan(code));
         } catch (err) {
-            if (err instanceof ModNotFoundError) {
-                onAdd(missingMod(code, false));
-            } else {
-                setError(errorMessage(err));
-            }
+            setError(errorMessage(err));
         } finally {
             setIsBusy(false);
         }
