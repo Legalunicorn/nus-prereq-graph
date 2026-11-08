@@ -41,7 +41,13 @@ export function attachChainHighlight(cy: cytoscape.Core) {
             unpin();
         }
     });
-    cy.on("layoutstop", unpin);
+    cy.on("layoutstop", () => {
+        if (pinned?.inside()) {
+            highlight(pinned);
+        } else {
+            unpin();
+        }
+    });
 
     /** Highlights a module from outside the graph, such as a hovered sidebar row. */
     return (code: string | null) => {

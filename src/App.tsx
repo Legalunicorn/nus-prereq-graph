@@ -70,7 +70,7 @@ function App() {
         />
         {!isSidebarCollapsed && <SidebarHandle />}
         <Suspense fallback={<div className="graph-loading" />}>
-          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} previewChainRef={previewChainRef} onSelect={setSelectedCode} />
+          <GraphView mods={mods} theme={theme} longestPaths={plan.longestPaths} minSemestersOf={plan.estimate ?? noEstimate} explainSemesters={plan.explain ?? noEstimate} selectedCode={selectedCode} previewChainRef={previewChainRef} onSelect={setSelectedCode} onAdd={addMods} onRemove={removal.remove} onStatusChange={setStatus} />
         </Suspense>
         <Suspense fallback={null}>
         {selectedCode && (
