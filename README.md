@@ -1,6 +1,6 @@
 ## NUS module prerequisite graph
 
-Traces the prerequisite chain for a set of NUS modules, for planning modules or CS focus areas. It's a static site, and your plan is saved in your browser.
+Graphs the prerequisite chains of NUS modules for planning a degree or CS focus area. Your plan stays in your browser.
 
 Live: https://hiroc.dev/nus-prereq-graph/
 
@@ -8,21 +8,19 @@ Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 
 ![Preview](assets/preview.png)
 
-### Using it
+### Features
 
-- Search by code or title, or add modules from the focus area, foundation and maths presets.
-- Tick a module to mark it completed. You can also click a node in the graph.
-- Tags under each module show when it runs, if not both semesters, and the minimum semesters to finish it.
-- Select a module to give it a planned term. Group the sidebar by term to see MC totals. Warnings cover a prerequisite planned too late or a module not offered that semester.
-- **Full chain** expands modules outside your plan to show the whole path. **Fit** recentres the graph.
-- **Share graph** in the header copies a link to your plan. Nothing is sent to a server; the plan is in the link itself.
-- The legend explains node and arrow colours. Hover over a node to highlight its neighbours.
+- Add modules by search or from the CS focus area, foundation and maths presets.
+- Mark modules planned, taking or done, from the sidebar or the graph.
+- See when each module runs, its minimum semesters, and what you can take next semester.
+- Assign terms for MC totals and warnings about late prerequisites or semesters a module isn't offered.
+- Expand the **Full chain**, highlight **Longest paths**, hide completed modules, or switch the layout direction.
+- **Share graph** copies a link with your plan in it. Nothing is sent to a server.
 
 ### Limits
 
-- Minimum semesters is a lower bound. It assumes no workload limit, this year's offerings repeating, and no MA1301 needed.
-- Planner warnings use this AY's offerings, so they're estimates for later years.
-- Non-course conditions, such as cohort rules, aren't checked.
+- Minimum semesters is a lower bound: no workload limit, this year's offerings repeating, no MA1301 needed.
+- Planner warnings use this AY's offerings, and non-course conditions such as cohort rules aren't checked.
 
 ### Development
 
