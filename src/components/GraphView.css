@@ -33,8 +33,8 @@
 .graph-controls button[data-tip]::after {
     content: attr(data-tip);
     position: absolute;
-    top: 50%;
-    left: calc(100% + 6px);
+    top: calc(100% + 6px);
+    right: 0;
     width: max-content;
     max-width: 220px;
     padding: 3px 7px;
@@ -46,7 +46,6 @@
     border-radius: 4px;
     opacity: 0;
     pointer-events: none;
-    transform: translateY(-50%);
     transition: opacity 0.1s ease;
 }
 .graph-controls button[data-tip]:hover::after,
