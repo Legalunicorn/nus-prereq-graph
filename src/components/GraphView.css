@@ -17,6 +17,7 @@
     display: flex;
     gap: 6px;
 }
+.graph-controls:hover, .graph-controls:focus-within { z-index: 41; }
 .graph-controls button {
     padding: 4px 10px;
     font-family: var(--mono);
