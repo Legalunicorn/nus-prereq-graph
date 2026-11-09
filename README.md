@@ -6,7 +6,7 @@ Live: https://hiroc.dev/nus-prereq-graph/
 
 Data comes from the [NUSMods API](https://api.nusmods.com/v2/).
 
-![Preview](assets/preview.png)
+![Preview](assets/preview.gif)
 
 ### Using it
 
