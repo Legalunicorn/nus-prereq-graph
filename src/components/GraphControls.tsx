@@ -18,7 +18,7 @@ export default function GraphControls({ children }: { children: ReactNode }) {
                 aria-label={isOpen ? "Hide graph controls" : "Show graph controls"}
                 onClick={() => setIsOpen(prev => !prev)}
             >
-                {isOpen ? "▴" : "▾"}
+                {isOpen ? "›" : "‹"}
             </ControlButton>
         </div>
     );
